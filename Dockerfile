@@ -2,10 +2,10 @@
 
 ARG BASE_IMG=ubuntu
 
-FROM ubuntu:16.04 as base-ubuntu
-FROM centos:centos7 as base-centos
+FROM ubuntu:16.04 AS base-ubuntu
+FROM centos:centos7 AS base-centos
 
-FROM base-ubuntu as build-ubuntu
+FROM base-ubuntu AS build-ubuntu
 ARG FUTU_OPEND_VER=8.0.4008
 
 WORKDIR /tmp
@@ -13,7 +13,7 @@ ADD https://softwaredownload.futunn.com/Futu_OpenD_${FUTU_OPEND_VER}_Ubuntu16.04
 RUN tar -xzf Futu_OpenD_${FUTU_OPEND_VER}_Ubuntu16.04.tar.gz \
  && rm Futu_OpenD_${FUTU_OPEND_VER}_Ubuntu16.04.tar.gz
 
-FROM base-centos as build-centos
+FROM base-centos AS build-centos
 ARG FUTU_OPEND_VER=8.0.4008
 
 WORKDIR /tmp
