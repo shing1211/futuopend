@@ -6,23 +6,23 @@ services:
     stdin_open: true
     tty: true
     volumes:
-      - futuopend-volume:/root/.com.futunn.FutuOpenD
+      - volume:/root/.com.futunn.FutuOpenD
     secrets:
       - source: rsa-key
         target: ${RSA_FILE_PATH}
-      - source: futu-opend-config
-        target: /bin/FutuOpenD.xml
+      - source: config
+        target: ${FUTU_OPEND_XML_PATH}
     ports:
       - 11111:11111
     env_file:
       - path: ./.env
         required: true # default
 volumes:
-  futuopend-volume:
+  volume:
 
 secrets:
   rsa-key:
     file: ${RSA_FILE_LOCAL_PATH}
-  futu-opend-config:
+  config:
     file: ${FUTU_OPEND_XML_LOCAL_PATH}
 
