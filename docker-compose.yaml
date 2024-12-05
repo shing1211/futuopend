@@ -1,7 +1,6 @@
-
 services:
   futuopend:
-    image: shing1211/futuopend
+    image: shing1211/futuopend:latest
     container_name: futuopend
     stdin_open: true
     tty: true
@@ -25,4 +24,3 @@ secrets:
     file: ${RSA_FILE_LOCAL_PATH}
   config:
     file: ${FUTU_OPEND_XML_LOCAL_PATH}
-
