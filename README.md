@@ -242,17 +242,33 @@ docker pull shing1211/futuopend:latest
 
 ### Build locally
 
-The `dockerbuild.sh` helper script handles the `--target` and tagging:
+The `dockerbuild.sh` helper script handles builds and pushes everything for you:
 
 ```bash
-# Ubuntu 18.04 variant
-./dockerbuild.sh ubuntu 10.2.6208
+# Build & push BOTH ubuntu + centos (default)
+./dockerbuild.sh
 
-# CentOS 7 variant
-./dockerbuild.sh centos 10.2.6208
+# Build & push ubuntu only
+./dockerbuild.sh ubuntu
+
+# Build & push centos only
+./dockerbuild.sh centos
+
+# Override the FutuOpenD version
+./dockerbuild.sh all 10.2.6208
 ```
 
-Or build manually:
+**Images tagged on Docker Hub:**
+
+| Tag | Description |
+|-----|-------------|
+| `:latest` | Ubuntu variant (pinned to latest build) |
+| `:ubuntu` | Ubuntu variant |
+| `:centos` | CentOS 7 variant |
+| `:10.2.6208-ubuntu` | Ubuntu, versioned |
+| `:10.2.6208-centos` | CentOS 7, versioned |
+
+Or build manually (without pushing):
 
 ```bash
 # Ubuntu variant
