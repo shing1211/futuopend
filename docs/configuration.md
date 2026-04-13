@@ -359,6 +359,141 @@ docker run -e FUTU_ACCOUNT=12345678 \
 
 ---
 
+## First-Time Login: Phone Verification in Docker
+
+FutuOpenD requires **phone verification** on first login — especially for new accounts, fresh device installs, or accounts logging in from a new IP. The app sends an SMS code, which you must relay to FutuOpenD via its Telnet interface.
+
+### How it works
+
+1. FutuOpenD starts, connects to Futu's server, and requests a login
+2. Futu detects a new device/IP and sends an SMS verification code to the account's registered phone
+3. FutuOpenD blocks login and waits for the code
+4. You send the code via Telnet → FutuOpenD validates → login completes
+
+### Step 1 — Enable Telnet in FutuOpenD.xml
+
+Add these lines to your config:
+
+```xml
+<telnet_ip>127.0.0.1</telnet_ip>
+<telnet_port>22222</telnet_port>
+```
+
+In your `FutuOpenD.xml.template`, uncomment and set:
+
+```xml
+<!-- <telnet_ip>127.0.0.1</telnet_ip> -->
+<!-- <telnet_port>22222</telnet_port> -->
+```
+
+Or pass via Docker environment (if supported by your version):
+
+```bash
+docker run -e FUTU_TELNET_IP=127.0.0.1 -e FUTU_TELNET_PORT=22222 ...
+```
+
+### Step 2 — Map Telnet port to the host
+
+In `docker-compose.yaml`, expose the Telnet port:
+
+```yaml
+services:
+  futuopend:
+    ports:
+      - "11111:11111"   # TCP API
+      - "11112:11112"   # WebSocket
+      - "22222:22222"   # Telnet  ← add this
+```
+
+### Step 3 — Watch for the verification prompt
+
+Start the container and tail the logs:
+
+```bash
+docker compose up -d
+docker compose logs -f futuopend
+```
+
+When the phone verification is needed, you'll see something like this in the logs:
+
+```
+[INFO] Waiting for phone verify code, please input by telnet...
+[INFO] Use command: input_phone_verify_code -code=123456
+```
+
+### Step 4 — Submit the code via Telnet
+
+Send the code from your **host machine** (not inside the container):
+
+```bash
+# Linux / macOS
+echo "input_phone_verify_code -code=123456" | nc 127.0.0.1 22222
+
+# Or using telnet (type the command manually, then press Enter twice)
+telnet 127.0.0.1 22222
+Trying 127.0.0.1...
+Connected to 127.0.0.1.
+Escape character is '^]'.
+input_phone_verify_code -code=123456
+
+# Or with Python
+python3 -c "import telnetlib; t=telnetlib.Telnet('127.0.0.1', 22222); t.write(b'input_phone_verify_code -code=123456\r\n'); print(t.read_all())"
+```
+
+> **Note:** There is a **space** before `-code=`. The full command is: `input_phone_verify_code -code=123456`
+
+### Step 5 — Verify login succeeded
+
+Check the logs again:
+
+```bash
+docker compose logs futuopend | grep -i "login\|verify\|success\|connected"
+```
+
+If successful, you'll see something like:
+
+```
+[INFO] Login succeeded. Account: 12345678
+```
+
+### Troubleshooting
+
+| Problem | Fix |
+|---------|-----|
+| `nc` / `telnet` not found on host | `apt install netcat-openbsd` or `brew install netcat` |
+| Connection refused on port 22222 | Check `telnet_ip` and `telnet_port` are set in `FutuOpenD.xml` |
+| Code rejected | SMS codes expire after ~5 minutes — request a new one via the Futu app |
+| Code already used | Each code can only be used once; request a fresh code |
+| Can't receive SMS | Make sure the Futu account has a verified phone number; try resending via the app |
+
+### Automation tip
+
+If you're running CI/CD or need to automate the flow, wrap the Telnet step:
+
+```bash
+#!/bin/bash
+# wait-for-phone-code.sh — blocks until FutuOpenD is logged in
+
+HOST="${1:-127.0.0.1}"
+PORT="${2:-22222}"
+CODE="${3:-}"
+
+until docker compose logs futuopend 2>&1 | grep -q "Waiting for phone verify code"; do
+    sleep 2
+done
+
+if [[ -n "$CODE" ]]; then
+    echo "input_phone_verify_code -code=$CODE" | nc "$HOST" "$PORT"
+    echo "Code submitted."
+else
+    echo "Phone verification required. Check your SMS and run:"
+    echo "  echo \"input_phone_verify_code -code=XXXXXX\" | nc $HOST $PORT"
+    exit 1
+fi
+```
+
+---
+
 ## Complete Config Example
 
 ```xml

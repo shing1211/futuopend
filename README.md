@@ -317,6 +317,10 @@ Common culprits:
 - **Missing secrets** — RSA key or `FutuOpenD.xml` not mounted, or paths don't match inside the container
 - **Port conflict** — Something else is already using port `11111` on the host
 
+### Login stuck: "Waiting for phone verify code"
+
+If FutuOpenD logs show `Waiting for phone verify code`, it's waiting for an SMS verification code — normal for first-time logins or new devices. See the [Phone Verification Guide](docs/configuration.md#first-time-login-phone-verification-in-docker) in the docs for the full step-by-step.
+
 ### Can't connect from a remote SDK
 
 1. Verify the container is binding to `0.0.0.0` (not `127.0.0.1`) in `FutuOpenD.xml`
