@@ -1,0 +1,16 @@
+services:
+  futuopend:
+    image: shing1211/futuopend:latest
+    container_name: futuopend
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ:-Asia/Hong_Kong}
+    volumes:
+      - ./FutuOpenD.xml:/run/secrets/FutuOpenD.xml:ro
+      - futuopend-data:/home/futuopend/.com.futunn.FutuOpenD
+    ports:
+      - "11111:11111"
+      - "11112:11112"
+
+volumes:
+  futuopend-data:

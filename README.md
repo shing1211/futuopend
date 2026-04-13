@@ -80,31 +80,31 @@ Your SDK connects to `localhost:11111` (TCP) or `ws://host:11112` (WebSocket). F
 
 ## Quick Start
 
-Zero to live market data in 5 minutes. No RSA key needed for this path — perfect for local quote-only access.
+Zero to live market data in under 5 minutes. Uses the pre-built image from Docker Hub — no building, no compiling.
 
-### Step 1 — Grab the repo
+**What you get:** Live quote data from Futu's servers. No RSA key needed. Perfect for local development and price monitoring.
+
+### Step 1 — Download the repo
 
 ```bash
 git clone https://github.com/shing1211/futuopend.git
 cd futuopend
 ```
 
-### Step 2 — Copy the config template
+### Step 2 — Create your config file
 
 ```bash
-cp FutuOpenD.xml.template /opt/futuopend/FutuOpenD.xml
+cp FutuOpenD.xml.template FutuOpenD.xml
 ```
 
-### Step 3 — Add your account details
-
-Open `/opt/futuopend/FutuOpenD.xml` in a text editor. Find these two lines and fill them in:
+Open `FutuOpenD.xml` in a text editor. Fill in these two lines:
 
 ```xml
 <login_account>YOUR_FUTU_ACCOUNT_ID</login_account>
 <login_pwd_md5>YOUR_PASSWORD_AS_MD5_HASH</login_pwd_md5>
 ```
 
-**How to get your MD5 hash?** Run this in your terminal:
+**How to generate your MD5 hash** — run this in your terminal:
 
 ```bash
 # Linux
@@ -114,30 +114,107 @@ echo -n "your_password" | md5sum | cut -d' ' -f1
 echo -n "your_password" | md5 -r
 ```
 
-Copy the 32-character output and paste it into `<login_pwd_md5>`. The `-n` is important — it stops your shell from adding a newline to the password before hashing.
+The `-n` matters — it stops your shell from adding a newline before hashing. Copy the 32-character output into `<login_pwd_md5>`.
 
-### Step 4 — Fire it up
+### Step 3 — Pull the image and start
 
 ```bash
-docker compose up -d
-docker compose logs -f futuopend
+docker compose -f docker-compose.simple.yaml up -d
+docker compose -f docker-compose.simple.yaml logs -f
 ```
 
-Watch the logs. If you see `Waiting for phone verify code`, see [Phone Verification](#phone-verification) below. Otherwise, look for `Login succeeded` — you're in.
+### Step 4 — Wait for login
+
+Watch the logs. Two things can happen:
+
+**Option A — Login succeeds immediately:**
+
+```
+[INFO] Login succeeded. Account: 12345678
+```
+
+You're in. Skip to Step 5.
+
+**Option B — Phone verification is triggered:**
+
+```
+[INFO] Waiting for phone verify code, please input by telnet...
+```
+
+This is normal on first login or a new IP. See [Phone Verification](#phone-verification) below to get past it.
 
 ### Step 5 — Verify it's running
+
+Open a new terminal and run:
 
 ```bash
 curl -s http://localhost:11111/version
 ```
 
-You should see a version string. If you do, your SDK can now connect to `localhost:11111` and receive live market data.
+You should see a version string. FutuOpenD is live — point your SDK at `localhost:11111` and start receiving market data.
 
 To stop watching logs, press `Ctrl+C`.
 
 ---
 
-## Want to Trade or Connect Remotely?
+## Build from Source
+
+Build the image yourself instead of pulling from Docker Hub. Useful if you want to pin a specific version, audit the Dockerfile, or use a different base image.
+
+### Prerequisites
+
+- Docker 20.10+
+- Docker Compose v2
+
+### Build and run
+
+```bash
+# Build the Ubuntu variant
+docker build \
+  --target final-ubuntu \
+  --build-arg FUTU_OPEND_VER=10.2.6208 \
+  -t futuopend:ubuntu .
+
+# Build the CentOS 7 variant
+docker build \
+  --target final-centos \
+  --build-arg FUTU_OPEND_VER=10.2.6208 \
+  -t futuopend:centos .
+
+# Run it
+docker compose -f docker-compose.simple.yaml up -d
+```
+
+Or use the helper script — it builds both variants and pushes to Docker Hub in one shot:
+
+```bash
+./dockerbuild.sh              # build both ubuntu + centos
+./dockerbuild.sh ubuntu       # ubuntu only
+./dockerbuild.sh centos      # centos only
+./dockerbuild.sh all 10.2.6208  # override version
+```
+
+### Multi-platform build (amd64 + arm64)
+
+```bash
+docker buildx create --use
+docker buildx build \
+  --platform linux/amd64,linux/arm64 \
+  --target final-ubuntu \
+  --build-arg FUTU_OPEND_VER=10.2.6208 \
+  -t shing1211/futuopend:10.2.6208-ubuntu \
+  --push .
+```
+
+### Docker Hub tags
+
+| Tag | Description |
+|-----|-------------|
+| `:latest` | Ubuntu variant, latest build |
+| `:ubuntu` | Ubuntu variant |
+| `:centos` | CentOS 7 variant |
+| `:10.2.6208-ubuntu` | Ubuntu, versioned |
+| `:10.2.6208-centos` | CentOS 7, versioned |
 
 The quick-start path above gives you **quote-only access** — live market data, no trading. To submit orders or connect from another machine, you need two extra things: an RSA key and to bind to all network interfaces.
 
@@ -264,65 +341,6 @@ For every single tag, see [docs/configuration.md](docs/configuration.md).
 | `RSA_FILE_LOCAL_PATH` | Host path to RSA key |
 | `FUTU_OPEND_XML_LOCAL_PATH` | Host path to FutuOpenD.xml |
 | `TZ` | Container timezone (default: `Asia/Hong_Kong`) |
-
----
-
-## Building from Source
-
-### Pull the image (fastest)
-
-```bash
-docker pull shing1211/futuopend:latest
-```
-
-### Build with the helper script
-
-`dockerbuild.sh` builds and pushes both variants in one shot:
-
-```bash
-./dockerbuild.sh              # builds & pushes ubuntu + centos
-./dockerbuild.sh ubuntu       # ubuntu only
-./dockerbuild.sh centos      # centos only
-./dockerbuild.sh all 10.2.6208  # override version
-```
-
-**Tags pushed to Docker Hub:**
-
-| Tag | What it is |
-|-----|-----------|
-| `:latest` | Ubuntu variant, latest build |
-| `:ubuntu` | Ubuntu variant |
-| `:centos` | CentOS 7 variant |
-| `:10.2.6208-ubuntu` | Ubuntu, versioned |
-| `:10.2.6208-centos` | CentOS 7, versioned |
-
-### Build manually
-
-```bash
-# Ubuntu
-docker build \
-  --target final-ubuntu \
-  --build-arg FUTU_OPEND_VER=10.2.6208 \
-  -t futuopend:ubuntu .
-
-# CentOS 7
-docker build \
-  --target final-centos \
-  --build-arg FUTU_OPEND_VER=10.2.6208 \
-  -t futuopend:centos .
-```
-
-### Multi-platform build (amd64 + arm64)
-
-```bash
-docker buildx create --use
-docker buildx build \
-  --platform linux/amd64,linux/arm64 \
-  --target final-ubuntu \
-  --build-arg FUTU_OPEND_VER=10.2.6208 \
-  -t shing1211/futuopend:10.2.6208-ubuntu \
-  --push .
-```
 
 ---
 
