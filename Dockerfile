@@ -1,34 +1,85 @@
 # syntax=docker/dockerfile:1
 
+ARG FUTU_OPEND_VER=10.2.6208
 ARG BASE_IMG=ubuntu
 
-FROM ubuntu:18.04 AS base-ubuntu
+FROM ${BASE_IMG}:18.04 AS base-ubuntu
 FROM centos:centos7 AS base-centos
 
 FROM base-ubuntu AS build-ubuntu
-ARG FUTU_OPEND_VER=9.6.5618
+ARG FUTU_OPEND_VER
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends curl ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /tmp
-ADD https://softwaredownload.futunn.com/Futu_OpenD_${FUTU_OPEND_VER}_Ubuntu18.04.tar.gz ./
-RUN tar -xzf Futu_OpenD_${FUTU_OPEND_VER}_Ubuntu18.04.tar.gz \
- && rm Futu_OpenD_${FUTU_OPEND_VER}_Ubuntu18.04.tar.gz
+RUN curl -fsSL "https://softwaredownload.futunn.com/Futu_OpenD_${FUTU_OPEND_VER}_Ubuntu18.04.tar.gz" \
+         -o Futu_OpenD.tar.gz \
+    && tar -xzf Futu_OpenD.tar.gz \
+    && rm Futu_OpenD.tar.gz
 
 FROM base-centos AS build-centos
-ARG FUTU_OPEND_VER=9.6.5618
+ARG FUTU_OPEND_VER
 
 WORKDIR /tmp
-ADD https://softwaredownload.futunn.com/Futu_OpenD_${FUTU_OPEND_VER}_Centos7.tar.gz ./
-RUN tar -xzf Futu_OpenD_${FUTU_OPEND_VER}_Centos7.tar.gz \
- && rm Futu_OpenD_${FUTU_OPEND_VER}_Centos7.tar.gz
+RUN curl -fsSL "https://softwaredownload.futunn.com/Futu_OpenD_${FUTU_OPEND_VER}_Centos7.tar.gz" \
+         -o Futu_OpenD.tar.gz \
+    && tar -xzf Futu_OpenD.tar.gz \
+    && rm Futu_OpenD.tar.gz
 
-FROM base-ubuntu AS final-ubuntu
-ARG FUTU_OPEND_VER=9.6.5618
-CMD ["/bin/FutuOpenD"]
-COPY --from=build-ubuntu /tmp/Futu_OpenD_${FUTU_OPEND_VER}_Ubuntu18.04/Futu_OpenD_${FUTU_OPEND_VER}_Ubuntu18.04 /bin
+FROM ${BASE_IMG}:18.04 AS final-ubuntu
+ARG FUTU_OPEND_VER
 
-FROM base-centos AS final-centos
-ARG FUTU_OPEND_VER=9.6.5618
-CMD ["/bin/FutuOpenD"]
-COPY --from=build-centos /tmp/Futu_OpenD_${FUTU_OPEND_VER}_Centos7/Futu_OpenD_${FUTU_OPEND_VER}_Centos7 /bin
+ENV TZ=Asia/Hong_Kong \
+    FUTU_OPEND_VER=${FUTU_OPEND_VER}
 
-FROM final-${BASE_IMG} AS final
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends curl ca-certificates \
+    && rm -rf /var/lib/apt/lists/* \
+    && useradd -m -u 1000 futuopend \
+    && mkdir -p /run/secrets \
+    && chown futuopend:futuopend /run/secrets \
+    && mkdir -p /home/futuopend/.com.futunn.FutuOpenD \
+    && chown futuopend:futuopend /home/futuopend/.com.futunn.FutuOpenD
+
+COPY --from=build-ubuntu --chown=futuopend:futuopend \
+     /tmp/Futu_OpenD_${FUTU_OPEND_VER}_Ubuntu18.04/Futu_OpenD_${FUTU_OPEND_VER}_Ubuntu18.04 \
+     /usr/local/bin/FutuOpenD
+
+RUN chmod +x /usr/local/bin/FutuOpenD
+
+USER futuopend
+WORKDIR /home/futuopend
+EXPOSE 11111 11112
+VOLUME /home/futuopend/.com.futunn.FutuOpenD
+HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
+    CMD curl -sf http://localhost:11111/ || exit 1
+CMD ["/usr/local/bin/FutuOpenD"]
+
+FROM centos:centos7 AS final-centos
+ARG FUTU_OPEND_VER
+
+ENV TZ=Asia/Hong_Kong \
+    FUTU_OPEND_VER=${FUTU_OPEND_VER}
+
+RUN useradd -m -u 1000 futuopend \
+    && mkdir -p /run/secrets \
+    && chown futuopend:futuopend /run/secrets \
+    && mkdir -p /home/futuopend/.com.futunn.FutuOpenD \
+    && chown futuopend:futuopend /home/futuopend/.com.futunn.FutuOpenD
+
+COPY --from=build-centos --chown=futuopend:futuopend \
+     /tmp/Futu_OpenD_${FUTU_OPEND_VER}_Centos7/Futu_OpenD_${FUTU_OPEND_VER}_Centos7 \
+     /usr/local/bin/FutuOpenD
+
+RUN chmod +x /usr/local/bin/FutuOpenD
+
+USER futuopend
+WORKDIR /home/futuopend
+EXPOSE 11111 11112
+VOLUME /home/futuopend/.com.futunn.FutuOpenD
+HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
+    CMD curl -sf http://localhost:11111/ || exit 1
+CMD ["/usr/local/bin/FutuOpenD"]
+

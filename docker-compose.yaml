@@ -2,25 +2,30 @@ services:
   futuopend:
     image: shing1211/futuopend:latest
     container_name: futuopend
-    stdin_open: true
-    tty: true
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ:-Asia/Hong_Kong}
     volumes:
-      - volume:/root/.com.futunn.FutuOpenD
+      - futuopend-data:/home/futuopend/.com.futunn.FutuOpenD
     secrets:
       - source: rsa-key
-        target: ${RSA_FILE_PATH}
+        target: /run/secrets/rsa_key.txt
+        mode: 0400
       - source: config
-        target: ${FUTU_OPEND_XML_PATH}
+        target: /run/secrets/FutuOpenD.xml
+        mode: 0400
     ports:
-      - 11111:11111
+      - "11111:11111"
+      - "11112:11112"
     env_file:
-      - path: ./.env
-        required: true # default
+      - path: .env
+        required: false
+
 volumes:
-  volume:
+  futuopend-data:
 
 secrets:
   rsa-key:
-    file: ${RSA_FILE_LOCAL_PATH}
+    file: ${RSA_FILE_LOCAL_PATH:?RSA_FILE_LOCAL_PATH is not set}
   config:
-    file: ${FUTU_OPEND_XML_LOCAL_PATH}
+    file: ${FUTU_OPEND_XML_LOCAL_PATH:?FUTU_OPEND_XML_LOCAL_PATH is not set}

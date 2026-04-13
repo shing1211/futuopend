@@ -1,0 +1,24 @@
+# Ignore secrets and credentials
+*.pem
+*.key
+*.crt
+FutuOpenD.xml
+*.rsa*
+**/secrets/
+**/keys/
+
+# Ignore environment files with real paths
+.env
+
+# Ignore Docker artifacts
+*.tar.gz
+
+# Ignore OS artifacts
+.DS_Store
+Thumbs.db
+
+# Ignore IDE files
+.idea/
+*.swp
+*.swo
+.vscode/
