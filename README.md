@@ -31,7 +31,7 @@ One `docker run`, and you're live on port `11111`. No X11, no dependency hunting
 - **Paper or live** — Same API for test accounts and production
 - **TCP + WebSocket** — Choose your protocol; SDKs in Python, Java, C#, C++, JavaScript
 - **TLS/SSL-ready** — Encrypt the WebSocket link for remote deployments
-- **Two OS variants** — Ubuntu 18.04 and CentOS 7, from the same Dockerfile
+- **Two OS variants** — Ubuntu 22.04 and Rocky Linux 9, from the same Dockerfile
 - **Docker Secrets** — Clean credential management out of the box
 
 ---
@@ -175,7 +175,7 @@ docker build \
   --build-arg FUTU_OPEND_VER=10.2.6208 \
   -t futuopend:ubuntu .
 
-# Build the CentOS 7 variant
+# Build the Rocky Linux 9 variant
 docker build \
   --target final-centos \
   --build-arg FUTU_OPEND_VER=10.2.6208 \
@@ -212,9 +212,9 @@ docker buildx build \
 |-----|-------------|
 | `:latest` | Ubuntu variant, latest build |
 | `:ubuntu` | Ubuntu variant |
-| `:centos` | CentOS 7 variant |
+| `:centos` | Rocky Linux 9 variant |
 | `:10.2.6208-ubuntu` | Ubuntu, versioned |
-| `:10.2.6208-centos` | CentOS 7, versioned |
+| `:10.2.6208-centos` | Rocky Linux 9, versioned |
 
 The quick-start path above gives you **quote-only access** — live market data, no trading. To submit orders or connect from another machine, you need two extra things: an RSA key and to bind to all network interfaces.
 
@@ -245,8 +245,9 @@ chmod 600 /opt/futuopend/secrets/rsa_key.txt
 6. Restart:
 
 ```bash
-docker compose down && docker compose up -d
-docker compose logs -f futuopend
+docker compose -f docker-compose.simple.yaml down \
+  && docker compose -f docker-compose.simple.yaml up -d
+docker compose -f docker-compose.simple.yaml logs -f
 ```
 
 > **What this enables:** Trading API calls, and connections from other machines on your network or the internet. Without this, trading calls are rejected and only local processes can connect.
@@ -278,7 +279,7 @@ services:
       - "22222:22222"   # ← add this line
 ```
 
-Then restart: `docker compose down && docker compose up -d`
+Then restart: `docker compose -f docker-compose.simple.yaml down && docker compose -f docker-compose.simple.yaml up -d`
 
 **2. Submit your SMS code** from your host terminal:
 

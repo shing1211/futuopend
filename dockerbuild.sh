@@ -49,8 +49,8 @@ build_and_push() {
 case "$VARIANT" in
     --list)
         echo "Available variants:"
-        echo "  ubuntu  — Ubuntu 18.04"
-        echo "  centos  — CentOS 7"
+        echo "  ubuntu  — Ubuntu 22.04"
+        echo "  centos  — Rocky Linux 9"
         echo "  all     — build both (default)"
         exit 0
         ;;
@@ -67,8 +67,8 @@ if [[ "$VARIANT" == "all" ]]; then
     echo ""
 
     echo "==> Pulling base images..."
-    docker pull ubuntu:18.04
-    docker pull centos:centos7
+    docker pull ubuntu:22.04
+    docker pull rockylinux:9
 
     build_and_push ubuntu
     build_and_push centos

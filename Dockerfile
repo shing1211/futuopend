@@ -3,8 +3,8 @@
 ARG FUTU_OPEND_VER=10.2.6208
 ARG BASE_IMG=ubuntu
 
-FROM ${BASE_IMG}:18.04 AS base-ubuntu
-FROM centos:centos7 AS base-centos
+FROM ${BASE_IMG}:22.04 AS base-ubuntu
+FROM rockylinux:9 AS base-centos
 
 FROM base-ubuntu AS build-ubuntu
 ARG FUTU_OPEND_VER
@@ -28,7 +28,7 @@ RUN curl -fsSL "https://softwaredownload.futunn.com/Futu_OpenD_${FUTU_OPEND_VER}
     && tar -xzf Futu_OpenD.tar.gz \
     && rm Futu_OpenD.tar.gz
 
-FROM ${BASE_IMG}:18.04 AS final-ubuntu
+FROM ${BASE_IMG}:22.04 AS final-ubuntu
 ARG FUTU_OPEND_VER
 
 ENV TZ=Asia/Hong_Kong \
@@ -54,7 +54,7 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
     CMD pgrep -x FutuOpenD || exit 1
 CMD ["/usr/local/bin/FutuOpenD"]
 
-FROM centos:centos7 AS final-centos
+FROM rockylinux:9 AS final-centos
 ARG FUTU_OPEND_VER
 
 ENV TZ=Asia/Hong_Kong \

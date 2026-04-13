@@ -21,14 +21,17 @@ Got a bug? An idea? A docs fix? All of it is welcome. This project is small and 
 git clone https://github.com/shing1211/futuopend.git
 cd futuopend
 
-# Build the image
-docker build -t futuopend:test .
+# Build the image (Ubuntu variant)
+docker build \
+  --target final-ubuntu \
+  --build-arg FUTU_OPEND_VER=10.2.6208 \
+  -t futuopend:test .
 
-# Start with compose
-docker compose up -d
+# Start with compose (uses docker-compose.simple.yaml — no Swarm required)
+docker compose -f docker-compose.simple.yaml up -d
 
 # Watch the logs
-docker compose logs -f
+docker compose -f docker-compose.simple.yaml logs -f
 ```
 
 ---
@@ -59,8 +62,14 @@ docker compose logs -f
 3. **Test locally:**
 
    ```bash
-   docker build -t futuopend:test .
-   docker run --rm futuopend:test /usr/local/bin/FutuOpenD --help 2>/dev/null || true
+   # Build the image
+   docker build --target final-ubuntu -t futuopend:test .
+
+   # Quick smoke test — container starts and stays up
+   docker run -d --name futuopend-test futuopend:test
+   sleep 5
+   docker ps --filter name=futuopend-test --format "{{.Status}}"
+   docker stop futuopend-test && docker rm futuopend-test
    ```
 
 4. **Push and open a PR.** Be responsive to review feedback.
@@ -73,11 +82,11 @@ These are good starting points if you're looking for something to work on:
 
 | Priority | Area | What it involves |
 |----------|------|-----------------|
-| High | `Dockerfile` | Ubuntu 18.04 base image is EOL — migrate to 22.04 or 24.04 |
-| Medium | `Dockerfile` | PTY/TTY not allocated — `stdin_open: true` and `tty: true` need `-it` to work properly |
-| Medium | `docker-compose.yaml` | `PUID`/`PGID` env vars defined but unused — wire through entrypoint or drop |
+| High | `Dockerfile` | CentOS variant uses Rocky Linux 9 — binary compatibility untested under heavy load |
+| Medium | `Dockerfile` | Both build stages always run regardless of target — doubles build time |
+| Medium | CI | No GitHub Actions workflow — see `.github/workflows/` for a starter |
 | Low | `dockerbuild.sh` | Add `--dry-run` flag for safe CI testing |
-| Low | CI | No GitHub Actions workflow yet — starter at `.github/workflows/` |
+| Low | `dockerbuild.sh` | Parallelize ubuntu + centos builds |
 
 ---
 
