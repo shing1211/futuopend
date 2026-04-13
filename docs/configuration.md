@@ -2,6 +2,8 @@
 
 This page is a detailed reference for every `FutuOpenD.xml` setting. If the Quick Start in the README got you up and running, this is where you come to understand the knobs.
 
+> **Prefer a head start?** Copy [`FutuOpenD.xml.template`](../FutuOpenD.xml.template) from the repo root — it has every setting documented inline with sensible defaults.
+
 ---
 
 ## Minimal Working Example
@@ -168,20 +170,47 @@ FutuOpenD can expand environment variables inside `FutuOpenD.xml` at startup. Th
 <PrivateKey>${RSA_KEY_PATH}</PrivateKey>
 ```
 
-Set the variable in `docker-compose.yaml`:
+The [`FutuOpenD.xml.template`](../FutuOpenD.xml.template) in the repo root uses this throughout — no hardcoded values, no secrets committed to version control. Set the variables in `docker-compose.yaml`:
 
 ```yaml
-environment:
-  RSA_KEY_PATH: /run/secrets/rsa_key.txt
+services:
+  futuopend:
+    environment:
+      FUTU_ACCOUNT_ID: "12345678"
+      FUTU_PASSWORD_MD5: "5f4dcc3b5aa765d61d8327deb882cf99"
+      RSA_KEY_PATH: /run/secrets/rsa_key.txt
+      FUTU_OPEND_IP: "0.0.0.0"
+      FUTU_LOG_LEVEL: "debug"
+      FUTU_LANGUAGE: "en"
 ```
 
-Or pass it on the command line:
+Or pass them directly on the command line:
 
 ```bash
-docker run -e RSA_KEY_PATH=/run/secrets/rsa_key.txt ...
+docker run -e FUTU_ACCOUNT_ID=12345678 \
+           -e FUTU_PASSWORD_MD5=$(echo -n "mypassword" | md5sum | cut -d' ' -f1) \
+           -e RSA_KEY_PATH=/run/secrets/rsa_key.txt \
+           shing1211/futuopend:latest
 ```
 
-> **Note:** Substitution is evaluated by FutuOpenD itself, not by Docker. The variable must be present in the container's environment — mounting a file is not enough on its own.
+> **Note:** Substitution is evaluated by FutuOpenD itself, not by Docker. The variable must be present in the container's environment — mounting a file alone is not enough.
+
+### Supported variables
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `FUTU_ACCOUNT_ID` | Your Futu account ID (牛牛号) | _(required)_ |
+| `FUTU_PASSWORD_MD5` | MD5 hash of your password | _(required)_ |
+| `RSA_KEY_PATH` | Path to your RSA private key | _(required for trading)_ |
+| `FUTU_OPEND_IP` | TCP API bind address | `0.0.0.0` |
+| `FUTU_OPEND_PORT` | TCP API port | `11111` |
+| `FUTU_WS_IP` | WebSocket bind address | `0.0.0.0` |
+| `FUTU_WS_PORT` | WebSocket port | `11112` |
+| `FUTU_LOG_LEVEL` | Log verbosity | `info` |
+| `FUTU_LANGUAGE` | Language | `en` |
+| `SSL_CERT_PATH` | SSL certificate path | _(none — omit for local)_ |
+| `SSL_KEY_PATH` | SSL private key path | _(none — omit for local)_ |
+| `FUTU_DATA_PUSH_FREQ` | Max push frequency (ms) | _(none — use default)_ |
 
 ---
 

@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  FutuOpenD.xml — Configuration Template
+  =======================================
+  Copy this file to your secrets directory, fill in your credentials,
+  then point docker-compose.yaml at it.
+
+  All paths can reference environment variables using ${VAR_NAME} syntax.
+  FutuOpenD resolves these at startup, so you don't need to hardcode
+  host-specific values.
+
+  Config reference: https://github.com/shing1211/futuopend/blob/main/docs/configuration.md
+-->
+<FutuOpenD>
+  <!-- ── Account(s) ─────────────────────────────────────── -->
+  <!--
+    AccID   : Your Futu account ID (牛牛号). Found in the Futu app → Settings.
+    PwdMD5  : MD5 hash of your login password (32-char lowercase hex).
+              Generate with: echo -n "your_password" | md5sum | cut -d' ' -f1
+    PrivateKey: Absolute path to your RSA private key file.
+              Generate at: https://www.futunn.com/en/OpenAPI → Manage Key
+  -->
+  <AccList>
+    <Account>
+      <AccID>${FUTU_ACCOUNT_ID}</AccID>
+      <PwdMD5>${FUTU_PASSWORD_MD5}</PwdMD5>
+      <PrivateKey>${RSA_KEY_PATH}</PrivateKey>
+    </Account>
+
+    <!-- Uncomment to add a second account (e.g. paper trading + live):
+    <Account>
+      <AccID>your_second_account_id</AccID>
+      <PwdMD5>your_second_password_md5</PwdMD5>
+      <PrivateKey>/path/to/second_key.txt</PrivateKey>
+    </Account>
+    -->
+  </AccList>
+
+  <!-- ── Network ─────────────────────────────────────────── -->
+  <Config>
+    <!-- TCP API (used by Python/Java/C#/C++ SDKs) -->
+    <IP>${FUTU_OPEND_IP:-0.0.0.0}</IP>
+    <Port>${FUTU_OPEND_PORT:-11111}</Port>
+
+    <!-- WebSocket API (used by JavaScript SDK and web frontends) -->
+    <WSIP>${FUTU_WS_IP:-0.0.0.0}</WSIP>
+    <WSPort>${FUTU_WS_PORT:-11112}</WSPort>
+
+    <!-- Logging: debug | info | warn | error | fatal | off -->
+    <LogLevel>${FUTU_LOG_LEVEL:-info}</LogLevel>
+
+    <!-- Language: zh-CN | zh-HK | en -->
+    <Language>${FUTU_LANGUAGE:-en}</Language>
+  </Config>
+
+  <!-- ── SSL / TLS (optional — recommended for remote access) ── -->
+  <!--
+    Required when WSIP or IP is set to a non-local address (0.0.0.0).
+    Generate a self-signed cert for testing:
+      openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem \
+        -days 365 -nodes -subj "/CN=futuopend"
+
+    Strip the password from the key:
+      openssl rsa -in key.pem -out key_nopass.pem
+  -->
+  <WSCert>${SSL_CERT_PATH}</WSCert>
+  <WSKey>${SSL_KEY_PATH}</WSKey>
+
+  <!--
+    Session expiry for WebSocket login in seconds.
+    Default: 259200 (72 hours). Set to -1 to disable expiry.
+  -->
+  <WSLoginExpire>259200</WSLoginExpire>
+
+  <!-- ── Performance Tuning ───────────────────────────────── -->
+  <!--
+    DataPushFreq: Max push frequency for subscription data, in milliseconds.
+                  Lower values = more responsive, more bandwidth.
+                  Leave empty to use FutuOpenD defaults.
+  -->
+  <DataPushFreq>${FUTU_DATA_PUSH_FREQ}</DataPushFreq>
+
+  <!-- ── Futures Trading ──────────────────────────────────── -->
+  <!--
+    Uncomment and set if you trade futures. These control time-zone
+    handling for expiry and settlement timestamps.
+  -->
+  <!--
+  <FutureHKExchCode>HKEX</FutureHKExchCode>
+  <FutureUSExchCode>CME</FutureUSExchCode>
+  <FutureSGTZ>Asia/Singapore</FutureSGTZ>
+  <FutureJPTZ>Asia/Tokyo</FutureJPTZ>
+  <FutureASTZ>Australia/Sydney</FutureASTZ>
+  -->
+
+  <!-- ── Remote Debug (telnet) ───────────────────────────── -->
+  <!--
+    Uncomment to enable the telnet debug interface. Only use on
+    trusted networks — telnet sends everything in plaintext.
+  -->
+  <!--
+  <TelnetIP>127.0.0.1</TelnetIP>
+  <TelnetPort>10090</TelnetPort>
+  -->
+</FutuOpenD>

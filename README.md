@@ -119,36 +119,37 @@ cp ~/Downloads/private-key.txt /opt/futuopend/secrets/rsa_key.txt
 chmod 600 /opt/futuopend/secrets/rsa_key.txt
 ```
 
-Create `FutuOpenD.xml` with your account and connection settings:
-
-```xml
-<?xml version="1.0" encoding="utf-8"?>
-<FutuOpenD>
-  <AccList>
-    <Account>
-      <AccID>your_futu_account_id</AccID>
-      <PwdMD5>your_md5_password</PwdMD5>
-      <PrivateKey>/run/secrets/rsa_key.txt</PrivateKey>
-    </Account>
-  </AccList>
-  <Config>
-    <IP>0.0.0.0</IP>
-    <Port>11111</Port>
-    <WSIP>0.0.0.0</WSIP>
-    <WSPort>11112</WSPort>
-    <LogLevel>info</LogLevel>
-    <Language>zh-CN</Language>
-  </Config>
-</FutuOpenD>
-```
-
-Then:
+The repo ships a **template** at `FutuOpenD.xml.template` with env-var substitution baked in. Copy it and fill in your values:
 
 ```bash
-cp FutuOpenD.xml /opt/futuopend/secrets/FutuOpenD.xml
+cp FutuOpenD.xml.template /opt/futuopend/secrets/FutuOpenD.xml
 ```
 
-> **Security tip:** `FutuOpenD.xml` contains your account credentials. Keep it somewhere safe, and never commit it to version control.
+Open it in your editor and set these environment variables (or hardcode values directly):
+
+```bash
+# Set these before starting the container
+export FUTU_ACCOUNT_ID=your_futu_account_id
+export FUTU_PASSWORD_MD5=$(echo -n "your_password" | md5sum | cut -d' ' -f1)
+export RSA_KEY_PATH=/opt/futuopend/secrets/rsa_key.txt
+export FUTU_OPEND_IP=0.0.0.0       # use 127.0.0.1 for local-only
+export FUTU_WS_IP=0.0.0.0          # use 127.0.0.1 for local-only
+export FUTU_LOG_LEVEL=info          # debug | info | warn | error
+export FUTU_LANGUAGE=en            # en | zh-CN | zh-HK
+```
+
+Pass them into Docker Compose:
+
+```bash
+docker compose up -d \
+  -e FUTU_ACCOUNT_ID=your_account \
+  -e FUTU_PASSWORD_MD5=your_md5 \
+  -e RSA_KEY_PATH=/run/secrets/rsa_key.txt
+```
+
+Or wire them permanently in `docker-compose.override.yaml` (see [Configuration](#configuration)).
+
+> **Security tip:** `FutuOpenD.xml` contains your account credentials. Keep it somewhere safe, and never commit it to version control. The template itself is safe to commit — it has no real secrets in it.
 
 ### 3. Configure environment
 
@@ -189,7 +190,11 @@ If you see a version string, you're in business. Point your SDK at `ws://your-ho
 
 ## Configuration
 
-FutuOpenD is configured entirely via `FutuOpenD.xml`. Here's a quick reference for the most-used settings — the [full reference](docs/configuration.md) has everything.
+FutuOpenD is configured entirely via `FutuOpenD.xml`. The repo ships a **ready-to-use template** at [`FutuOpenD.xml.template`](FutuOpenD.xml.template) — copy it, drop in your credentials, and go.
+
+All settings in the template support `${ENV_VAR}` substitution, so you can keep your actual secrets out of the file and pass them in via Docker environment variables.
+
+Here's a quick reference for the most-used settings — the [full reference](docs/configuration.md) has everything.
 
 | Setting | Default | Description |
 |---------|---------|-------------|
@@ -278,15 +283,16 @@ docker buildx build \
 
 ```
 futuopend/
-├── Dockerfile             # Multi-stage build: Ubuntu & CentOS variants
-├── docker-compose.yaml    # Container orchestration with Docker Secrets
-├── dockerbuild.sh         # CI/CD build & push helper
-├── .env.example           # Environment variable template
-├── LICENSE                # Apache 2.0
-├── README.md              # (you're here)
+├── Dockerfile                  # Multi-stage build: Ubuntu & CentOS variants
+├── docker-compose.yaml         # Container orchestration with Docker Secrets
+├── FutuOpenD.xml.template     # Ready-to-use config template (env-var aware)
+├── dockerbuild.sh              # CI/CD build & push helper
+├── .env.example                # Environment variable template
+├── LICENSE                     # Apache 2.0
+├── README.md                   # (you're here)
 ├── docs/
-│   ├── configuration.md   # Full FutuOpenD.xml reference
-│   └── security.md        # Security hardening tips
+│   ├── configuration.md        # Full FutuOpenD.xml reference
+│   └── security.md             # Security hardening tips
 └── .gitignore
 ```
 
