@@ -1,9 +1,8 @@
 # syntax=docker/dockerfile:1
 
 ARG FUTU_OPEND_VER=10.2.6208
-ARG BASE_IMG=ubuntu
 
-FROM ${BASE_IMG}:22.04 AS base-ubuntu
+FROM ubuntu:24.04 AS base-ubuntu
 FROM rockylinux:9 AS base-centos
 
 FROM base-ubuntu AS build-ubuntu
@@ -19,7 +18,7 @@ RUN curl -fsSL "https://softwaredownload.futunn.com/Futu_OpenD_${FUTU_OPEND_VER}
     && tar -xzf Futu_OpenD.tar.gz \
     && rm Futu_OpenD.tar.gz
 
-FROM base-centos AS build-centos
+FROM base-centos AS build-rocky
 ARG FUTU_OPEND_VER
 
 WORKDIR /tmp
@@ -28,13 +27,13 @@ RUN curl -fsSL "https://softwaredownload.futunn.com/Futu_OpenD_${FUTU_OPEND_VER}
     && tar -xzf Futu_OpenD.tar.gz \
     && rm Futu_OpenD.tar.gz
 
-FROM ${BASE_IMG}:22.04 AS final-ubuntu
+FROM ubuntu:24.04 AS final-ubuntu
 ARG FUTU_OPEND_VER
 
 ENV TZ=Asia/Hong_Kong \
     FUTU_OPEND_VER=${FUTU_OPEND_VER}
 
-RUN useradd -m -u 1000 futuopend \
+RUN useradd -m futuopend \
     && mkdir -p /run/secrets \
     && chown futuopend:futuopend /run/secrets \
     && mkdir -p /home/futuopend/.com.futunn.FutuOpenD \
@@ -54,19 +53,19 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
     CMD pgrep -x FutuOpenD || exit 1
 CMD ["/usr/local/bin/FutuOpenD"]
 
-FROM rockylinux:9 AS final-centos
+FROM rockylinux:9 AS final-rocky
 ARG FUTU_OPEND_VER
 
 ENV TZ=Asia/Hong_Kong \
     FUTU_OPEND_VER=${FUTU_OPEND_VER}
 
-RUN useradd -m -u 1000 futuopend \
+RUN useradd -m futuopend \
     && mkdir -p /run/secrets \
     && chown futuopend:futuopend /run/secrets \
     && mkdir -p /home/futuopend/.com.futunn.FutuOpenD \
     && chown futuopend:futuopend /home/futuopend/.com.futunn.FutuOpenD
 
-COPY --from=build-centos --chown=futuopend:futuopend \
+COPY --from=build-rocky --chown=futuopend:futuopend \
      /tmp/Futu_OpenD_${FUTU_OPEND_VER}_Centos7/Futu_OpenD_${FUTU_OPEND_VER}_Centos7 \
      /usr/local/bin/FutuOpenD
 

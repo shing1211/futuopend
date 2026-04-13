@@ -3,17 +3,20 @@
 # Build and push FutuOpenD Docker images to Docker Hub.
 #
 # Usage:
-#   ./dockerbuild.sh              # builds & pushes ALL variants (ubuntu + centos)
-#   ./dockerbuild.sh ubuntu        # builds & pushes ubuntu only
-#   ./dockerbuild.sh centos        # builds & pushes centos only
-#   ./dockerbuild.sh --list        # list available variants
+#   ./dockerbuild.sh              # builds & pushes ALL variants (ubuntu + rocky)
+#   ./dockerbuild.sh ubuntu       # builds & pushes ubuntu only
+#   ./dockerbuild.sh rocky        # builds & pushes rocky only
+#   ./dockerbuild.sh centos       # alias for rocky (backward compatibility)
+#   ./dockerbuild.sh --list       # list available variants
 #
 # Tags pushed to Docker Hub (shing1211/futuopend):
 #   :latest                       — always points to ubuntu
 #   :<version>-ubuntu
-#   :<version>-centos
+#   :<version>-rocky
+#   :<version>-centos            — alias for :<version>-rocky
 #   :ubuntu
-#   :centos
+#   :rocky
+#   :centos                      — alias for :rocky
 #
 set -euo pipefail
 
@@ -34,7 +37,6 @@ build_and_push() {
     docker build \
         --target "$target" \
         --build-arg FUTU_OPEND_VER="$VERSION" \
-        --build-arg BASE_IMG="$variant" \
         -t "${IMAGE}:${tag_ver}" \
         -t "${IMAGE}:${variant}" \
         .
@@ -46,17 +48,27 @@ build_and_push() {
     docker push "${IMAGE}:${variant}"
 }
 
+push_alias() {
+    local src_tag="$1"
+    local alias_tag="$2"
+    docker tag "${IMAGE}:${src_tag}" "${IMAGE}:${alias_tag}"
+    echo "==>  Pushing  ${IMAGE}:${alias_tag} (alias)"
+    docker push "${IMAGE}:${alias_tag}"
+}
+
 case "$VARIANT" in
     --list)
         echo "Available variants:"
-        echo "  ubuntu  — Ubuntu 22.04"
-        echo "  centos  — Rocky Linux 9"
-        echo "  all     — build both (default)"
+        echo "  ubuntu  — Ubuntu 24.04 LTS"
+        echo "  rocky  — Rocky Linux 9"
+        echo "  centos — alias for rocky (backward compatibility)"
+        echo "  all    — build both ubuntu + rocky (default)"
         exit 0
         ;;
     --help|-h)
-        echo "Usage: $0 [ubuntu|centos|all] [version]"
+        echo "Usage: $0 [ubuntu|rocky|centos|all] [version]"
         echo "  version defaults to 10.2.6208"
+        echo "  centos is an alias for rocky (backward compatibility)"
         exit 0
         ;;
 esac
@@ -67,11 +79,11 @@ if [[ "$VARIANT" == "all" ]]; then
     echo ""
 
     echo "==> Pulling base images..."
-    docker pull ubuntu:22.04
+    docker pull ubuntu:24.04
     docker pull rockylinux:9
 
     build_and_push ubuntu
-    build_and_push centos
+    build_and_push rocky
 
     echo ""
     echo "==> Tagging :latest (ubuntu)"
@@ -79,21 +91,37 @@ if [[ "$VARIANT" == "all" ]]; then
     docker push "${IMAGE}:latest"
 
     echo ""
+    echo "==> Creating :centos aliases..."
+    push_alias "${VERSION}-rocky" "${VERSION}-centos"
+    push_alias "rocky" "centos"
+
+    echo ""
     echo "==> ============================================"
     echo "==>  All images pushed:"
     echo "==>    ${IMAGE}:${VERSION}-ubuntu"
-    echo "==>    ${IMAGE}:${VERSION}-centos"
+    echo "==>    ${IMAGE}:${VERSION}-rocky"
+    echo "==>    ${IMAGE}:${VERSION}-centos  (alias)"
     echo "==>    ${IMAGE}:latest"
     echo "==>    ${IMAGE}:ubuntu"
-    echo "==>    ${IMAGE}:centos"
+    echo "==>    ${IMAGE}:rocky"
+    echo "==>    ${IMAGE}:centos  (alias)"
     echo "==> ============================================"
 
-elif [[ "$VARIANT" == "ubuntu" || "$VARIANT" == "centos" ]]; then
-    echo "==> Building ${VARIANT} only"
+elif [[ "$VARIANT" == "ubuntu" ]]; then
+    echo "==> Building ubuntu only"
     echo "==> Version: ${VERSION}"
-    build_and_push "$VARIANT"
+    build_and_push ubuntu
     echo ""
-    echo "==> Done. ${IMAGE}:${VERSION}-${VARIANT} & ${IMAGE}:${VARIANT} pushed."
+    echo "==> Done. ${IMAGE}:${VERSION}-ubuntu & ${IMAGE}:ubuntu pushed."
+
+elif [[ "$VARIANT" == "rocky" || "$VARIANT" == "centos" ]]; then
+    echo "==> Building rocky only"
+    echo "==> Version: ${VERSION}"
+    build_and_push rocky
+    push_alias "${VERSION}-rocky" "${VERSION}-centos"
+    push_alias "rocky" "centos"
+    echo ""
+    echo "==> Done. ${IMAGE}:${VERSION}-rocky, ${IMAGE}:rocky, and :centos aliases pushed."
 
 else
     echo "Error: unknown variant '$VARIANT'. Run '$0 --list' to see options." >&2

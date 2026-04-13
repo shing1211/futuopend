@@ -16,7 +16,7 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 
 ### Changed
 - FutuOpenD bumped from `9.6.5618` → `10.2.6208`
-- Base images upgraded to supported releases: Ubuntu 18.04 → **22.04**, CentOS 7 → **Rocky Linux 9**
+- Base images upgraded to supported releases: Ubuntu 18.04 → **24.04**, CentOS 7 → **Rocky Linux 9**
 - `Dockerfile` refactored into a clean multi-stage build with separate Ubuntu and Rocky targets
 - `dockerbuild.sh` now builds and pushes both Ubuntu and Rocky variants in a single run (`./dockerbuild.sh` defaults to `all`)
 - Healthcheck switched from `curl` to `pgrep FutuOpenD` — eliminates the curl dependency entirely

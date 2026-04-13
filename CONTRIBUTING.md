@@ -21,7 +21,7 @@ Got a bug? An idea? A docs fix? All of it is welcome. This project is small and 
 git clone https://github.com/shing1211/futuopend.git
 cd futuopend
 
-# Build the image (Ubuntu variant)
+# Build the image (Ubuntu 24.04 variant)
 docker build \
   --target final-ubuntu \
   --build-arg FUTU_OPEND_VER=10.2.6208 \

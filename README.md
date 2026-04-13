@@ -31,7 +31,7 @@ One `docker run`, and you're live on port `11111`. No X11, no dependency hunting
 - **Paper or live** — Same API for test accounts and production
 - **TCP + WebSocket** — Choose your protocol; SDKs in Python, Java, C#, C++, JavaScript
 - **TLS/SSL-ready** — Encrypt the WebSocket link for remote deployments
-- **Two OS variants** — Ubuntu 22.04 and Rocky Linux 9, from the same Dockerfile
+- **Two OS variants** — Ubuntu 24.04 LTS and Rocky Linux 9, from the same Dockerfile
 - **Docker Secrets** — Clean credential management out of the box
 
 ---
@@ -177,9 +177,9 @@ docker build \
 
 # Build the Rocky Linux 9 variant
 docker build \
-  --target final-centos \
+  --target final-rocky \
   --build-arg FUTU_OPEND_VER=10.2.6208 \
-  -t futuopend:centos .
+  -t futuopend:rocky .
 
 # Run it
 docker compose -f docker-compose.simple.yaml up -d
@@ -211,10 +211,12 @@ docker buildx build \
 | Tag | Description |
 |-----|-------------|
 | `:latest` | Ubuntu variant, latest build |
-| `:ubuntu` | Ubuntu variant |
-| `:centos` | Rocky Linux 9 variant |
+| `:ubuntu` | Ubuntu 24.04 LTS variant |
+| `:rocky` | Rocky Linux 9 variant |
+| `:centos` | Rocky Linux 9 variant (alias of `:rocky`) |
 | `:10.2.6208-ubuntu` | Ubuntu, versioned |
-| `:10.2.6208-centos` | Rocky Linux 9, versioned |
+| `:10.2.6208-rocky` | Rocky Linux 9, versioned |
+| `:10.2.6208-centos` | Rocky Linux 9, versioned (alias of `:10.2.6208-rocky`) |
 
 The quick-start path above gives you **quote-only access** — live market data, no trading. To submit orders or connect from another machine, you need two extra things: an RSA key and to bind to all network interfaces.
 
@@ -349,7 +351,7 @@ For every single tag, see [docs/configuration.md](docs/configuration.md).
 
 ```
 futuopend/
-├── Dockerfile                  # Multi-stage: Ubuntu 22.04 & Rocky Linux 9
+├── Dockerfile                  # Multi-stage: Ubuntu 24.04 & Rocky Linux 9
 ├── docker-compose.yaml         # Docker Swarm orchestration (secrets, restart policy)
 ├── docker-compose.simple.yaml # Standalone Compose (beginner path — no Swarm required)
 ├── FutuOpenD.xml.template     # Config template, ${ENV_VAR}-ready
