@@ -1,21 +1,21 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
+All notable changes are documented here. Format follows [Keep a Changelog](https://keepachangelog.com/).
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
+---
 
 ## [Unreleased]
 
 ### Added
-- Comprehensive documentation (README, docs/configuration.md, docs/security.md, CONTRIBUTING.md, CHANGELOG.md)
-- `.env.example` environment variable template
-- `.gitignore` file
-- CentOS 7 multi-stage build target in Dockerfile
+- Full documentation suite: README, `docs/configuration.md`, `docs/security.md`, `CONTRIBUTING.md`, `CHANGELOG.md`
+- `.env.example` — environment variable template
+- `.gitignore`
+- CentOS 7 multi-stage build target in `Dockerfile`
 
 ### Changed
-- FutuOpenD version bumped from `9.6.5618` to `10.2.6208`
-- Dockerfile refactored with new multi-stage build structure
-- docker-compose.yaml now uses Docker Secrets for credential management
+- FutuOpenD bumped from `9.6.5618` → `10.2.6208`
+- `Dockerfile` refactored into multi-stage build with separate Ubuntu and CentOS targets
+- `docker-compose.yaml` now uses Docker Secrets for credential management
 
 ### Fixed
 - _(none yet — see [CONTRIBUTING.md](CONTRIBUTING.md) for open issues)_
@@ -30,5 +30,5 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Added
 - Docker packaging for FutuOpenD v9.6.5618
 - Ubuntu 18.04 and CentOS 7 variants
-- docker-compose.yaml for easy container orchestration
-- `dockerbuild.sh` CI/CD script
+- `docker-compose.yaml` for easy container orchestration
+- `dockerbuild.sh` CI/CD helper script

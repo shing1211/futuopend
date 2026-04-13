@@ -1,84 +1,105 @@
-# Contributing to futuopend
+# Contributing to FutuOpenD Docker
 
-Thank you for your interest in contributing!
+All contributions are welcome — bug reports, documentation fixes, new features, or even just a friendly "thanks, this worked for me" issue. This project is small, and there's plenty to do.
+
+---
 
 ## Ways to Contribute
 
-- **Bug reports** — File an issue with steps to reproduce and your environment details.
-- **Feature requests** — Open an issue to discuss new features before submitting a PR.
-- **Documentation** — Help improve docs, README, or this guide.
-- **Code contributions** — Fix bugs, improve the Dockerfile, or add missing features.
+- **Bug reports** — File an issue with steps to reproduce and your environment (OS, Docker version, FutuOpenD version).
+- **Feature requests** — Open an issue to discuss the idea before writing code. Saves everyone time.
+- **Documentation** — Typos, clearer explanations, better examples — all appreciated.
+- **Code** — Fix bugs, improve the Dockerfile, or tackle one of the open issues below.
+
+---
 
 ## Development Setup
 
 ```bash
-# Clone the repository
+# Clone the repo
 git clone https://github.com/shing1211/futuopend.git
 cd futuopend
 
-# Build the Docker image
+# Build the image
 docker build -t futuopend:test .
 
-# Run tests (start the container with your config)
+# Start with docker-compose
 docker compose -f docker-compose.yaml up -d
 
-# View logs
+# Watch the logs
 docker compose logs -f
 ```
 
+---
+
 ## Code Style
 
-- Shell scripts: `shellcheck`-compliant (use [shellcheck](https://www.shellcheck.net/)).
-- YAML: 2-space indentation, alphabetical keys.
-- Markdown: sentence case headings, one sentence per line.
+- **Shell scripts** — `shellcheck`-clean. Use [shellcheck.net](https://www.shellcheck.net/) to catch issues before submitting.
+- **YAML** — 2-space indentation, keys in alphabetical order where it makes sense.
+- **Markdown** — Sentence case headings, wrap lines at ~100 characters.
+
+---
 
 ## Pull Request Process
 
-1. **Fork** the repository and create a branch from `main`:
+1. **Fork** the repo and create a branch from `main`:
+
    ```bash
    git checkout -b fix/my-fix
    ```
 
-2. **Make your changes.** Keep commits atomic and well-described:
+2. **Make your changes.** Keep commits focused and well-described:
+
    ```bash
    git commit -m "fix: correct secrets path from /bin to /run/secrets"
    ```
 
 3. **Test locally:**
+
    ```bash
    docker build -t futuopend:test .
-   # Verify the build succeeds and the binary runs
    docker run --rm futuopend:test /bin/FutuOpenD --help 2>/dev/null || true
    ```
 
 4. **Push and open a PR:**
+
    ```bash
    git push origin fix/my-fix
    ```
 
-5. A maintainer will review and merge. Be responsive to feedback.
+5. A maintainer will review. Please be responsive to feedback.
 
-## Known Issues to Fix
+---
 
-The following issues from the code review are open for contribution:
+## Open Issues
 
-| Priority | File | Issue | Status |
-|----------|------|-------|--------|
-| High | `docker-compose.yaml` | Secrets written to `/bin/` (world-readable). Move to `/run/secrets/`. | Open |
-| Medium | `Dockerfile` | No `HEALTHCHECK` for the daemon. Add `HEALTHCHECK --interval=30s CMD ...`. | Open |
-| Medium | `Dockerfile` | No `USER` directive. Add non-root user. | Open |
-| Medium | `.env` | `PUID`/`PGID`/`TZ` defined but unused. Pass them into the container. | Open |
-| Low | `dockerbuild.sh` | `git pull` is dangerous in a build script. Remove or guard with `set -e`. | Open |
-| Low | `dockerbuild.sh` | No error handling. Add `set -e -o pipefail`. | Open |
-| Low | `dockerbuild.sh` | Only builds Ubuntu. Add `--target` for CentOS variant. | Open |
+These were flagged during a code review and are good starting points:
+
+| Priority | File | Issue |
+|----------|------|-------|
+| High | `docker-compose.yaml` | Secrets written to `/bin/` (world-readable). Should be `/run/secrets/`. |
+| Medium | `Dockerfile` | No `HEALTHCHECK` for the daemon. |
+| Medium | `Dockerfile` | No `USER` directive — runs as root. |
+| Medium | `.env` | `PUID`/`PGID`/`TZ` defined but not passed into the container. |
+| Low | `dockerbuild.sh` | `git pull` in a build script is risky — guard it with `set -e`. |
+| Low | `dockerbuild.sh` | Missing `set -e -o pipefail`. |
+| Low | `dockerbuild.sh` | Only builds Ubuntu; CentOS `--target` not exposed. |
+
+---
 
 ## Project Standards
 
-- **Breaking changes** must update `CHANGELOG.md` under an `## [Unreleased]` section.
-- **Version bumps** must update `Dockerfile` (all 4 `FUTU_OPEND_VER` occurrences) in the same PR.
-- **No new dependencies** without discussion. This image aims to be minimal.
+- **Breaking changes** must update `CHANGELOG.md` under `## [Unreleased]`.
+- **Version bumps** must update all four `FUTU_OPEND_VER` occurrences in `Dockerfile` in the same PR.
+- **No new dependencies** without discussion — this image aims to stay minimal.
 - **Apache 2.0 license** applies to all contributions.
+
+---
 
 ## Code of Conduct
 
-Be respectful and constructive. Disagreements are fine; personal attacks are not.
+Be respectful and constructive. Disagreements happen; personal attacks do not.
+
+---
+
+*This project is an unofficial community packaging and is not affiliated with, endorsed by, or supported by Futu Securities or moomoo. All trademarks belong to their respective owners.*

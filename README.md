@@ -1,15 +1,24 @@
 # FutuOpenD Docker
 
-> **FutuOpenD** is the local gateway daemon for the [Futu API](https://openapi.futunn.com/futu-api-doc/) (富途证券), enabling programmatic trading and real-time market data for Hong Kong, US, A-Share, Singapore, Japan, and Australia markets. This project packages FutuOpenD into a Docker container for easy deployment on Linux servers or cloud platforms.
+> **FutuOpenD** is the gateway daemon for the [Futu API](https://openapi.futunn.com/futu-api-doc/) (富途证券). This project packages it in a Docker container so you can run it headless on any Linux server — a cloud VM, a NAS, a Raspberry Pi, whatever you've got.
 
-[![Docker Image Version](https://img.shields.io/badge/FutuOpenD-v10.2.6208-blue)](https://openapi.futunn.com/futu-api-doc/)
+[![FutuOpenD](https://img.shields.io/badge/FutuOpenD-v10.2.6208-blue)](https://openapi.futunn.com/futu-api-doc/)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Docker Pulls](https://img.shields.io/docker/pulls/shing1211/futuopend)](https://hub.docker.com/r/shing1211/futuopend)
 
 ---
 
+## ⚠️ Disclaimer
+
+**This is an unofficial community Docker packaging.** It is _not_ affiliated with, endorsed by, or supported by Futu Securities (富途证券) / Futu Network Technology Limited or moomoo. All trademarks belong to their respective owners.
+
+Trading financial instruments involves **substantial risk of loss** and is not suitable for all investors. Use at your own risk. This project makes no guarantees about accuracy, reliability, or completeness.
+
+---
+
 ## Table of Contents
 
+- [Why This Exists](#why-this-exists)
 - [Features](#features)
 - [Architecture](#architecture)
 - [Prerequisites](#prerequisites)
@@ -25,14 +34,23 @@
 
 ---
 
+## Why This Exists
+
+Futu Securities provides a solid trading API, but running FutuOpenD — the local gateway daemon — on a headless Linux server can be fiddly. The official installer is GUI-oriented, and managing dependencies across Ubuntu and CentOS variants is tedious.
+
+This project does one thing: **it wraps FutuOpenD in a Docker image** so you can `docker run` it anywhere in under five minutes. That's it. No magic, no extra daemons. Just the official FutuOpenD binary, containerized cleanly.
+
+---
+
 ## Features
 
-- **Multi-market trading** — Equities, ETFs, options, futures, and more across HK, US, SG, JP, AU, and A-Share markets
+- **Multi-market trading** — Equities, ETFs, options, futures, and more across HK, US, A-Share, Singapore, Japan, and Australia markets
 - **Real-time market data** — Live quotes, order book, tick data, and historical candles via WebSocket push
 - **Simulated & live trading** — Same API for paper trading and production accounts
 - **Multi-language SDKs** — Official bindings for Python, Java, C#, C++, and JavaScript
-- **Cloud-ready** — Runs on Ubuntu 18.04, CentOS 7, or any Docker host (including cloud VMs and NAS devices)
-- **TLS/SSL support** — Encrypts the WebSocket connection for remote deployments
+- **Cloud-ready** — Runs on Ubuntu 18.04, CentOS 7, or any Docker host (cloud VMs, NAS devices, you name it)
+- **TLS/SSL support** — Encrypt the WebSocket connection for remote deployments
+- **Two base variants** — Ubuntu 18.04 and CentOS 7 images, built from the same Dockerfile
 
 ---
 
@@ -40,25 +58,30 @@
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                        Your App / SDK                        │
-│  (Python / Java / C# / C++ / JavaScript / Proto)           │
-└─────────────────────┬───────────────────────────────────────┘
-                      │  Futu OpenAPI Protocol (TCP / WS)
-┌─────────────────────▼───────────────────────────────────────┐
-│                   FutuOpenD Gateway                          │
+│                     Your App / SDK                          │
+│        Python / Java / C# / C++ / JavaScript               │
+└──────────────────────┬──────────────────────────────────────┘
+                       │  Futu OpenAPI (TCP / WebSocket)
+┌──────────────────────▼──────────────────────────────────────┐
+│                   FutuOpenD Gateway                         │
 │  ┌─────────────┐  ┌──────────────┐  ┌───────────────────┐  │
-│  │  TCP Server │  │ WebSocket    │  │  RSA Decryption   │  │
-│  │  :11111     │  │  (TLS)       │  │  (Trading Auth)   │  │
-│  └─────────────┘  └──────────────┘  └───────────────────┘  │
-└─────────────────────┬───────────────────────────────────────┘
-                      │  HTTPS / WSS
-┌─────────────────────▼───────────────────────────────────────┐
-│                    Futu Servers                              │
-│              (行情 & 交易 backend)                          │
+│  │  TCP Server │  │  WebSocket   │  │  RSA Decryption   │  │
+│  │   :11111    │  │   (TLS)      │  │  (Trading Auth)   │  │
+│  └─────────────┘  └──────────────┘  └───────────────────────┘  │
+└──────────────────────┬──────────────────────────────────────┘
+                       │  HTTPS / WSS
+┌──────────────────────▼──────────────────────────────────────┐
+│                   Futu Servers                              │
+│              (market data & trading backend)                │
 └─────────────────────────────────────────────────────────────┘
 ```
 
-**This Docker image** packages the FutuOpenD binary so you can run it headless on a Linux server. The container exposes port `11111` (TCP) and optionally `11112` (WebSocket) for SDK clients to connect.
+FutuOpenD acts as the local bridge between your application and Futu's backend. It handles protocol translation, authentication, and data push — your SDK just talks TCP or WebSocket to `localhost:11111` (or whatever host you're running it on).
+
+This Docker image packages the FutuOpenD binary so you can run it headless on a Linux server. The container exposes:
+
+- **Port `11111`** — TCP API
+- **Port `11112`** — WebSocket API
 
 ---
 
@@ -66,38 +89,37 @@
 
 - **Docker** 20.10+ and **Docker Compose** v2
 - A **Futu account** (牛牛号 / Futu account ID)
-- An **RSA private key** (required for trading; optional but recommended for quotes on non-localhost)
-- Network access to `softwaredownload.futunn.com` (for the binary) and Futu's backend
+- An **RSA private key** — required for trading; strongly recommended for remote quote access too
+- Outbound network access to `softwaredownload.futunn.com` and Futu's backend servers
 
 ---
 
 ## Quick Start
 
-### 1. Clone the repo
+### 1. Grab the repo
 
 ```bash
-git clone https://github.com/your-user/futuopend.git
+git clone https://github.com/shing1211/futuopend.git
 cd futuopend
 ```
 
-### 2. Prepare secrets
+### 2. Prepare your secrets
 
-You need two secrets — an RSA private key and the `FutuOpenD.xml` configuration file.
+You'll need two files:
 
-#### Generate RSA key pair
-
-From your [Futu OpenAPI dashboard](https://www.futunn.com/en/OpenAPI), generate a key pair and download the private key file:
+1. **RSA private key** — from your [Futu OpenAPI dashboard](https://www.futunn.com/en/OpenAPI), generate a key pair and download the private key
+2. **FutuOpenD.xml** — your gateway configuration
 
 ```bash
-# Place it somewhere safe, e.g.:
+# Create a safe home for secrets (never commit this!)
 mkdir -p /opt/futuopend/secrets
+
+# Place your RSA private key
 cp ~/Downloads/private-key.txt /opt/futuopend/secrets/rsa_key.txt
 chmod 600 /opt/futuopend/secrets/rsa_key.txt
 ```
 
-#### Create FutuOpenD.xml
-
-Create `FutuOpenD.xml` with your account and connection settings. A minimal example:
+Create `FutuOpenD.xml` with your account and connection settings:
 
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
@@ -106,7 +128,7 @@ Create `FutuOpenD.xml` with your account and connection settings. A minimal exam
     <Account>
       <AccID>your_futu_account_id</AccID>
       <PwdMD5>your_md5_password</PwdMD5>
-      <PrivateKey>${RSA_KEY_PATH}</PrivateKey>
+      <PrivateKey>/run/secrets/rsa_key.txt</PrivateKey>
     </Account>
   </AccList>
   <Config>
@@ -120,24 +142,22 @@ Create `FutuOpenD.xml` with your account and connection settings. A minimal exam
 </FutuOpenD>
 ```
 
-Place it alongside the RSA key:
+Then:
 
 ```bash
 cp FutuOpenD.xml /opt/futuopend/secrets/FutuOpenD.xml
 ```
 
-> **Security note:** The XML file contains your account credentials. Never commit it to version control.
+> **Security tip:** `FutuOpenD.xml` contains your account credentials. Keep it somewhere safe, and never commit it to version control.
 
 ### 3. Configure environment
 
-Copy and edit the environment file:
-
 ```bash
 cp .env.example .env
-# Edit .env with your paths
+# Open .env in your editor and fill in the paths
 ```
 
-Or set variables directly:
+Or export directly:
 
 ```bash
 export RSA_FILE_LOCAL_PATH=/opt/futuopend/secrets/rsa_key.txt
@@ -146,51 +166,48 @@ export RSA_FILE_PATH=/run/secrets/rsa_key.txt
 export FUTU_OPEND_XML_PATH=/run/secrets/FutuOpenD.xml
 ```
 
-### 4. Start the container
+### 4. Fire it up
 
 ```bash
 docker compose up -d
 docker compose logs -f futuopend
 ```
 
-### 5. Verify it is running
+### 5. Verify
 
 ```bash
-# Check the API is listening
+# Check the API is responding
 curl -s http://localhost:11111/version
 
 # Check container health
 docker compose ps
 ```
 
-You should see FutuOpenD start and listen on port `11111`. Connect your SDK of choice to `ws://your-host:11111`.
+If you see a version string, you're in business. Point your SDK at `ws://your-host:11111` (or `ws://your-host:11112` for WebSocket) and start trading.
 
 ---
 
 ## Configuration
 
-FutuOpenD is configured via the `FutuOpenD.xml` file. The following table documents the most important settings:
+FutuOpenD is configured entirely via `FutuOpenD.xml`. Here's a quick reference for the most-used settings — the [full reference](docs/configuration.md) has everything.
 
 | Setting | Default | Description |
 |---------|---------|-------------|
-| `IP` | `127.0.0.1` | TCP API listening address. Use `0.0.0.0` for remote access. |
-| `Port` | `11111` | TCP API listening port. |
-| `WSIP` | `127.0.0.1` | WebSocket API listening address. |
-| `WSPort` | `11112` | WebSocket API listening port. |
-| `LogLevel` | `info` | Log verbosity: `debug`, `info`, `warn`, `error`, `fatal`, `off`. |
-| `Language` | `zh-CN` | UI/API language: `zh-CN`, `zh-HK`, `en`. |
-| `PrivateKey` | _(none)_ | Absolute path to the RSA private key file for trading authentication. |
-| `WSCert` | _(none)_ | Path to the SSL certificate for encrypted WebSocket. |
-| `WSKey` | _(none)_ | Path to the SSL private key. The key must have no password. |
-| `WSKey` | _(none)_ | Path to the SSL private key. |
-| `WSLoginExpire` | `259200` | WebSocket login session expiry in seconds. |
-| `DataPushFreq` | _(none)_ | Subscription push frequency limit in milliseconds. |
-| `TelnetIP` | _(none)_ | Telnet command interface IP. |
-| `TelnetPort` | _(none)_ | Telnet command interface port. |
+| `IP` | `127.0.0.1` | TCP API bind address. Use `0.0.0.0` for remote access. |
+| `Port` | `11111` | TCP API port. |
+| `WSIP` | `127.0.0.1` | WebSocket API bind address. |
+| `WSPort` | `11112` | WebSocket API port. |
+| `LogLevel` | `info` | Verbosity: `debug`, `info`, `warn`, `error`, `fatal`, `off`. |
+| `Language` | `zh-CN` | Language: `zh-CN`, `zh-HK`, `en`. |
+| `PrivateKey` | _(none)_ | Absolute path to your RSA private key file. |
+| `WSCert` | _(none)_ | SSL certificate for encrypted WebSocket. |
+| `WSKey` | _(none)_ | SSL private key (must have no password). |
+| `WSLoginExpire` | `259200` | WebSocket session expiry in seconds (default: 72 hours). |
+| `DataPushFreq` | _(none)_ | Max subscription push frequency in milliseconds. |
+| `TelnetIP` | _(none)_ | Telnet debug interface bind address. |
+| `TelnetPort` | _(none)_ | Telnet debug interface port. |
 
-> **Security:** If you expose the TCP or WebSocket port to a non-local network, you **must** configure an RSA private key. Without it, trading APIs will be rejected.
-
-See the [official documentation](https://openapi.futunn.com/futu-api-doc/en/quick/opend-base.html) for the full reference.
+> **Security:** If you expose the TCP or WebSocket port beyond `localhost`, you **must** configure an RSA private key. Without it, trading API calls will be rejected.
 
 ---
 
@@ -198,15 +215,15 @@ See the [official documentation](https://openapi.futunn.com/futu-api-doc/en/quic
 
 | Variable | Description |
 |----------|-------------|
-| `RSA_FILE_LOCAL_PATH` | Absolute path on the **host** to the RSA private key file. Used by Docker Secrets. |
-| `FUTU_OPEND_XML_LOCAL_PATH` | Absolute path on the **host** to `FutuOpenD.xml`. Used by Docker Secrets. |
+| `RSA_FILE_LOCAL_PATH` | Absolute path on the **host** to your RSA private key file. |
+| `FUTU_OPEND_XML_LOCAL_PATH` | Absolute path on the **host** to `FutuOpenD.xml`. |
 | `TZ` | Container timezone. Defaults to `Asia/Hong_Kong`. |
 
 ---
 
 ## Building from Source
 
-### Pull pre-built image (recommended)
+### Pull the pre-built image (recommended)
 
 ```bash
 docker pull shing1211/futuopend:latest
@@ -214,17 +231,17 @@ docker pull shing1211/futuopend:latest
 
 ### Build locally
 
-Use the `dockerbuild.sh` helper script — it handles the `--target` and tagging automatically:
+The `dockerbuild.sh` helper script handles the `--target` and tagging:
 
 ```bash
-# Ubuntu (default)
+# Ubuntu 18.04 variant
 ./dockerbuild.sh ubuntu 10.2.6208
 
-# CentOS 7
+# CentOS 7 variant
 ./dockerbuild.sh centos 10.2.6208
 ```
 
-Or build manually with Docker's `--target` flag:
+Or build manually:
 
 ```bash
 # Ubuntu variant
@@ -242,7 +259,7 @@ docker build \
   -t futuopend:10.2.6208-centos .
 ```
 
-#### Multi-platform build
+### Multi-platform build (amd64 + arm64)
 
 ```bash
 docker buildx create --use
@@ -261,15 +278,15 @@ docker buildx build \
 
 ```
 futuopend/
-├── Dockerfile           # Multi-stage build for Ubuntu & CentOS
-├── docker-compose.yaml  # Container orchestration
-├── dockerbuild.sh       # CI/CD build & push script
-├── .env.example         # Environment variable template
-├── LICENSE              # MIT License
-├── README.md             # This file
+├── Dockerfile             # Multi-stage build: Ubuntu & CentOS variants
+├── docker-compose.yaml    # Container orchestration with Docker Secrets
+├── dockerbuild.sh         # CI/CD build & push helper
+├── .env.example           # Environment variable template
+├── LICENSE                # Apache 2.0
+├── README.md              # (you're here)
 ├── docs/
-│   ├── configuration.md  # Detailed FutuOpenD.xml reference
-│   └── security.md       # Security best practices
+│   ├── configuration.md   # Full FutuOpenD.xml reference
+│   └── security.md        # Security hardening tips
 └── .gitignore
 ```
 
@@ -279,41 +296,39 @@ futuopend/
 
 ### Container exits immediately
 
-Check the logs for error details:
-
 ```bash
 docker compose logs futuopend
 ```
 
-Common causes:
-- **Missing secrets** — The RSA key or `FutuOpenD.xml` files are not mounted or have wrong paths.
-- **Port conflict** — Port `11111` is already in use on the host.
+Common culprits:
 
-### Cannot connect from remote SDK
+- **Missing secrets** — RSA key or `FutuOpenD.xml` not mounted, or paths don't match inside the container
+- **Port conflict** — Something else is already using port `11111` on the host
 
-1. Verify the container is listening on `0.0.0.0` (not `127.0.0.1`) in `FutuOpenD.xml`.
-2. Ensure your firewall allows inbound TCP on port `11111`.
-3. Check that your Futu account has API access enabled.
+### Can't connect from a remote SDK
+
+1. Verify the container is binding to `0.0.0.0` (not `127.0.0.1`) in `FutuOpenD.xml`
+2. Make sure your firewall allows inbound TCP on `11111` (and `11112` if using WebSocket)
+3. Check that your Futu account has API access enabled
 
 ### Trading API returns permission error
 
-- Ensure `PrivateKey` in `FutuOpenD.xml` points to a **valid RSA key** registered with your account.
-- Verify the key file is mounted correctly inside the container.
+- The `PrivateKey` path in `FutuOpenD.xml` must point to a **valid RSA key** registered with your Futu account
+- Double-check the key file is mounted correctly inside the container
 
 ### Build fails downloading the tarball
 
-Futu's download server may be temporarily unreachable. Wait and retry, or manually download the tarball and place it in the build context:
+Futu's download server can be flaky. Manually download the tarball and drop it in the build context:
 
 ```bash
 wget -O Futu_OpenD_10.2.6208_Ubuntu18.04.tar.gz \
   https://softwaredownload.futunn.com/Futu_OpenD_10.2.6208_Ubuntu18.04.tar.gz
 ```
 
-Then add it to the Dockerfile:
+Then reference it in your Dockerfile:
 
 ```dockerfile
 COPY Futu_OpenD_10.2.6208_Ubuntu18.04.tar.gz /tmp/
-RUN tar -xzf /tmp/Futu_OpenD_10.2.6208_Ubuntu18.04.tar.gz ...
 ```
 
 ---
@@ -331,12 +346,12 @@ RUN tar -xzf /tmp/Futu_OpenD_10.2.6208_Ubuntu18.04.tar.gz ...
 
 ## Contributing
 
-Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+Found a bug? Have an idea? Contributions are welcome — please read [CONTRIBUTING.md](CONTRIBUTING.md) before submitting PRs.
 
 ---
 
 ## License
 
-This project is licensed under the **MIT License**. See [LICENSE](LICENSE) for details.
+Copyright 2024 [Terence Chan](https://github.com/shing1211)
 
-> **Disclaimer:** This project is an **unofficial community Docker packaging** of FutuOpenD. It is **not affiliated with, endorsed by, or supported by** Futu Securities (富途证券) / Futu Network Technology Limited or moomoo. All trademarks belong to their respective owners. Use at your own risk. **Trading financial instruments involves substantial risk of loss and is not suitable for all investors.** Past performance is not indicative of future results. This project makes no guarantees about the accuracy, reliability, or completeness of any information provided.
+Licensed under the **Apache License 2.0**. See [LICENSE](LICENSE) for details.
