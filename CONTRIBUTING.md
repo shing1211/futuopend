@@ -77,13 +77,11 @@ These were flagged during a code review and are good starting points:
 
 | Priority | File | Issue |
 |----------|------|-------|
-| High | `docker-compose.yaml` | Secrets written to `/bin/` (world-readable). Should be `/run/secrets/`. |
-| Medium | `Dockerfile` | No `HEALTHCHECK` for the daemon. |
-| Medium | `Dockerfile` | No `USER` directive — runs as root. |
-| Medium | `.env` | `PUID`/`PGID`/`TZ` defined but not passed into the container. |
-| Low | `dockerbuild.sh` | `git pull` in a build script is risky — guard it with `set -e`. |
-| Low | `dockerbuild.sh` | Missing `set -e -o pipefail`. |
-| Low | `dockerbuild.sh` | Only builds Ubuntu; CentOS `--target` not exposed. |
+| High | `Dockerfile` | Base image Ubuntu 18.04 is EOL — migrate to 22.04 or 24.04. |
+| Medium | `Dockerfile` | PTY/TTY not allocated — `stdin_open: true` and `tty: true` in compose have no effect without `-it`. |
+| Medium | `docker-compose.yaml` | `PUID`/`PGID` not wired through — container still runs as `futuopend` UID 1000; add `--userns=keep-id` or pass PUID/PGID via env. |
+| Low | `.env` | `PUID`/`PGID`/`TZ` defined but unused — these could be wired into a custom entrypoint. |
+| Low | `CI` | No GitHub Actions — builds are manual. See `.github/workflows/` for a starter workflow. |
 
 ---
 
