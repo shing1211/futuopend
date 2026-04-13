@@ -129,22 +129,21 @@ Open it in your editor and set these environment variables (or hardcode values d
 
 ```bash
 # Set these before starting the container
-export FUTU_ACCOUNT_ID=your_futu_account_id
-export FUTU_PASSWORD_MD5=$(echo -n "your_password" | md5sum | cut -d' ' -f1)
-export RSA_KEY_PATH=/opt/futuopend/secrets/rsa_key.txt
-export FUTU_OPEND_IP=0.0.0.0       # use 127.0.0.1 for local-only
-export FUTU_WS_IP=0.0.0.0          # use 127.0.0.1 for local-only
-export FUTU_LOG_LEVEL=info          # debug | info | warn | error
-export FUTU_LANGUAGE=en            # en | zh-CN | zh-HK
+export FUTU_ACCOUNT=your_futu_account_id
+export FUTU_PWD_MD5=$(echo -n "your_password" | md5sum | cut -d' ' -f1)
+export FUTU_RSA_KEY=/opt/futuopend/secrets/rsa_key.txt
+export FUTU_IP=0.0.0.0            # use 127.0.0.1 for local-only
+export FUTU_LOG_LEVEL=info        # no | debug | info | warning | error | fatal
+export FUTU_LANG=en               # en | chs
 ```
 
 Pass them into Docker Compose:
 
 ```bash
 docker compose up -d \
-  -e FUTU_ACCOUNT_ID=your_account \
-  -e FUTU_PASSWORD_MD5=your_md5 \
-  -e RSA_KEY_PATH=/run/secrets/rsa_key.txt
+  -e FUTU_ACCOUNT=your_account \
+  -e FUTU_PWD_MD5=your_md5 \
+  -e FUTU_RSA_KEY=/run/secrets/rsa_key.txt
 ```
 
 Or wire them permanently in `docker-compose.override.yaml` (see [Configuration](#configuration)).
@@ -190,27 +189,29 @@ If you see a version string, you're in business. Point your SDK at `ws://your-ho
 
 ## Configuration
 
-FutuOpenD is configured entirely via `FutuOpenD.xml`. The repo ships a **ready-to-use template** at [`FutuOpenD.xml.template`](FutuOpenD.xml.template) — copy it, drop in your credentials, and go.
+FutuOpenD is configured entirely via `FutuOpenD.xml`. The repo ships a **ready-to-use template** at [`FutuOpenD.xml.template`](FutuOpenD.xml.template) — copy it, drop in your credentials, and go. It was extracted directly from the official FutuOpenD v10.2.6208 release.
 
 All settings in the template support `${ENV_VAR}` substitution, so you can keep your actual secrets out of the file and pass them in via Docker environment variables.
+
+> **Note:** FutuOpenD uses **lowercase XML tag names** (e.g. `<ip>`, `<api_port>`, `<login_account>`). The [full reference](docs/configuration.md) has details on every setting.
 
 Here's a quick reference for the most-used settings — the [full reference](docs/configuration.md) has everything.
 
 | Setting | Default | Description |
 |---------|---------|-------------|
-| `IP` | `127.0.0.1` | TCP API bind address. Use `0.0.0.0` for remote access. |
-| `Port` | `11111` | TCP API port. |
-| `WSIP` | `127.0.0.1` | WebSocket API bind address. |
-| `WSPort` | `11112` | WebSocket API port. |
-| `LogLevel` | `info` | Verbosity: `debug`, `info`, `warn`, `error`, `fatal`, `off`. |
-| `Language` | `zh-CN` | Language: `zh-CN`, `zh-HK`, `en`. |
-| `PrivateKey` | _(none)_ | Absolute path to your RSA private key file. |
-| `WSCert` | _(none)_ | SSL certificate for encrypted WebSocket. |
-| `WSKey` | _(none)_ | SSL private key (must have no password). |
-| `WSLoginExpire` | `259200` | WebSocket session expiry in seconds (default: 72 hours). |
-| `DataPushFreq` | _(none)_ | Max subscription push frequency in milliseconds. |
-| `TelnetIP` | _(none)_ | Telnet debug interface bind address. |
-| `TelnetPort` | _(none)_ | Telnet debug interface port. |
+| `ip` | `127.0.0.1` | TCP API bind address. Use `0.0.0.0` for remote access. |
+| `api_port` | `11111` | TCP API port. |
+| `websocket_ip` | _(none)_ | WebSocket bind address. |
+| `websocket_port` | _(none)_ | WebSocket port. Leave unset to disable. |
+| `log_level` | `info` | Verbosity: `no`, `debug`, `info`, `warning`, `error`, `fatal`. |
+| `lang` | `en` | Language: `en`, `chs`. |
+| `login_account` | _(required)_ | Your Futu account ID, phone, or email. |
+| `login_pwd_md5` | _(required)_ | Password as 32-char MD5 hex. |
+| `rsa_private_key` | _(none)_ | Path to RSA private key. Required for trading on non-localhost. |
+| `websocket_cert` | _(none)_ | SSL certificate for WSS. |
+| `websocket_private_key` | _(none)_ | SSL private key (no password allowed). |
+| `qot_push_frequency` | _(none)_ | Max push frequency in milliseconds. |
+| `telnet_ip` / `telnet_port` | _(none)_ | Telnet debug interface. |
 
 > **Security:** If you expose the TCP or WebSocket port beyond `localhost`, you **must** configure an RSA private key. Without it, trading API calls will be rejected.
 
@@ -218,11 +219,16 @@ Here's a quick reference for the most-used settings — the [full reference](doc
 
 ## Environment Variables
 
-| Variable | Description |
-|----------|-------------|
-| `RSA_FILE_LOCAL_PATH` | Absolute path on the **host** to your RSA private key file. |
-| `FUTU_OPEND_XML_LOCAL_PATH` | Absolute path on the **host** to `FutuOpenD.xml`. |
-| `TZ` | Container timezone. Defaults to `Asia/Hong_Kong`. |
+| Variable | Maps to | Description |
+|----------|---------|-------------|
+| `RSA_FILE_LOCAL_PATH` | — | Absolute path on the **host** to your RSA private key file. |
+| `FUTU_OPEND_XML_LOCAL_PATH` | — | Absolute path on the **host** to `FutuOpenD.xml`. |
+| `FUTU_ACCOUNT` | `<login_account>` | Your Futu account ID, phone, or email. |
+| `FUTU_PWD_MD5` | `<login_pwd_md5>` | Password as 32-char MD5 hex. |
+| `FUTU_RSA_KEY` | `<rsa_private_key>` | Path to your RSA private key. |
+| `FUTU_IP` | `<ip>` | TCP API bind address. Defaults to `127.0.0.1`. |
+| `FUTU_LOG_LEVEL` | `<log_level>` | Log verbosity. Defaults to `info`. |
+| `TZ` | — | Container timezone. Defaults to `Asia/Hong_Kong`. |
 
 ---
 
