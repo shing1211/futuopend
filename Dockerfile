@@ -50,7 +50,7 @@ USER futuopend
 WORKDIR /home/futuopend
 EXPOSE 11111 11112
 VOLUME /home/futuopend/.com.futunn.FutuOpenD
-HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
     CMD pgrep -x FutuOpenD || exit 1
 CMD ["/usr/local/bin/FutuOpenD"]
 
@@ -76,7 +76,7 @@ USER futuopend
 WORKDIR /home/futuopend
 EXPOSE 11111 11112
 VOLUME /home/futuopend/.com.futunn.FutuOpenD
-HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
     CMD pgrep -x FutuOpenD || exit 1
 CMD ["/usr/local/bin/FutuOpenD"]
 
