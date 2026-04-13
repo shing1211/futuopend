@@ -349,13 +349,15 @@ For every single tag, see [docs/configuration.md](docs/configuration.md).
 
 ```
 futuopend/
-├── Dockerfile                  # Multi-stage: Ubuntu & CentOS, one file
-├── docker-compose.yaml         # Orchestration with Docker Secrets
+├── Dockerfile                  # Multi-stage: Ubuntu 22.04 & Rocky Linux 9
+├── docker-compose.yaml         # Docker Swarm orchestration (secrets, restart policy)
+├── docker-compose.simple.yaml # Standalone Compose (beginner path — no Swarm required)
 ├── FutuOpenD.xml.template     # Config template, ${ENV_VAR}-ready
 ├── dockerbuild.sh              # Build & push both variants
 ├── .env.example                # Environment variable template
 ├── LICENSE                     # Apache 2.0
 ├── README.md                   # (you're here)
+├── TODO.md                     # Open issues and planned improvements
 ├── docs/
 │   ├── configuration.md        # Every FutuOpenD.xml tag, documented
 │   └── security.md             # Hardening guide, checklists
@@ -414,7 +416,7 @@ Then update the Dockerfile's `COPY` step to use the local file instead of `curl`
 
 ## Contributing
 
-Found a bug? Have an idea? Docs fix? Jump in. See [CONTRIBUTING.md](CONTRIBUTING.md).
+Found a bug? Have an idea? Docs fix? Jump in. See [CONTRIBUTING.md](CONTRIBUTING.md). For a full list of open improvements, see [TODO.md](TODO.md).
 
 ---
 
