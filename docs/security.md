@@ -1,60 +1,84 @@
-# Security Best Practices
+# Security Hardening Guide
 
-FutuOpenD handles your trading credentials. Treat it accordingly.
+Your trading credentials live inside this container. This guide shows you how to keep them there.
 
-> **Disclaimer:** This project is an unofficial community packaging. It is not affiliated with, endorsed by, or supported by Futu Securities or moomoo.
+> **Disclaimer:** This is an unofficial community packaging. Not affiliated with, endorsed by, or supported by Futu Securities or moomoo.
+
+---
+
+## The Golden Rules
+
+1. **Never hardcode secrets.** Use MD5 for passwords, mount keys as files, pass nothing in plaintext.
+2. **Least privilege.** Run as non-root, drop capabilities, lock down the filesystem.
+3. **Network is enemy territory.** TLS on everything that crosses a wire. Firewall everything else.
+4. **Rotate.** Keys wear out. Change them periodically via the [Futu OpenAPI dashboard](https://www.futunn.com/en/OpenAPI).
 
 ---
 
 ## Credential Handling
 
-### Passwords (MD5 hash)
+### Your password — hash it, never store it plaintext
 
-- Never store plaintext passwords. The MD5 hash is a one-way transform — use it.
-- Don't reuse the same password hash across dev and production.
-- Rotate passwords regularly through Futu's official portal.
+The `<login_pwd_md5>` tag takes a one-way MD5 hash. Your actual password never touches the disk.
 
-### RSA Private Keys
+Generate it:
 
-- Set `chmod 600` on your private key file — owner read/write only.
-- **Never commit keys to version control.** Add this to your `.gitignore`:
+```bash
+# Linux
+echo -n "your_password" | md5sum | cut -d' ' -f1
+
+# macOS
+echo -n "your_password" | md5 -r
+
+# Python (works everywhere)
+python3 -c "import hashlib; print(hashlib.md5(b'your_password').hexdigest())"
+```
+
+The `-n` suppresses the trailing newline. Omit it and the hash is wrong.
+
+### Your RSA private key — chmod 600, never commit it
+
+Your RSA key is the most sensitive piece here. Guard it accordingly:
+
+```bash
+chmod 600 /opt/futuopend/secrets/rsa_key.txt
+```
+
+And keep it out of version control. The repo's `.gitignore` already handles this:
 
 ```gitignore
-# .gitignore
 **/*.pem
 **/*.key
 **/FutuOpenD.xml
 **/.rsa*
 ```
 
-- Use separate keys per environment when possible.
-- Rotate them periodically via the [Futu OpenAPI dashboard](https://www.futunn.com/en/OpenAPI).
+### FutuOpenD.xml — treat it like a secret
 
-### FutuOpenD.xml
+It contains your account ID and credential paths. Lock it down:
 
-This file contains your account ID and references to secrets. Treat it like a secret itself:
-- `chmod 600 FutuOpenD.xml`
-- Use Docker Secrets or a secrets manager (Vault, AWS Secrets Manager) in production
-- Keep it off version control
+```bash
+chmod 600 /opt/futuopend/secrets/FutuOpenD.xml
+```
+
+In production, pull it from a secrets manager — Docker Secrets, HashiCorp Vault, AWS Secrets Manager. Don't leave it sitting on a filesystem.
 
 ---
 
 ## Network Security
 
-### Local binding (default)
+### Local binding — the safe default
 
-FutuOpenD binds to `127.0.0.1` by default. Only local processes can connect — nothing from the network can reach it. This is the safest mode.
+FutuOpenD binds to `127.0.0.1` by default. Only local processes can reach it — the network can't touch it. This is the right mode for single-machine setups:
 
 ```xml
 <ip>127.0.0.1</ip>
 <api_port>11111</api_port>
 ```
 
-### Remote access with TLS
+### Remote access — TLS is non-negotiable
 
-If you need to connect from another machine, **TLS is non-negotiable**:
-
-1. Bind to `0.0.0.0` **and** configure SSL:
+If another machine needs to connect, the WebSocket traffic must be encrypted. Generate a certificate and key, then:
 
 ```xml
 <ip>0.0.0.0</ip>
@@ -62,11 +86,20 @@ If you need to connect from another machine, **TLS is non-negotiable**:
 <websocket_cert>/run/secrets/ws_cert.pem</websocket_cert>
 ```
 
-2. Better yet: use a VPN (WireGuard, Tailscale) or SSH tunnel instead of exposing raw ports.
+Generate a self-signed cert for testing:
 
-3. Lock down the firewall to your known client IPs only.
+```bash
+openssl req -x509 -newkey rsa:4096 \
+  -keyout key.pem -out cert.pem \
+  -days 365 -nodes -subj "/CN=futuopend"
 
-### Firewall rules
+# Strip the password — FutuOpenD doesn't handle encrypted keys
+openssl rsa -in key.pem -out key_nopass.pem
+```
+
+> **Better yet** for remote access: use a VPN (WireGuard, Tailscale) or an SSH tunnel. Encryption without managing certificates.
+
+### Firewall — default deny
 
 ```bash
 # Allow only your client subnet
@@ -74,7 +107,7 @@ iptables -A INPUT -p tcp --dport 11111 -s 10.0.0.0/8 -j ACCEPT
 iptables -A INPUT -p tcp --dport 11111 -j DROP
 ```
 
-Or use Docker's internal network to isolate FutuOpenD from the outside world:
+Or isolate FutuOpenD inside a Docker internal network so it can't reach the outside world except where you explicitly allow:
 
 ```yaml
 services:
@@ -84,30 +117,16 @@ services:
 
 networks:
   futu-internal:
-    internal: true   # No external egress — add explicit rules for Futu's servers
+    internal: true   # No external egress by default
 ```
 
 ---
 
-## Docker Security
+## Container Hardening
 
-### Read-only secrets
+### Read-only filesystem + dropped capabilities
 
-Mount secrets as read-only volumes with restricted permissions:
-
-```yaml
-services:
-  futuopend:
-    secrets:
-      - source: rsa-key
-        target: /run/secrets/rsa_key.txt
-        mode: 0400
-      - source: config
-        target: /run/secrets/FutuOpenD.xml
-        mode: 0400
-```
-
-### Container hardening
+This is the production baseline. Add it to your `docker-compose.yaml`:
 
 ```yaml
 services:
@@ -121,44 +140,40 @@ services:
       - ALL
 ```
 
-What each does:
-- `no-new-privileges` — prevents the container from gaining new privileges via suid binaries
-- `read_only` — makes the filesystem immutable except for mounted volumes
-- `tmpfs` — stores temp data in memory, not on disk
-- `cap_drop: ALL` — strips all Linux capabilities the process doesn't need
+What each line does:
 
-### Run as non-root
+| Option | What it does |
+|--------|-------------|
+| `no-new-privileges` | Prevents the container from gaining privileges via suid binaries |
+| `read_only` | Filesystem is immutable except for mounted volumes |
+| `tmpfs` | Temp data lives in RAM, not on disk |
+| `cap_drop: ALL` | Strips every Linux capability the process doesn't need |
 
-The base image defaults to root. Add this to the Dockerfile or entrypoint to drop privileges:
+### Non-root user
 
-```dockerfile
-RUN useradd -m -u 1000 futuopend
-USER futuopend
-```
+The Dockerfile already creates a `futuopend` user (UID 1000) and switches to it. This is already in place — no action needed unless you're customizing the image.
 
----
+### Docker Secrets
 
-## Secrets Management
-
-### Docker Secrets (Swarm mode)
+The compose file uses Docker Secrets for credential injection. Secrets land at `/run/secrets/` with `0400` permissions and are mounted read-only:
 
 ```yaml
 secrets:
   rsa-key:
-    file: ./secrets/rsa_key.txt
+    file: ${RSA_FILE_LOCAL_PATH:?RSA_FILE_LOCAL_PATH is not set}
   config:
-    file: ./FutuOpenD.xml
+    file: ${FUTU_OPEND_XML_LOCAL_PATH:?FUTU_OPEND_XML_LOCAL_PATH is not set}
 ```
 
 ### External secrets managers
 
-For production at scale, pull secrets in at runtime:
+For larger deployments, pull secrets at runtime:
 
-| Tool | Approach |
-|------|----------|
-| **HashiCorp Vault** | Vault Agent sidecar injects secrets |
-| **AWS Secrets Manager** | aws-secrets-manager-sidecar container |
-| **Azure Key Vault** | akv-sidecar container |
+| Tool | How it works |
+|------|-------------|
+| HashiCorp Vault | Vault Agent sidecar injects secrets into the container |
+| AWS Secrets Manager | aws-secrets-manager-sidecar pulls keys at startup |
+| Azure Key Vault | akv-sidecar handles injection |
 
 ### Kubernetes
 
@@ -178,41 +193,44 @@ stringData:
     ...
 ```
 
-Mount as volumes or inject as environment variables via a mutating webhook.
+Mount as volumes or inject via a mutating webhook.
 
 ---
 
 ## Monitoring & Audit
 
-- Start with `log_level=debug` during setup. Switch to `info` once everything is stable.
-- Ship logs to a central system (ELK, Loki, CloudWatch) — you'll want an audit trail.
-- Set up alerts on authentication failures and unusual trading activity.
-- Watch container resource usage. Unexpected spikes can be an early warning sign.
+- Start with `log_level=debug` during setup. Once everything is stable, switch to `info`.
+- Ship logs somewhere centralized — ELK, Loki, CloudWatch. You want an audit trail, not just a terminal scrollback.
+- Set up alerts on authentication failures. A failed login attempt from an unexpected IP is a red flag.
+- Watch resource usage. Sudden spikes in CPU or memory can be an early warning something is wrong.
 
 ---
 
-## Dependency Security
+## Dependency Updates
 
-- Rebuild the image periodically to pull OS security patches:
+The base images ship with known vulnerabilities patched at build time. Rebuild periodically to pull fresh OS security patches:
 
 ```bash
-docker build --no-cache -t futuopend:latest .
+docker build --no-cache -t shing1211/futuopend:latest .
 ```
 
-- Pin the FutuOpenD version in production. Auto-upgrades can introduce breaking changes at the worst time.
+Pin the FutuOpenD version in production. Auto-upgrades at the wrong time can break your trading system.
 
 ---
 
 ## Security Checklist
 
+Run through this before going live:
+
 - [ ] RSA private key has no password and `chmod 600`
 - [ ] `FutuOpenD.xml` is not committed to version control
-- [ ] Remote access uses TLS (certificate + key configured)
-- [ ] Firewall restricts port `11111` to known IPs
-- [ ] Container runs with `--read-only`, `cap_drop: ALL`, and `no-new-privileges`
-- [ ] Logs are reviewed for authentication failures
-- [ ] FutuOpenD version is pinned and current
-- [ ] Separate keys used for dev vs. production
+- [ ] Remote access uses TLS (both `websocket_private_key` and `websocket_cert` set)
+- [ ] Firewall restricts port `11111` to known client IPs
+- [ ] Container runs with `read_only: true`, `cap_drop: ALL`, and `no-new-privileges: true`
+- [ ] Logs are forwarded to a central system and reviewed for auth failures
+- [ ] FutuOpenD version is pinned (not `latest`)
+- [ ] Separate keys used for dev and production
+- [ ] Password hash is not reused across environments
 
 ---
 

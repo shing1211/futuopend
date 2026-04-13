@@ -2,13 +2,16 @@
 <!--
   FutuOpenD.xml — Official Configuration Template
   =================================================
-  Extracted from the official FutuOpenD v10.2.6208 release tarball.
-  This file ships inside the Ubuntu/CentOS tarball at:
-    Futu_OpenD_10.2.6208_Ubuntu18.04/Futu_OpenD_10.2.6208_Ubuntu18.04/FutuOpenD.xml
+  This file is derived from the official FutuOpenD v10.2.6208 release tarball
+  published by Futu Securities (富途证券).
 
-  Copy this to your secrets directory and fill in your values.
-  All values can reference environment variables using ${VAR_NAME} syntax
-  — FutuOpenD resolves them at startup.
+  FutuOpenD is proprietary software owned by Futu Network Technology Limited.
+  This template is distributed here for convenience as part of the FutuOpenD
+  Docker packaging project (shing1211/futuopend), which is an unofficial
+  community project not affiliated with or endorsed by Futu Securities.
+
+  Usage: copy this to your secrets directory and fill in your values.
+  All values support ${VAR_NAME} environment variable substitution.
 
   Config reference: https://github.com/shing1211/futuopend/blob/main/docs/configuration.md
   Official docs:    https://openapi.futunn.com/futu-api-doc/
@@ -61,10 +64,10 @@
   <!-- <telnet_port>22222</telnet_port> -->
 
   <!-- rsa_private_key   : Path to RSA private key for API encryption.
-                           Required for trading when ip is not 127.0.0.1.
+                           REQUIRED for trading over the network (when ip is 0.0.0.0).
+                           NOT needed for quote-only access or local-only (127.0.0.1) use.
                            Generate at: https://www.futunn.com/en/OpenAPI → Manage Key -->
   <!-- <rsa_private_key>/run/secrets/rsa_key.txt</rsa_private_key> -->
-  <rsa_private_key>${FUTU_RSA_KEY}</rsa_private_key>
 
   <!-- price_reminder_push : Receive price reminder notifications. 0: off, 1: on -->
   <price_reminder_push>${FUTU_PRICE_REMINDER:-1}</price_reminder_push>

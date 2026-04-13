@@ -1,14 +1,20 @@
 # FutuOpenD.xml Configuration Reference
 
-Every setting available in `FutuOpenD.xml`, extracted from FutuOpenD v10.2.6208. If you're new, start with the [`FutuOpenD.xml.template`](../FutuOpenD.xml.template) in the repo root — it has sensible defaults and env-var substitution ready to go.
+Every tag FutuOpenD v10.2.6208 understands, documented with examples. Start with the [`FutuOpenD.xml.template`](../FutuOpenD.xml.template) in the repo root — it's pre-wired with env-var substitution and sensible defaults.
 
-> **This project is an unofficial community packaging. It is not affiliated with, endorsed by, or supported by Futu Securities or moomoo.**
+> **Disclaimer:** This is an unofficial community packaging. Not affiliated with, endorsed by, or supported by Futu Securities or moomoo.
 
 ---
 
-## Minimal Working Example
+## The One Rule
 
-The smallest config that actually logs in and lets you trade:
+**FutuOpenD uses lowercase XML tag names.** The root element is `<futu_opend>`. Tags like `<IP>`, `<Port>`, or `<LoginAccount>` (uppercase or CamelCase) are silently ignored. When in doubt, lowercase it.
+
+---
+
+## Minimal Working Config
+
+This is everything you need for a functional, authenticated session:
 
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
@@ -19,10 +25,10 @@ The smallest config that actually logs in and lets you trade:
 
   <!-- Account -->
   <login_account>your_account_id</login_account>
-  <login_pwd_md5>5f4dcc3b5aa765d61d8327deb882cf99</login_pwd_md5>
+  <login_pwd_md5>YOUR_32CHAR_MD5_HASH_HERE</login_pwd_md5>
   <rsa_private_key>/run/secrets/rsa_key.txt</rsa_private_key>
 
-  <!-- Defaults -->
+  <!-- Behaviour -->
   <lang>en</lang>
   <log_level>info</log_level>
   <pdt_protection>1</pdt_protection>
@@ -30,9 +36,7 @@ The smallest config that actually logs in and lets you trade:
 </futu_opend>
 ```
 
-Everything below is additive — cherry-pick what you need.
-
-> **Important:** FutuOpenD uses **lowercase XML tag names**. The root element is `<futu_opend>`. Tags like `<IP>` or `<Port>` (uppercase) won't be recognized.
+Add whatever you need from the sections below. Everything else is optional.
 
 ---
 
@@ -40,22 +44,22 @@ Everything below is additive — cherry-pick what you need.
 
 ### `<login_account>`
 
-Your Futu account identifier. Accepts three formats:
+Your Futu account identifier. Three formats work:
 
 ```xml
-<!-- Futu account ID (牛牛号) — found in the app under Settings -->
+<!-- Futu account ID (牛牛号) — find it in the app under Settings -->
 <login_account>12345678</login_account>
 
-<!-- Phone number — include country code -->
+<!-- Phone number with country code -->
 <login_account>+86 13800138000</login_account>
 
 <!-- Email address -->
 <login_account>you@example.com</login_account>
 ```
 
-### `<login_pwd_md5>` *(strongly recommended)*
+### `<login_pwd_md5>` — strongly recommended
 
-Your login password as a **32-character lowercase MD5 hex string**. Either this or `<login_pwd>` is required — use MD5 so your plaintext password never touches the disk.
+Your password as a **32-character lowercase MD5 hex string**. Use this instead of plaintext — your actual password never touches the disk.
 
 Generate it:
 
@@ -66,18 +70,18 @@ echo -n "your_password" | md5sum | cut -d' ' -f1
 # macOS
 echo -n "your_password" | md5 -r
 
-# Python — works everywhere
+# Python — works anywhere
 python3 -c "import hashlib; print(hashlib.md5(b'your_password').hexdigest())"
 ```
 
-> The `-n` is not a typo. It suppresses the trailing newline — include it or the hash will be wrong.
+> The `-n` is not a typo. It suppresses the trailing newline. Without it, the hash is wrong.
 
-### `<login_pwd>`
+### `<login_pwd>` — for local testing only
 
-Plain-text password. Only falls back when `<login_pwd_md5>` is absent. **Do not use in production.**
+Plaintext fallback when `<login_pwd_md5>` is absent. **Never use this in production.**
 
 ```xml
-<!-- Quick local testing only — seriously, don't ship this -->
+<!-- Seriously, don't ship this -->
 <login_pwd>hunter2</login_pwd>
 ```
 
@@ -85,10 +89,7 @@ Plain-text password. Only falls back when `<login_pwd_md5>` is absent. **Do not 
 
 Path to your RSA private key file. Required for trading when `<ip>` is anything other than `127.0.0.1`.
 
-**How to get one:**
-1. Head to the [Futu OpenAPI Dashboard](https://www.futunn.com/en/OpenAPI) → **Manage Key**
-2. Generate a key pair and download the private key
-3. Store it somewhere safe, then `chmod 600` it
+Get one from the [Futu OpenAPI Dashboard](https://www.futunn.com/en/OpenAPI) → **Manage Key** → generate and download. Then `chmod 600` it.
 
 ```xml
 <rsa_private_key>/run/secrets/rsa_key.txt</rsa_private_key>
@@ -100,64 +101,61 @@ Path to your RSA private key file. Required for trading when `<ip>` is anything 
 
 ### `<ip>` — TCP API bind address
 
-Controls which network interfaces FutuOpenD listens on.
+Controls which interfaces FutuOpenD listens on.
 
-| Value | What it means |
-|-------|---------------|
-| `127.0.0.1` | Local connections only (default, safest) |
-| `0.0.0.0` | All interfaces — **use this for remote access** |
+| Value | Who can reach it |
+|-------|-----------------|
+| `127.0.0.1` | Local processes only (default, safest) |
+| `0.0.0.0` | Anyone on the network — **set this for remote access** |
 
 ```xml
-<!-- Local dev — only processes on this machine can connect -->
+<!-- Local dev — only this machine -->
 <ip>127.0.0.1</ip>
 
-<!-- Cloud server or remote SDK — any network interface -->
+<!-- Cloud VM or remote SDK -->
 <ip>0.0.0.0</ip>
 ```
 
-> **Security:** If you set `<ip>0.0.0.0</ip>`, you **must** also set `<rsa_private_key>`. Trading API calls will be rejected without it. Quote-only access works without encryption.
+> **Security:** When you set `<ip>0.0.0.0</ip>`, you **must** also set `<rsa_private_key>`. Trading calls get rejected without it. Quote-only works without encryption.
 
 ### `<api_port>` — TCP API port
 
-Default: `11111`. Only change this if something else is already on that port.
+Defaults to `11111`. Only change it if something else already owns that port.
 
 ```xml
 <api_port>11111</api_port>
 ```
 
-### `<websocket_ip>` / `<websocket_port>` — WebSocket API
+### `<websocket_ip>` / `<websocket_port>` — WebSocket
 
-WebSocket is the go-to for JavaScript clients and web frontends. Leave `<websocket_port>` unset to disable.
+The WebSocket endpoint. Leave `<websocket_port>` unset to disable.
 
 ```xml
-<!-- Bind to all interfaces -->
 <websocket_ip>0.0.0.0</websocket_ip>
-
-<!-- Enable on port 11112 -->
 <websocket_port>11112</websocket_port>
 ```
 
 ### `<websocket_key_md5>`
 
-An MD5 hex string that WebSocket clients use to authenticate. If unset, any client can connect (subject to RSA rules for trading calls).
+WebSocket clients use this MD5 hex string to authenticate. If unset, any client can connect (subject to RSA rules for trading calls).
 
 ```xml
 <!-- Generate with: echo -n "your_secret_key" | md5sum | cut -d' ' -f1 -->
-<websocket_key_md5>14e1b600b1fd579f47433b88e8d85291</websocket_key_md5>
+<websocket_key_md5>YOUR_32CHAR_MD5_HASH_HERE</websocket_key_md5>
 ```
 
 ### `<websocket_private_key>` / `<websocket_cert>` — TLS/SSL
 
-Both must be set together to enable WSS. Required when exposing WebSocket over an untrusted network.
+Both must be set together to enable WSS. Required when WebSocket crosses an untrusted network.
 
-Generate a self-signed cert (fine for testing, not for production):
+Generate a self-signed cert (fine for testing):
 
 ```bash
 openssl req -x509 -newkey rsa:4096 \
   -keyout key.pem -out cert.pem \
   -days 365 -nodes -subj "/CN=futuopend"
 
-# Strip the password — FutuOpenD doesn't support encrypted keys
+# Strip the password — FutuOpenD can't handle encrypted keys
 openssl rsa -in key.pem -out key_nopass.pem
 ```
 
@@ -172,16 +170,16 @@ openssl rsa -in key.pem -out key_nopass.pem
 
 ### `<log_level>`
 
-Controls how chatty the logs are.
+How chatty are the logs?
 
-| Value | Use when |
-|-------|----------|
-| `debug` | First setup, debugging connection issues |
+| Value | Use it when |
+|-------|------------|
+| `debug` | First setup, chasing connection issues |
 | `info` | Normal day-to-day running (default) |
 | `warning` | You want less noise |
 | `error` | Production, keep it quiet |
-| `fatal` | Only catastrophic failures |
-| `no` | Logging off entirely — don't use during setup |
+| `fatal` | Only catastrophic failures get logged |
+| `no` | Logging disabled entirely — don't use during setup |
 
 ```xml
 <log_level>info</log_level>
@@ -200,7 +198,7 @@ Custom log directory. Leave unset to use FutuOpenD's default.
 Format for pushed subscription data.
 
 | Value | Format | Best for |
-|-------|--------|----------|
+|-------|--------|---------|
 | `0` | Protocol Buffers | Production (compact, fast) |
 | `1` | JSON | Debugging (human-readable) |
 
@@ -210,10 +208,10 @@ Format for pushed subscription data.
 
 ### `<qot_push_frequency>`
 
-Cap how often FutuOpenD pushes quote updates, in milliseconds per subscription. Does not affect K-line or time-frame pushes. Leave unset for unlimited.
+Cap push frequency in milliseconds per subscription. Does not affect K-line pushes. Leave unset for unlimited.
 
 ```xml
-<!-- One push per second per subscription — reduces bandwidth -->
+<!-- One push per second — reduces bandwidth on high-activity subscriptions -->
 <qot_push_frequency>1000</qot_push_frequency>
 ```
 
@@ -221,31 +219,23 @@ Cap how often FutuOpenD pushes quote updates, in milliseconds per subscription. 
 
 Receive price alert notifications pushed from Futu's server.
 
-| Value | Behaviour |
-|-------|-----------|
-| `1` | Receive price reminders (default) |
-| `0` | Ignore them |
-
 ```xml
-<price_reminder_push>1</price_reminder_push>
+<price_reminder_push>1</price_reminder_push>  <!-- on (default) -->
+<price_reminder_push>0</price_reminder_push>  <!-- off -->
 ```
 
 ### `<auto_hold_quote_right>`
 
 If another terminal kicks you off your quote rights, should FutuOpenD automatically try to reclaim them for 10 seconds?
 
-| Value | Behaviour |
-|-------|-----------|
-| `1` | Auto-reclaim (default) |
-| `0` | You manually re-login |
-
 ```xml
-<auto_hold_quote_right>1</auto_hold_quote_right>
+<auto_hold_quote_right>1</auto_hold_quote_right>  <!-- auto-reclaim (default) -->
+<auto_hold_quote_right>0</auto_hold_quote_right>  <!-- manual re-login -->
 ```
 
 ### `<telnet_ip>` / `<telnet_port>`
 
-Enable the Telnet debug console. Useful for phone verification and live debugging. Bind to `127.0.0.1` unless you're on a trusted network.
+Enable the Telnet debug console. Bind to `127.0.0.1` unless you're on a trusted network.
 
 ```xml
 <telnet_ip>127.0.0.1</telnet_ip>
@@ -261,7 +251,7 @@ Enable the Telnet debug console. Useful for phone verification and live debuggin
 ### `<lang>`
 
 | Value | Language |
-|-------|----------|
+|-------|---------|
 | `en` | English |
 | `chs` | Simplified Chinese |
 
@@ -271,15 +261,14 @@ Enable the Telnet debug console. Useful for phone verification and live debuggin
 
 ### `<future_trade_api_time_zone>`
 
-Required for futures trading. Sets the time zone for all timestamps in futures API responses and order management.
+Required for futures trading. Sets the time zone for timestamps in futures API responses.
 
 ```xml
-<!-- Examples -->
-<future_trade_api_time_zone>UTC+8</future_trade_api_time_zone>    <!-- Hong Kong, Singapore -->
-<future_trade_api_time_zone>UTC+9</future_trade_api_time_zone>    <!-- Japan -->
-<future_trade_api_time_zone>UTC+11</future_trade_api_time_zone>  <!-- Sydney (AEST) -->
-<future_trade_api_time_zone>UTC-5</future_trade_api_time_zone>    <!-- New York (EST) -->
-<future_trade_api_time_zone>UTC-6</future_trade_api_time_zone>    <!-- Chicago (CST) -->
+<future_trade_api_time_zone>UTC+8</future_trade_api_time_zone>   <!-- HK, Singapore -->
+<future_trade_api_time_zone>UTC+9</future_trade_api_time_zone>   <!-- Japan -->
+<future_trade_api_time_zone>UTC+11</future_trade_api_time_zone>  <!-- Sydney -->
+<future_trade_api_time_zone>UTC-5</future_trade_api_time_zone>   <!-- New York -->
+<future_trade_api_time_zone>UTC-6</future_trade_api_time_zone>   <!-- Chicago -->
 ```
 
 ---
@@ -292,37 +281,29 @@ Required for futures trading. Sets the time zone for all timestamps in futures A
 
 **Pattern Day Trade Protection** — blocks orders that would trigger PDT status.
 
-| Value | Behaviour |
-|-------|-----------|
-| `1` | Active (recommended) |
-| `0` | Disabled |
+```xml
+<pdt_protection>1</pdt_protection>  <!-- active (recommended) -->
+<pdt_protection>0</pdt_protection>  <!-- disabled -->
+```
 
 PDT protection helps, but doesn't eliminate risk. If your equity drops below $25,000 and you're flagged as a PDT, you can't open new positions until you deposit funds.
-
-```xml
-<pdt_protection>1</pdt_protection>
-```
 
 ### `<dtcall_confirmation>`
 
 **Day-Trading Call Warning** — blocks orders that would exhaust your DT buying power.
 
-| Value | Behaviour |
-|-------|-----------|
-| `1` | Active (recommended) |
-| `0` | Disabled |
-
-If triggered, the Day-Trading Call can only be cleared by depositing the full call amount.
-
 ```xml
-<dtcall_confirmation>1</dtcall_confirmation>
+<dtcall_confirmation>1</dtcall_confirmation>  <!-- active (recommended) -->
+<dtcall_confirmation>0</dtcall_confirmation>  <!-- disabled -->
 ```
+
+A triggered DT Call requires depositing the full call amount to clear.
 
 ---
 
 ## Environment Variable Substitution
 
-FutuOpenD resolves `${VAR_NAME}` patterns in the XML at startup. Docker passes these in automatically — no file rewriting required.
+FutuOpenD resolves `${VAR_NAME}` patterns at startup. Docker injects env vars automatically — no config file rewrites needed.
 
 ```xml
 <login_account>${FUTU_ACCOUNT}</login_account>
@@ -332,22 +313,22 @@ FutuOpenD resolves `${VAR_NAME}` patterns in the XML at startup. Docker passes t
 <log_level>${FUTU_LOG_LEVEL:-info}</log_level>
 ```
 
-The `:-default` syntax works too — FutuOpenD handles it.
+The `:-default` syntax works too — it falls back if the variable isn't set.
 
-**Pass values via Docker Compose:**
+**Via Docker Compose:**
 
 ```yaml
 services:
   futuopend:
     environment:
       FUTU_ACCOUNT: "12345678"
-      FUTU_PWD_MD5: "5f4dcc3b5aa765d61d8327deb882cf99"
+      FUTU_PWD_MD5: "aaaa0000aaaa0000aaaa0000aaaa0000"
       FUTU_RSA_KEY: "/run/secrets/rsa_key.txt"
       FUTU_IP: "0.0.0.0"
       FUTU_LOG_LEVEL: "debug"
 ```
 
-**Or on the command line:**
+**Via docker run:**
 
 ```bash
 docker run \
@@ -357,7 +338,7 @@ docker run \
   shing1211/futuopend:latest
 ```
 
-> **Note:** FutuOpenD performs the substitution, not Docker. Env vars must be present in the container's environment — mounting a file alone isn't enough.
+> **Note:** FutuOpenD does the substitution, not Docker. Env vars must be present in the container's environment — mounting a file isn't enough.
 
 ### Supported variables
 
@@ -377,29 +358,29 @@ docker run \
 
 ## First-Time Login: Phone Verification in Docker
 
-On first login — especially from a new IP or device — Futu sends an SMS verification code. Since you have no GUI here, you relay it through the Telnet debug interface. It sounds scarier than it is.
+On first login — especially from a new IP or device — Futu sends an SMS verification code. No GUI here, so you relay it through the Telnet debug interface. It sounds scarier than it is.
 
-### How it works
+### How it flows
 
 1. FutuOpenD starts and attempts to log in
 2. Futu's server detects a new device/IP and texts a code to your registered phone
-3. FutuOpenD blocks login and waits for your input
-4. You send the code via Telnet → FutuOpenD validates → you're in
+3. FutuOpenD blocks and waits for your input
+4. You submit the code via Telnet → validation → you're in
 
 ### Step 1 — Enable Telnet
 
-Add these to your `FutuOpenD.xml`:
+In `FutuOpenD.xml`:
 
 ```xml
 <telnet_ip>127.0.0.1</telnet_ip>
 <telnet_port>22222</telnet_port>
 ```
 
-Or in the template, just uncomment the existing lines.
+Or just uncomment the existing lines in the template.
 
 ### Step 2 — Expose the Telnet port
 
-In `docker-compose.yaml`, make sure the Telnet port is mapped:
+In `docker-compose.yaml`, add the mapping:
 
 ```yaml
 services:
@@ -417,14 +398,14 @@ docker compose up -d
 docker compose logs -f futuopend
 ```
 
-When phone verification is needed, you'll see something like:
+When phone verification is needed, you'll see:
 
 ```
 [INFO] Waiting for phone verify code, please input by telnet...
 [INFO] Use command: input_phone_verify_code -code=123456
 ```
 
-### Step 4 — Submit the code from your host
+### Step 4 — Submit the code
 
 Run this **on your host machine** (not inside the container):
 
@@ -432,7 +413,7 @@ Run this **on your host machine** (not inside the container):
 # Linux / macOS — the simplest way
 echo "input_phone_verify_code -code=123456" | nc 127.0.0.1 22222
 
-# With telnet — type the command, then press Enter twice
+# With telnet — type the command, then press Enter
 telnet 127.0.0.1 22222
 input_phone_verify_code -code=123456
 
@@ -445,32 +426,33 @@ print(t.read_all().decode())
 "
 ```
 
-> **Watch the space.** The command is `input_phone_verify_code -code=123456` — there's a space before `-code=`.
+> **Watch the space.** The command is `input_phone_verify_code -code=123456` — there's a space before `-code=`. Forget it and the command is silently ignored.
 
-### Step 5 — Verify success
+### Step 5 — Confirm success
 
 ```bash
 docker compose logs futuopend | grep -i "login\|verify\|success"
 ```
 
 Look for:
+
 ```
 [INFO] Login succeeded. Account: 12345678
 ```
 
 ### Troubleshooting
 
-| Problem | Fix |
+| Symptom | Fix |
 |---------|-----|
 | `nc` / `telnet` not found | `apt install netcat-openbsd` or `brew install netcat` |
 | Connection refused on 22222 | Check `telnet_ip` and `telnet_port` are set in `FutuOpenD.xml` |
 | Code rejected | Codes expire after ~5 minutes — request a new one via the Futu app |
-| Code already used | Each code is single-use; request a fresh one |
-| No SMS received | Make sure your account has a verified phone number |
+| Code already used | Single-use; request a fresh one |
+| No SMS received | Verify your account has a registered phone number |
 
-### Automating it
+### Scripting the flow
 
-If you're running in CI or need to script the flow:
+For CI or automated setups:
 
 ```bash
 #!/bin/bash
@@ -500,7 +482,7 @@ fi
 ## Complete Config Example
 
 ```xml
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="utf-8"?>
 <futu_opend>
   <!-- Remote access: bind to all interfaces -->
   <ip>0.0.0.0</ip>
@@ -510,7 +492,7 @@ fi
   <websocket_ip>0.0.0.0</websocket_ip>
   <websocket_port>11112</websocket_port>
 
-  <!-- Account — use env vars so secrets stay out of the file -->
+  <!-- Account — env vars keep secrets out of this file -->
   <login_account>${FUTU_ACCOUNT}</login_account>
   <login_pwd_md5>${FUTU_PWD_MD5}</login_pwd_md5>
   <rsa_private_key>${FUTU_RSA_KEY}</rsa_private_key>
