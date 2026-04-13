@@ -3,7 +3,7 @@
 > **FutuOpenD** is the local gateway daemon for the [Futu API](https://openapi.futunn.com/futu-api-doc/) (富途证券), enabling programmatic trading and real-time market data for Hong Kong, US, A-Share, Singapore, Japan, and Australia markets. This project packages FutuOpenD into a Docker container for easy deployment on Linux servers or cloud platforms.
 
 [![Docker Image Version](https://img.shields.io/badge/FutuOpenD-v10.2.6208-blue)](https://openapi.futunn.com/futu-api-doc/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Docker Pulls](https://img.shields.io/docker/pulls/shing1211/futuopend)](https://hub.docker.com/r/shing1211/futuopend)
 
 ---

@@ -77,7 +77,7 @@ The following issues from the code review are open for contribution:
 - **Breaking changes** must update `CHANGELOG.md` under an `## [Unreleased]` section.
 - **Version bumps** must update `Dockerfile` (all 4 `FUTU_OPEND_VER` occurrences) in the same PR.
 - **No new dependencies** without discussion. This image aims to be minimal.
-- **MIT license** applies to all contributions.
+- **Apache 2.0 license** applies to all contributions.
 
 ## Code of Conduct
 
