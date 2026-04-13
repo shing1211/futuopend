@@ -34,10 +34,7 @@ ARG FUTU_OPEND_VER
 ENV TZ=Asia/Hong_Kong \
     FUTU_OPEND_VER=${FUTU_OPEND_VER}
 
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends curl ca-certificates \
-    && rm -rf /var/lib/apt/lists/* \
-    && useradd -m -u 1000 futuopend \
+RUN useradd -m -u 1000 futuopend \
     && mkdir -p /run/secrets \
     && chown futuopend:futuopend /run/secrets \
     && mkdir -p /home/futuopend/.com.futunn.FutuOpenD \
@@ -54,7 +51,7 @@ WORKDIR /home/futuopend
 EXPOSE 11111 11112
 VOLUME /home/futuopend/.com.futunn.FutuOpenD
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
-    CMD curl -sf http://localhost:11111/ || exit 1
+    CMD pgrep -x FutuOpenD || exit 1
 CMD ["/usr/local/bin/FutuOpenD"]
 
 FROM centos:centos7 AS final-centos
@@ -80,6 +77,6 @@ WORKDIR /home/futuopend
 EXPOSE 11111 11112
 VOLUME /home/futuopend/.com.futunn.FutuOpenD
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
-    CMD curl -sf http://localhost:11111/ || exit 1
+    CMD pgrep -x FutuOpenD || exit 1
 CMD ["/usr/local/bin/FutuOpenD"]
 
