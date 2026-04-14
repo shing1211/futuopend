@@ -1,5 +1,9 @@
 services:
   futuopend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: final-ubuntu
     image: shing1211/futuopend:latest
     container_name: futuopend
     restart: unless-stopped

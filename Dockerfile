@@ -40,8 +40,8 @@ RUN useradd -m futuopend \
     && chown futuopend:futuopend /home/futuopend/.com.futunn.FutuOpenD
 
 COPY --from=build-ubuntu --chown=futuopend:futuopend \
-     /tmp/Futu_OpenD_${FUTU_OPEND_VER}_Ubuntu18.04/Futu_OpenD_${FUTU_OPEND_VER}_Ubuntu18.04 \
-     /usr/local/bin/FutuOpenD
+     /tmp/Futu_OpenD_${FUTU_OPEND_VER}_Ubuntu18.04/Futu_OpenD_${FUTU_OPEND_VER}_Ubuntu18.04/ \
+     /usr/local/bin/
 
 RUN chmod +x /usr/local/bin/FutuOpenD
 
@@ -66,8 +66,8 @@ RUN useradd -m futuopend \
     && chown futuopend:futuopend /home/futuopend/.com.futunn.FutuOpenD
 
 COPY --from=build-rocky --chown=futuopend:futuopend \
-     /tmp/Futu_OpenD_${FUTU_OPEND_VER}_Centos7/Futu_OpenD_${FUTU_OPEND_VER}_Centos7 \
-     /usr/local/bin/FutuOpenD
+     /tmp/Futu_OpenD_${FUTU_OPEND_VER}_Centos7/Futu_OpenD_${FUTU_OPEND_VER}_Centos7/ \
+     /usr/local/bin/
 
 RUN chmod +x /usr/local/bin/FutuOpenD
 
