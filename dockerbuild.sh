@@ -55,7 +55,7 @@ setup_buildx() {
 
 build_and_push() {
     local variant="$1"
-    local target="final-${variant}"
+    local target="final-${variant}-amd64"
     local tag_ver="${VERSION}-${variant}"
 
     echo ""
@@ -79,7 +79,6 @@ build_and_push() {
 
 build_and_push_multiarch() {
     local variant="$1"
-    local target="final-${variant}"
     local tag_ver="${VERSION}-${variant}"
 
     echo ""
@@ -88,16 +87,18 @@ build_and_push_multiarch() {
     echo "==>  Platforms: ${PLATFORM}"
     echo "==> ============================================"
 
-    docker buildx build \
-        --target "$target" \
-        --build-arg FUTU_OPEND_VER="$VERSION" \
-        --platform "${PLATFORM}" \
-        -t "${IMAGE}:${tag_ver}-amd64" \
-        -t "${IMAGE}:${tag_ver}-arm64" \
-        -t "${IMAGE}:${variant}-amd64" \
-        -t "${IMAGE}:${variant}-arm64" \
-        --push \
-        .
+    for arch in amd64 arm64; do
+        local target="final-${variant}-${arch}"
+        echo "==>  Building platform linux/${arch} -> ${target}"
+        docker buildx build \
+            --target "$target" \
+            --build-arg FUTU_OPEND_VER="$VERSION" \
+            --platform "linux/${arch}" \
+            -t "${IMAGE}:${tag_ver}-${arch}" \
+            -t "${IMAGE}:${variant}-${arch}" \
+            --push \
+            .
+    done
 }
 
 push_alias() {
@@ -172,7 +173,7 @@ if [[ "$MULTIARCH" == "true" ]]; then
         echo "==>    ${IMAGE}:${VERSION}-ubuntu-amd64"
         echo "==>    ${IMAGE}:${VERSION}-ubuntu-arm64"
         echo "==>    ${IMAGE}:${VERSION}-rocky-amd64"
-        echo "==>    ${VERSION}-rocky-arm64"
+        echo "==>    ${IMAGE}:${VERSION}-rocky-arm64"
         echo "==>    ${IMAGE}:latest (ubuntu-amd64)"
         echo "==> ============================================"
 
