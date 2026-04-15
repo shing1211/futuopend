@@ -223,10 +223,12 @@ futuopend (Docker gateway — this project)
     │  TCP :11111 / WebSocket :11112
     ▼
 futuapi4go (Go SDK — github.com/shing1211/futuapi4go)
+    │                                          ↑
+futuapi-java (Official Futu Python + Java SDKs) ─────────┘
     │
-    │  imports github.com/shing1211/futuapi4go/client
-    ▼
-futugo4bot (Algorithmic trading bot — github.com/shing1211/futugo4bot)
+    ├── futugo4bot (Go bot — github.com/shing1211/futugo4bot)
+    ├── futujava4bot (Java bot — github.com/shing1211/futujava4bot)
+    └── futupython4bot (Python bot — github.com/shing1211/futupython4bot)
 ```
 
 ### Dependency Chain for Improvements
@@ -259,4 +261,6 @@ futugo4bot (Algorithmic trading bot — github.com/shing1211/futugo4bot)
 - [docs/configuration.md](docs/configuration.md) — Configuration reference
 - [docs/security.md](docs/security.md) — Security hardening guide
 - [futuapi4go](https://github.com/shing1211/futuapi4go) — Go SDK that connects to futuopend
-- [futugo4bot](https://github.com/shing1211/futugo4bot) — Trading bot powered by futuapi4go + futuopend
+- [futugo4bot](https://github.com/shing1211/futugo4bot) — Go trading bot powered by futuapi4go + futuopend
+- [futujava4bot](https://github.com/shing1211/futujava4bot) — Java trading bot (uses official Futu Java SDK)
+- [futupython4bot](https://github.com/shing1211/futupython4bot) — Python quant research platform (uses official Futu Python SDK)
