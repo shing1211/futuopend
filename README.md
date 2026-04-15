@@ -32,6 +32,7 @@ One `docker run`, and you're live on port `11111`. No X11, no dependency hunting
 - **TCP + WebSocket** — Choose your protocol; SDKs in Python, Java, C#, C++, JavaScript
 - **TLS/SSL-ready** — Encrypt the WebSocket link for remote deployments
 - **Two OS variants** — Ubuntu 24.04 LTS and Rocky Linux 9, from the same Dockerfile
+- **Multi-architecture** — Supports amd64, arm64 (Raspberry Pi 4/5, ARM servers)
 - **Docker Secrets** — Clean credential management out of the box
 
 ---
@@ -206,17 +207,38 @@ docker buildx build \
   --push .
 ```
 
+Or use the helper script:
+
+```bash
+./dockerbuild.sh              # build both ubuntu + centos
+./dockerbuild.sh ubuntu       # ubuntu only
+./dockerbuild.sh centos      # centos only
+./dockerbuild.sh all 10.2.6208  # override version
+
+# Multi-platform build (amd64 + arm64)
+./dockerbuild.sh --multiarch           # build for both architectures
+./dockerbuild.sh --multiarch ubuntu    # ubuntu only, multi-arch
+./dockerbuild.sh --multiarch all linux/amd64,linux/arm64  # custom platforms
+```
+
+> **Note on ARM support:** FutuOpenD binaries are only available for x86_64 (amd64). ARM builds use QEMU emulation during Docker build. For native performance on ARM devices (Raspberry Pi, ARM servers), consider using [box64](https://github.com/ptitSeb/box64) to run the x86_64 binary directly.
+
 ### Docker Hub tags
 
 | Tag | Description |
 |-----|-------------|
-| `:latest` | Ubuntu variant, latest build |
-| `:ubuntu` | Ubuntu 24.04 LTS variant |
-| `:rocky` | Rocky Linux 9 variant |
+| `:latest` | Ubuntu variant, latest build (amd64) |
+| `:ubuntu` | Ubuntu 24.04 LTS variant (amd64) |
+| `:rocky` | Rocky Linux 9 variant (amd64) |
 | `:centos` | Rocky Linux 9 variant (alias of `:rocky`) |
-| `:10.2.6208-ubuntu` | Ubuntu, versioned |
-| `:10.2.6208-rocky` | Rocky Linux 9, versioned |
+| `:10.2.6208-ubuntu` | Ubuntu, versioned (amd64) |
+| `:10.2.6208-rocky` | Rocky Linux 9, versioned (amd64) |
 | `:10.2.6208-centos` | Rocky Linux 9, versioned (alias of `:10.2.6208-rocky`) |
+| `:ubuntu-amd64` | Ubuntu 24.04 LTS, x86_64 |
+| `:ubuntu-arm64` | Ubuntu 24.04 LTS, ARM64 (Raspberry Pi 4/5) |
+| `:rocky-amd64` | Rocky Linux 9, x86_64 |
+| `:rocky-arm64` | Rocky Linux 9, ARM64 (Raspberry Pi 4/5) |
+| `:latest-arm64` | Ubuntu variant, latest ARM64 build |
 
 The quick-start path above gives you **quote-only access** — live market data, no trading. To submit orders or connect from another machine, you need two extra things: an RSA key and to bind to all network interfaces.
 
@@ -349,6 +371,21 @@ For every single tag, see [docs/configuration.md](docs/configuration.md).
 
 ## Project Layout
 
+```
+futuopend/
+├── Dockerfile                  # Multi-stage: Ubuntu 24.04 & Rocky Linux 9, multi-arch (amd64/arm64)
+├── docker-compose.yaml         # Docker Swarm orchestration (secrets, restart policy)
+├── docker-compose.simple.yaml # Standalone Compose (beginner path — no Swarm required)
+├── FutuOpenD.xml.template     # Config template, ${ENV_VAR}-ready
+├── dockerbuild.sh              # Build & push both variants, supports multi-arch builds
+├── .env.example                # Environment variable template
+├── LICENSE                     # Apache 2.0
+├── README.md                   (you're here)
+├── TODO.md                     # Open issues and planned improvements
+├── docs/
+│   ├── configuration.md        # Every FutuOpenD.xml tag, documented
+│   └── security.md             # Hardening guide, checklists
+└── .gitignore
 ```
 futuopend/
 ├── Dockerfile                  # Multi-stage: Ubuntu 24.04 & Rocky Linux 9
