@@ -15,6 +15,13 @@ services:
     ports:
       - "11111:11111"
       - "11112:11112"
+    healthcheck:
+      test: ["CMD", "pgrep", "-x", "FutuOpenD"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    stop_grace_period: 30s
 
 volumes:
   futuopend-data:
