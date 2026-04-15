@@ -93,6 +93,9 @@ COPY --from=build-ubuntu-arm64 --chown=futuopend:futuopend \
      /tmp/Futu_OpenD_${FUTU_OPEND_VER}_Ubuntu18.04/Futu_OpenD_${FUTU_OPEND_VER}_Ubuntu18.04/ \
      /usr/local/bin/
 
+COPY --chown=futuopend:futuopend entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
 RUN chmod +x /usr/local/bin/FutuOpenD
 
 USER futuopend
@@ -101,7 +104,7 @@ EXPOSE 11111 11112
 VOLUME /home/futuopend/.com.futunn.FutuOpenD
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
     CMD pgrep -x FutuOpenD || exit 1
-CMD ["/usr/local/bin/FutuOpenD"]
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 
 FROM rockylinux:9 AS final-rocky-amd64
 ARG FUTU_OPEND_VER
@@ -119,6 +122,9 @@ COPY --from=build-rocky-amd64 --chown=futuopend:futuopend \
      /tmp/Futu_OpenD_${FUTU_OPEND_VER}_Centos7/Futu_OpenD_${FUTU_OPEND_VER}_Centos7/ \
      /usr/local/bin/
 
+COPY --chown=futuopend:futuopend entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
 RUN chmod +x /usr/local/bin/FutuOpenD
 
 USER futuopend
@@ -127,7 +133,7 @@ EXPOSE 11111 11112
 VOLUME /home/futuopend/.com.futunn.FutuOpenD
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
     CMD pgrep -x FutuOpenD || exit 1
-CMD ["/usr/local/bin/FutuOpenD"]
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 
 FROM rockylinux:9 AS final-rocky-arm64
 ARG FUTU_OPEND_VER
