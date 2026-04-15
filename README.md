@@ -384,7 +384,8 @@ futuopend/
 ├── TODO.md                     # Open issues and planned improvements
 ├── docs/
 │   ├── configuration.md        # Every FutuOpenD.xml tag, documented
-│   └── security.md             # Hardening guide, checklists
+│   ├── security.md             # Hardening guide, checklists
+│   └── ENHANCEMENT_PLAN.md    # Production-grade enhancement checklist
 └── .gitignore
 ```
 futuopend/
@@ -397,9 +398,11 @@ futuopend/
 ├── LICENSE                     # Apache 2.0
 ├── README.md                   # (you're here)
 ├── TODO.md                     # Open issues and planned improvements
+├── ROADMAP.md                  # Phased development roadmap
 ├── docs/
 │   ├── configuration.md        # Every FutuOpenD.xml tag, documented
-│   └── security.md             # Hardening guide, checklists
+│   ├── security.md             # Hardening guide, checklists
+│   └── ENHANCEMENT_PLAN.md     # Production-grade enhancement checklist
 └── .gitignore
 ```
 
