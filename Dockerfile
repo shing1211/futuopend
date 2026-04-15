@@ -42,8 +42,10 @@ RUN useradd -m futuopend \
 COPY --from=build-ubuntu --chown=futuopend:futuopend \
      /tmp/Futu_OpenD_${FUTU_OPEND_VER}_Ubuntu18.04/Futu_OpenD_${FUTU_OPEND_VER}_Ubuntu18.04/ \
      /usr/local/bin/
+COPY scripts/wrapper.sh /usr/local/bin/wrapper.sh
 
-RUN chmod +x /usr/local/bin/FutuOpenD
+RUN chmod +x /usr/local/bin/FutuOpenD \
+    && chmod +x /usr/local/bin/wrapper.sh
 
 USER futuopend
 WORKDIR /home/futuopend
@@ -51,7 +53,7 @@ EXPOSE 11111 11112
 VOLUME /home/futuopend/.com.futunn.FutuOpenD
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
     CMD pgrep -x FutuOpenD || exit 1
-CMD ["/usr/local/bin/FutuOpenD"]
+CMD ["/usr/local/bin/wrapper.sh"]
 
 FROM rockylinux:9 AS final-rocky
 ARG FUTU_OPEND_VER
@@ -68,8 +70,10 @@ RUN useradd -m futuopend \
 COPY --from=build-rocky --chown=futuopend:futuopend \
      /tmp/Futu_OpenD_${FUTU_OPEND_VER}_Centos7/Futu_OpenD_${FUTU_OPEND_VER}_Centos7/ \
      /usr/local/bin/
+COPY scripts/wrapper.sh /usr/local/bin/wrapper.sh
 
-RUN chmod +x /usr/local/bin/FutuOpenD
+RUN chmod +x /usr/local/bin/FutuOpenD \
+    && chmod +x /usr/local/bin/wrapper.sh
 
 USER futuopend
 WORKDIR /home/futuopend
@@ -77,5 +81,5 @@ EXPOSE 11111 11112
 VOLUME /home/futuopend/.com.futunn.FutuOpenD
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
     CMD pgrep -x FutuOpenD || exit 1
-CMD ["/usr/local/bin/FutuOpenD"]
+CMD ["/usr/local/bin/wrapper.sh"]
 

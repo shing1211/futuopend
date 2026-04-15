@@ -20,6 +20,13 @@ services:
     env_file:
       - path: .env
         required: false
+    healthcheck:
+      test: ["CMD", "pgrep", "-x", "FutuOpenD"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    stop_grace_period: 30s
 
 volumes:
   futuopend-data:
