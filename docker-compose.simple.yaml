@@ -15,6 +15,17 @@ services:
     ports:
       - "11111:11111"
       - "11112:11112"
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
 
 volumes:
   futuopend-data:
