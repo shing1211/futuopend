@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-ARG FUTU_OPEND_VER=10.2.6208
+ARG FUTU_OPEND_VER=10.3.6308
 
 FROM ubuntu:24.04 AS base-ubuntu
 FROM rockylinux:9 AS base-centos

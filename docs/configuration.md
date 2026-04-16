@@ -1,6 +1,6 @@
 # FutuOpenD.xml Configuration Reference
 
-Every tag FutuOpenD v10.2.6208 understands, documented with examples. Start with the [`FutuOpenD.xml.template`](../FutuOpenD.xml.template) in the repo root — it's pre-wired with env-var substitution and sensible defaults.
+Every tag FutuOpenD v10.3.6308 understands, documented with examples. Start with the [`FutuOpenD.xml.template`](../FutuOpenD.xml.template) in the repo root — it's pre-wired with env-var substitution and sensible defaults.
 
 > **Disclaimer:** This is an unofficial community packaging. Not affiliated with, endorsed by, or supported by Futu Securities or moomoo.
 

@@ -6,6 +6,20 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+## [10.3.6308] - 2026-04-16
+
+### Added
+- Support for free US stock market data during promotion period
+- Support for non-account holder login
+- Historical quota reset cycle shortened from 14 days to 7 days
+
+### Changed
+- FutuOpenD bumped from `10.2.6208` → `10.3.6308`
+
+---
+
+## [10.2.6208] - 2026-03-26
+
 ### Added
 - `.env.example` — annotated environment variable template
 - `.gitignore` — keeps secrets, `.env`, and build artifacts out of version control

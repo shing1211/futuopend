@@ -24,7 +24,7 @@ cd futuopend
 # Build the image (Ubuntu 24.04 variant)
 docker build \
   --target final-ubuntu \
-  --build-arg FUTU_OPEND_VER=10.2.6208 \
+  --build-arg FUTU_OPEND_VER=10.3.6308 \
   -t futuopend:test .
 
 # Start with compose (uses docker-compose.simple.yaml — no Swarm required)

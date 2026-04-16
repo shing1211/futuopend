@@ -2,7 +2,7 @@
 
 > Wrap the official FutuOpenD gateway daemon in a container. Run it on a cloud VM, a NAS, a Raspberry Pi — anywhere Docker lives.
 
-[![FutuOpenD v10.2.6208](https://img.shields.io/badge/FutuOpenD-v10.2.6208-blue)](https://openapi.futunn.com/futu-api-doc/)
+[![FutuOpenD v10.3.6308](https://img.shields.io/badge/FutuOpenD-v10.3.6308-blue)](https://openapi.futunn.com/futu-api-doc/)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Docker Pulls](https://img.shields.io/docker/pulls/shing1211/futuopend)](https://hub.docker.com/r/shing1211/futuopend)
 
@@ -173,13 +173,13 @@ Build the image yourself instead of pulling from Docker Hub. Useful if you want 
 # Build the Ubuntu variant
 docker build \
   --target final-ubuntu \
-  --build-arg FUTU_OPEND_VER=10.2.6208 \
+  --build-arg FUTU_OPEND_VER=10.3.6308 \
   -t futuopend:ubuntu .
 
 # Build the Rocky Linux 9 variant
 docker build \
   --target final-rocky \
-  --build-arg FUTU_OPEND_VER=10.2.6208 \
+  --build-arg FUTU_OPEND_VER=10.3.6308 \
   -t futuopend:rocky .
 
 # Run it
@@ -192,7 +192,7 @@ Or use the helper script — it builds both variants and pushes to Docker Hub in
 ./dockerbuild.sh              # build both ubuntu + centos
 ./dockerbuild.sh ubuntu       # ubuntu only
 ./dockerbuild.sh centos      # centos only
-./dockerbuild.sh all 10.2.6208  # override version
+./dockerbuild.sh all 10.3.6308  # override version
 ```
 
 ### Multi-platform build (amd64 + arm64)
@@ -202,8 +202,8 @@ docker buildx create --use
 docker buildx build \
   --platform linux/amd64,linux/arm64 \
   --target final-ubuntu \
-  --build-arg FUTU_OPEND_VER=10.2.6208 \
-  -t shing1211/futuopend:10.2.6208-ubuntu \
+  --build-arg FUTU_OPEND_VER=10.3.6308 \
+  -t shing1211/futuopend:10.3.6308-ubuntu \
   --push .
 ```
 
@@ -213,7 +213,7 @@ Or use the helper script:
 ./dockerbuild.sh              # build both ubuntu + centos
 ./dockerbuild.sh ubuntu       # ubuntu only
 ./dockerbuild.sh centos      # centos only
-./dockerbuild.sh all 10.2.6208  # override version
+./dockerbuild.sh all 10.3.6308  # override version
 
 # Multi-platform build (amd64 + arm64)
 ./dockerbuild.sh --multiarch           # build for both architectures
@@ -231,9 +231,9 @@ Or use the helper script:
 | `:ubuntu` | Ubuntu 24.04 LTS variant (amd64) |
 | `:rocky` | Rocky Linux 9 variant (amd64) |
 | `:centos` | Rocky Linux 9 variant (alias of `:rocky`) |
-| `:10.2.6208-ubuntu` | Ubuntu, versioned (amd64) |
-| `:10.2.6208-rocky` | Rocky Linux 9, versioned (amd64) |
-| `:10.2.6208-centos` | Rocky Linux 9, versioned (alias of `:10.2.6208-rocky`) |
+| `:10.3.6308-ubuntu` | Ubuntu, versioned (amd64) |
+| `:10.3.6308-rocky` | Rocky Linux 9, versioned (amd64) |
+| `:10.3.6308-centos` | Rocky Linux 9, versioned (alias of `:10.3.6308-rocky`) |
 | `:ubuntu-amd64` | Ubuntu 24.04 LTS, x86_64 |
 | `:ubuntu-arm64` | Ubuntu 24.04 LTS, ARM64 (Raspberry Pi 4/5) |
 | `:rocky-amd64` | Rocky Linux 9, x86_64 |
@@ -438,8 +438,8 @@ The `rsa_private_key` in `FutuOpenD.xml` must match a key registered to your acc
 Futu's download server can be flaky. Pull the tarball manually and drop it in the build context:
 
 ```bash
-wget -O Futu_OpenD_10.2.6208_Ubuntu18.04.tar.gz \
-  https://softwaredownload.futunn.com/Futu_OpenD_10.2.6208_Ubuntu18.04.tar.gz
+wget -O Futu_OpenD_10.3.6308_Ubuntu18.04.tar.gz \
+  https://softwaredownload.futunn.com/Futu_OpenD_10.3.6308_Ubuntu18.04.tar.gz
 ```
 
 Then update the Dockerfile's `COPY` step to use the local file instead of `curl`.
