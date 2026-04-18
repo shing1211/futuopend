@@ -15,15 +15,12 @@
 # limitations under the License.
 #
 # Ubuntu 24.04 LTS multi-stage build.
-# Targets: final-amd64 (x86_64), final-arm64 (aarch64)
+# Each (arch) variant is a separate build target.
 #
-# Local development (single arch):
-#   docker build --target final-amd64 .
-#
-# Multi-arch:
+# Usage:
+#   docker build --target final-amd64  .
+#   docker build --target final-arm64  .
 #   docker buildx build --platform linux/amd64,linux/arm64 --target final-amd64 .
-#
-# For Rocky Linux 9, use Dockerfile.rocky instead.
 #
 
 ARG FUTU_OPEND_VER=10.3.6308

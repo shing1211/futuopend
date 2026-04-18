@@ -3,11 +3,16 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      target: final-ubuntu-${TARGET_SUFFIX:-amd64}
+      target: final-${TARGET_SUFFIX:-amd64}
+      args:
+        - TARGET_ARCH=${TARGET_SUFFIX:-amd64}
     image: shing1211/futuopend:latest
     container_name: futuopend
     restart: unless-stopped
     platform: linux/${PLATFORM:-amd64}
+    env_file:
+      - path: .env
+        required: false
     environment:
       - TZ=${TZ:-Asia/Hong_Kong}
     volumes:

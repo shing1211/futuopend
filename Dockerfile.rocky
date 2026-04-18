@@ -14,36 +14,30 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# Ubuntu 24.04 LTS multi-stage build.
-# Targets: final-amd64 (x86_64), final-arm64 (aarch64)
+# Rocky Linux 9 multi-stage build.
+# Each (arch) variant is a separate build target.
 #
-# Local development (single arch):
-#   docker build --target final-amd64 .
-#
-# Multi-arch:
+# Usage:
+#   docker build --target final-amd64  .
+#   docker build --target final-arm64  .
 #   docker buildx build --platform linux/amd64,linux/arm64 --target final-amd64 .
-#
-# For Rocky Linux 9, use Dockerfile.rocky instead.
 #
 
 ARG FUTU_OPEND_VER=10.3.6308
 
-FROM ubuntu:24.04 AS base-amd64
-FROM ubuntu:24.04 AS base-arm64
+FROM rockylinux:9 AS base-amd64
+FROM rockylinux:9 AS base-arm64
 
 FROM base-${TARGET_ARCH:-amd64} AS build
 ARG FUTU_OPEND_VER
 
 WORKDIR /tmp
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends curl \
-    && rm -rf /var/lib/apt/lists/* \
-    && curl -fsSL "https://softwaredownload.futunn.com/Futu_OpenD_${FUTU_OPEND_VER}_Ubuntu18.04.tar.gz" \
+RUN curl -fsSL "https://softwaredownload.futunn.com/Futu_OpenD_${FUTU_OPEND_VER}_Centos7.tar.gz" \
          -o Futu_OpenD.tar.gz \
     && tar -xzf Futu_OpenD.tar.gz \
     && rm Futu_OpenD.tar.gz
 
-FROM ubuntu:24.04 AS final-amd64
+FROM rockylinux:9 AS final-amd64
 ARG FUTU_OPEND_VER
 
 ENV TZ=Asia/Hong_Kong \
@@ -56,7 +50,7 @@ RUN useradd -m futuopend \
     && chown futuopend:futuopend /home/futuopend/.com.futunn.FutuOpenD
 
 COPY --from=build --chown=futuopend:futuopend \
-     /tmp/Futu_OpenD_${FUTU_OPEND_VER}_Ubuntu18.04/Futu_OpenD_${FUTU_OPEND_VER}_Ubuntu18.04/ \
+     /tmp/Futu_OpenD_${FUTU_OPEND_VER}_Centos7/Futu_OpenD_${FUTU_OPEND_VER}_Centos7/ \
      /usr/local/bin/
 COPY --chown=futuopend:futuopend scripts/wrapper.sh /usr/local/bin/wrapper.sh
 
@@ -71,7 +65,7 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
     CMD pgrep -x FutuOpenD || exit 1
 CMD ["/usr/local/bin/wrapper.sh"]
 
-FROM ubuntu:24.04 AS final-arm64
+FROM rockylinux:9 AS final-arm64
 ARG FUTU_OPEND_VER
 
 ENV TZ=Asia/Hong_Kong \
@@ -84,7 +78,7 @@ RUN useradd -m futuopend \
     && chown futuopend:futuopend /home/futuopend/.com.futunn.FutuOpenD
 
 COPY --from=build --chown=futuopend:futuopend \
-     /tmp/Futu_OpenD_${FUTU_OPEND_VER}_Ubuntu18.04/Futu_OpenD_${FUTU_OPEND_VER}_Ubuntu18.04/ \
+     /tmp/Futu_OpenD_${FUTU_OPEND_VER}_Centos7/Futu_OpenD_${FUTU_OPEND_VER}_Centos7/ \
      /usr/local/bin/
 COPY --chown=futuopend:futuopend scripts/wrapper.sh /usr/local/bin/wrapper.sh
 

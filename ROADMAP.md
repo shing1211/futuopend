@@ -32,11 +32,11 @@ futuopend is the most reliable, well-tested, and enterprise-ready Docker packagi
 
 - [ ] **GitHub Actions CI** — Automated build, lint, security scan, and push on merge
 - [ ] **Docker build smoke test** — Verify all 8 targets actually start FutuOpenD
-- [ ] **Fix stage-execution bug** — `--target final-ubuntu` should not build Rocky stage
-- [ ] **SECURITY.md** — Security policy with disclosure process and supported versions
-- [ ] **Fix ROADMAP.md** — Replace placeholder stubs with real roadmap
+- [x] **Fix stage-execution bug** — Split into `Dockerfile.ubuntu` / `Dockerfile.rocky` — each builds only its own base
+- [x] **SECURITY.md** — Security policy with disclosure process and supported versions
+- [x] **Fix ROADMAP.md** — Replaced placeholder stubs with real roadmap (2026-04-18)
 - [ ] **Wire env vars through compose files** — Align `.env.example` with `docker-compose.yaml`
-- [ ] **Fix `${FUTU_RSA_KEY}` in XML template** — Template must support env var for RSA key
+- [x] **Fix `${FUTU_RSA_KEY}` in XML template** — Template now uses `${FUTU_RSA_KEY}` env var (2026-04-18)
 - [ ] **Phone verification callout in Quick Start** — Prevent user panic on first-run verification
 - [ ] **Deduplicate phone verification docs** — Keep canonical version in `docs/configuration.md`
 - [ ] **Automated version bumping** — CI detects `FUTU_OPEND_VER` change and creates GitHub release
@@ -49,7 +49,7 @@ futuopend is the most reliable, well-tested, and enterprise-ready Docker packagi
 
 - [ ] **Kubernetes manifests** (`k8s/`) — Deployment, Service, Secret, PersistentVolumeClaim
 - [ ] **Helm chart** — Published on GitHub Pages for `helm install`
-- [ ] **Graceful shutdown on all targets** — All 4 `final-*` targets use `wrapper.sh`
+- [x] **Graceful shutdown on all targets** — All 4 `final-*` targets use `wrapper.sh` (2026-04-18)
 - [ ] **Connection health monitoring** — Port-based check (not just `pgrep`)
 - [ ] **Structured logging + Prometheus metrics** — stdout logs + debug port scraping
 - [ ] **Connection pool configuration docs** — Recommended settings for production
@@ -89,12 +89,12 @@ futuopend is the most reliable, well-tested, and enterprise-ready Docker packagi
 
 | Issue | Status | Notes |
 |-------|--------|-------|
-| Both build stages always run regardless of `--target` | [ ] Fix pending (P0) | Doubles build time |
-| Graceful shutdown only on 2 of 4 targets | [ ] Fix pending (P1) | `final-ubuntu-arm64` uses `FutuOpenD` directly |
+| Both build stages always run regardless of `--target` | [x] Done (P0) | Split into `Dockerfile`, `Dockerfile.ubuntu`, `Dockerfile.rocky` — each targets only its own base |
+| Graceful shutdown only on 2 of 4 targets | [x] Done (P1) | All 4 targets now use `wrapper.sh` |
 | No GitHub Actions CI | [ ] Fix pending (P0) | Manual builds only |
-| `SECURITY.md` missing | [ ] Fix pending (P0) | GitHub flags repo |
-| ROADMAP.md is placeholder stubs | [ ] Fix pending (P0) | Misleading for contributors |
-| `${FUTU_RSA_KEY}` not wired in template | [ ] Fix pending (P0) | Docs promise env vars, template doesn't deliver |
+| `SECURITY.md` missing | [x] Done (P0) | Added 2026-04-17 |
+| ROADMAP.md is placeholder stubs | [x] Done (P0) | Replaced with real roadmap (2026-04-18) |
+| `${FUTU_RSA_KEY}` not wired in template | [x] Done (P0) | `FutuOpenD.xml.template` now uses `${FUTU_RSA_KEY}` env var |
 | No health endpoint beyond `pgrep` | [ ] Fix pending (P1) | Port-based check would be more reliable |
 
 ---
@@ -104,14 +104,16 @@ futuopend is the most reliable, well-tested, and enterprise-ready Docker packagi
 ```
 futuopend (this project)
     │
-    ├── Dockerfile              — 8 multi-stage build targets
-    ├── docker-compose.yaml       — Docker Swarm production config
-    ├── docker-compose.simple.yaml — Standalone beginner config
-    ├── scripts/wrapper.sh       — Graceful SIGTERM/SIGINT shutdown
-    ├── FutuOpenD.xml.template  — Config template with env var support
+    ├── Dockerfile              — Ubuntu 24.04 targets (final-amd64, final-arm64)
+    ├── Dockerfile.ubuntu       — Alias for Dockerfile (Ubuntu variant)
+    ├── Dockerfile.rocky        — Rocky Linux 9 variant (final-amd64, final-arm64)
+    ├── docker-compose.yaml        — Docker Swarm production config
+    ├── docker-compose.simple.yaml  — Standalone beginner config
+    ├── scripts/wrapper.sh        — Graceful SIGTERM/SIGINT shutdown
+    ├── FutuOpenD.xml.template   — Config template with env var support
     └── docs/
-        ├── configuration.md    — Full config reference
-        └── security.md         — Hardening checklist
+        ├── configuration.md     — Full config reference
+        └── security.md          — Hardening checklist
 ```
 
 ```

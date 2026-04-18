@@ -3,6 +3,7 @@
 *.key
 *.crt
 FutuOpenD.xml
+**/FutuOpenD.xml
 *.rsa*
 **/secrets/
 **/keys/

@@ -25,19 +25,16 @@
 #   ./dockerbuild.sh --multiarch  # build multi-platform images (amd64 + arm64)
 #
 # Tags pushed to Docker Hub (shing1211/futuopend):
-#   :latest                       — always points to ubuntu
-#   :<version>-ubuntu
-#   :<version>-rocky
-#   :<version>-centos            — alias for :<version>-rocky
-#   :ubuntu
-#   :rocky
-#   :centos                      — alias for :rocky
-#
-# Multi-arch tags (when using --multiarch):
+#   :latest                       — always points to ubuntu-amd64
 #   :<version>-ubuntu-amd64
 #   :<version>-ubuntu-arm64
 #   :<version>-rocky-amd64
 #   :<version>-rocky-arm64
+#   :<version>-centos-amd64      — alias for :<version>-rocky-amd64
+#   :<version>-centos-arm64      — alias for :<version>-rocky-arm64
+#   :ubuntu-amd64 / :ubuntu-arm64
+#   :rocky-amd64 / :rocky-arm64
+#   :centos-amd64 / :centos-arm64 — aliases for :rocky-*
 #
 # NOTE: FutuOpenD only provides x86_64 binaries. ARM builds use QEMU emulation.
 #       For better performance on ARM devices, consider using box64:
@@ -69,26 +66,31 @@ setup_buildx() {
 
 build_and_push() {
     local variant="$1"
-    local target="final-${variant}-amd64"
+    local arch="${2:-amd64}"
     local tag_ver="${VERSION}-${variant}"
 
     echo ""
     echo "==> ============================================"
-    echo "==>  Building  FutuOpenD ${VERSION}  [${variant}]"
+    echo "==>  Building  FutuOpenD ${VERSION}  [${variant}-${arch}]"
     echo "==> ============================================"
 
+    local dockerfile="-f Dockerfile.${variant}"
+    local target="final-${arch}"
+
     docker build \
+        $dockerfile \
         --target "$target" \
         --build-arg FUTU_OPEND_VER="$VERSION" \
-        -t "${IMAGE}:${tag_ver}" \
-        -t "${IMAGE}:${variant}" \
+        --build-arg TARGET_ARCH="$arch" \
+        -t "${IMAGE}:${tag_ver}-${arch}" \
+        -t "${IMAGE}:${variant}-${arch}" \
         .
 
-    echo "==>  Pushing  ${IMAGE}:${tag_ver}"
-    docker push "${IMAGE}:${tag_ver}"
+    echo "==>  Pushing  ${IMAGE}:${tag_ver}-${arch}"
+    docker push "${IMAGE}:${tag_ver}-${arch}"
 
-    echo "==>  Pushing  ${IMAGE}:${variant}"
-    docker push "${IMAGE}:${variant}"
+    echo "==>  Pushing  ${IMAGE}:${variant}-${arch}"
+    docker push "${IMAGE}:${variant}-${arch}"
 }
 
 build_and_push_multiarch() {
@@ -102,11 +104,13 @@ build_and_push_multiarch() {
     echo "==> ============================================"
 
     for arch in amd64 arm64; do
-        local target="final-${variant}-${arch}"
+        local target="final-${arch}"
         echo "==>  Building platform linux/${arch} -> ${target}"
         docker buildx build \
+            -f "Dockerfile.${variant}" \
             --target "$target" \
             --build-arg FUTU_OPEND_VER="$VERSION" \
+            --build-arg TARGET_ARCH="$arch" \
             --platform "linux/${arch}" \
             -t "${IMAGE}:${tag_ver}-${arch}" \
             -t "${IMAGE}:${variant}-${arch}" \
@@ -188,6 +192,8 @@ if [[ "$MULTIARCH" == "true" ]]; then
         echo "==>    ${IMAGE}:${VERSION}-ubuntu-arm64"
         echo "==>    ${IMAGE}:${VERSION}-rocky-amd64"
         echo "==>    ${IMAGE}:${VERSION}-rocky-arm64"
+        echo "==>    ${IMAGE}:${VERSION}-centos-amd64  (alias)"
+        echo "==>    ${IMAGE}:${VERSION}-centos-arm64  (alias)"
         echo "==>    ${IMAGE}:latest (ubuntu-amd64)"
         echo "==> ============================================"
 
@@ -213,20 +219,29 @@ elif [[ "$VARIANT" == "all" ]]; then
     docker pull ubuntu:24.04
     docker pull rockylinux:9
 
-    build_and_push ubuntu
-    build_and_push rocky
+        build_and_push ubuntu amd64
+        build_and_push rocky amd64
 
     echo ""
-    echo "==> Tagging :latest (ubuntu)"
-    docker tag "${IMAGE}:${VERSION}-ubuntu" "${IMAGE}:latest"
+    echo "==> Tagging :latest (ubuntu-amd64)"
+    docker tag "${IMAGE}:${VERSION}-ubuntu-amd64" "${IMAGE}:latest"
     docker push "${IMAGE}:latest"
 
     echo ""
     echo "==> Creating :centos aliases..."
-    push_alias "${VERSION}-rocky" "${VERSION}-centos"
-    push_alias "rocky" "centos"
+    push_alias "${VERSION}-rocky-amd64" "${VERSION}-centos-amd64"
+    push_alias "rocky-amd64" "centos-amd64"
 
     echo ""
+    echo "==> ============================================"
+    echo "==>  All images pushed:"
+    echo "==>    ${IMAGE}:${VERSION}-ubuntu-amd64"
+    echo "==>    ${IMAGE}:${VERSION}-rocky-amd64"
+    echo "==>    ${IMAGE}:${VERSION}-centos-amd64  (alias)"
+    echo "==>    ${IMAGE}:latest"
+    echo "==>    ${IMAGE}:ubuntu-amd64"
+    echo "==>    ${IMAGE}:rocky-amd64"
+    echo "==>    ${IMAGE}:centos-amd64  (alias)"
     echo "==> ============================================"
     echo "==>  All images pushed:"
     echo "==>    ${IMAGE}:${VERSION}-ubuntu"
@@ -241,18 +256,18 @@ elif [[ "$VARIANT" == "all" ]]; then
 elif [[ "$VARIANT" == "ubuntu" ]]; then
     echo "==> Building ubuntu only"
     echo "==> Version: ${VERSION}"
-    build_and_push ubuntu
+    build_and_push ubuntu amd64
     echo ""
-    echo "==> Done. ${IMAGE}:${VERSION}-ubuntu & ${IMAGE}:ubuntu pushed."
+    echo "==> Done. ${IMAGE}:${VERSION}-ubuntu-amd64 & ${IMAGE}:ubuntu-amd64 pushed."
 
 elif [[ "$VARIANT" == "rocky" || "$VARIANT" == "centos" ]]; then
     echo "==> Building rocky only"
     echo "==> Version: ${VERSION}"
-    build_and_push rocky
-    push_alias "${VERSION}-rocky" "${VERSION}-centos"
-    push_alias "rocky" "centos"
+    build_and_push rocky amd64
+    push_alias "${VERSION}-rocky-amd64" "${VERSION}-centos-amd64"
+    push_alias "rocky-amd64" "centos-amd64"
     echo ""
-    echo "==> Done. ${IMAGE}:${VERSION}-rocky, ${IMAGE}:rocky, and :centos aliases pushed."
+    echo "==> Done. ${IMAGE}:${VERSION}-rocky-amd64, ${IMAGE}:rocky-amd64, and :centos-amd64 aliases pushed."
 
 else
     echo "Error: unknown variant '$VARIANT'. Run '$0 --list' to see options." >&2

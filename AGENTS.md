@@ -2,10 +2,13 @@
 
 ## Build
 ```bash
-./dockerbuild.sh              # builds & pushes ALL variants (ubuntu + rocky)
-./dockerbuild.sh ubuntu       # ubuntu only
-./dockerbuild.sh rocky        # rocky only
+./dockerbuild.sh              # builds & pushes ALL variants (ubuntu + rocky, amd64 only)
+./dockerbuild.sh ubuntu       # ubuntu only (amd64)
+./dockerbuild.sh rocky        # rocky only (amd64)
+./dockerbuild.sh --multiarch  # all variants, both amd64 + arm64
 ```
+
+> **Note:** Dockerfiles are split by OS (`Dockerfile`, `Dockerfile.rocky`) so `--target` only builds the relevant base image — no wasted build time on unselected OS variants.
 
 ## Run
 ```bash
@@ -15,7 +18,8 @@ docker compose -f docker-compose.simple.yaml up -d
 - WebSocket: `localhost:11112`
 
 ## Key Files
-- `Dockerfile` — multi-stage build
+- `Dockerfile` — Ubuntu 24.04 multi-stage build (amd64/arm64)
+- `Dockerfile.rocky` — Rocky Linux 9 multi-stage build (amd64/arm64)
 - `docker-compose.simple.yaml` — standalone deployment
 - `FutuOpenD.xml.template` — official config with env-var substitution
 

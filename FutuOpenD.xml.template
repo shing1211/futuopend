@@ -67,7 +67,7 @@
                            REQUIRED for trading over the network (when ip is 0.0.0.0).
                            NOT needed for quote-only access or local-only (127.0.0.1) use.
                            Generate at: https://www.futunn.com/en/OpenAPI → Manage Key -->
-  <!-- <rsa_private_key>/run/secrets/rsa_key.txt</rsa_private_key> -->
+  <rsa_private_key>${FUTU_RSA_KEY}</rsa_private_key>
 
   <!-- price_reminder_push : Receive price reminder notifications. 0: off, 1: on -->
   <price_reminder_push>${FUTU_PRICE_REMINDER:-1}</price_reminder_push>
