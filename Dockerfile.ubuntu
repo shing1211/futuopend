@@ -57,7 +57,8 @@ COPY --from=build --chown=futuopend:futuopend \
      /usr/local/bin/
 COPY --chown=futuopend:futuopend entrypoint.sh /usr/local/bin/entrypoint.sh
 
-RUN chmod +x /usr/local/bin/FutuOpenD \
+RUN sed -i 's/\r$//' /usr/local/bin/entrypoint.sh \
+    && chmod +x /usr/local/bin/FutuOpenD \
     && chmod +x /usr/local/bin/entrypoint.sh
 
 USER futuopend
@@ -85,7 +86,8 @@ COPY --from=build --chown=futuopend:futuopend \
      /usr/local/bin/
 COPY --chown=futuopend:futuopend entrypoint.sh /usr/local/bin/entrypoint.sh
 
-RUN chmod +x /usr/local/bin/FutuOpenD \
+RUN sed -i 's/\r$//' /usr/local/bin/entrypoint.sh \
+    && chmod +x /usr/local/bin/FutuOpenD \
     && chmod +x /usr/local/bin/entrypoint.sh
 
 USER futuopend
