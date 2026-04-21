@@ -28,12 +28,12 @@ ARG FUTU_OPEND_VER=10.3.6308
 FROM ubuntu:24.04 AS base-amd64
 FROM ubuntu:24.04 AS base-arm64
 
-FROM base-${TARGET_ARCH:-amd64} AS build
+FROM base-${TARGETARCH:-amd64} AS build
 ARG FUTU_OPEND_VER
 
 WORKDIR /tmp
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends curl \
+    && apt-get install -y --no-install-recommends curl ca-certificates \
     && rm -rf /var/lib/apt/lists/* \
     && curl -fsSL "https://softwaredownload.futunn.com/Futu_OpenD_${FUTU_OPEND_VER}_Ubuntu18.04.tar.gz" \
          -o Futu_OpenD.tar.gz \
@@ -55,10 +55,10 @@ RUN useradd -m futuopend \
 COPY --from=build --chown=futuopend:futuopend \
      /tmp/Futu_OpenD_${FUTU_OPEND_VER}_Ubuntu18.04/Futu_OpenD_${FUTU_OPEND_VER}_Ubuntu18.04/ \
      /usr/local/bin/
-COPY --chown=futuopend:futuopend scripts/wrapper.sh /usr/local/bin/wrapper.sh
+COPY --chown=futuopend:futuopend entrypoint.sh /usr/local/bin/entrypoint.sh
 
 RUN chmod +x /usr/local/bin/FutuOpenD \
-    && chmod +x /usr/local/bin/wrapper.sh
+    && chmod +x /usr/local/bin/entrypoint.sh
 
 USER futuopend
 WORKDIR /home/futuopend
@@ -66,7 +66,7 @@ EXPOSE 11111 11112
 VOLUME /home/futuopend/.com.futunn.FutuOpenD
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
     CMD pgrep -x FutuOpenD || exit 1
-CMD ["/usr/local/bin/wrapper.sh"]
+CMD ["/usr/local/bin/entrypoint.sh"]
 
 FROM ubuntu:24.04 AS final-arm64
 ARG FUTU_OPEND_VER
@@ -83,10 +83,10 @@ RUN useradd -m futuopend \
 COPY --from=build --chown=futuopend:futuopend \
      /tmp/Futu_OpenD_${FUTU_OPEND_VER}_Ubuntu18.04/Futu_OpenD_${FUTU_OPEND_VER}_Ubuntu18.04/ \
      /usr/local/bin/
-COPY --chown=futuopend:futuopend scripts/wrapper.sh /usr/local/bin/wrapper.sh
+COPY --chown=futuopend:futuopend entrypoint.sh /usr/local/bin/entrypoint.sh
 
 RUN chmod +x /usr/local/bin/FutuOpenD \
-    && chmod +x /usr/local/bin/wrapper.sh
+    && chmod +x /usr/local/bin/entrypoint.sh
 
 USER futuopend
 WORKDIR /home/futuopend
@@ -94,4 +94,4 @@ EXPOSE 11111 11112
 VOLUME /home/futuopend/.com.futunn.FutuOpenD
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
     CMD pgrep -x FutuOpenD || exit 1
-CMD ["/usr/local/bin/wrapper.sh"]
+CMD ["/usr/local/bin/entrypoint.sh"]
