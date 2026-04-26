@@ -22,6 +22,13 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 
 ---
 
+## [10.4.6408] - 2026-04-26
+
+### Changed
+- FutuOpenD bumped from `10.3.6308` → `10.4.6408`
+
+---
+
 ## [10.3.6308] - 2026-04-16
 
 ### Added

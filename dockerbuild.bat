@@ -6,7 +6,7 @@ set VARIANT=%1
 set VERSION=%2
 
 if "%VARIANT%"=="" set VARIANT=all
-if "%VERSION%"=="" set VERSION=10.3.6308
+if "%VERSION%"=="" set VERSION=10.4.6408
 
 echo.
 echo Building FutuOpenD %VERSION%
@@ -65,12 +65,12 @@ goto end
 :usage
 echo.
 echo Usage: %0 [all^|ubuntu^|rocky^|centos] [version]
-echo Default: all variants, version 10.3.6308
+echo Default: all variants, version 10.4.6408
 echo.
 echo Examples:
 echo   %0                - build all (default version)
 echo   %0 ubuntu         - build ubuntu only
-echo   %0 ubuntu 10.3.6308 - build ubuntu with specific version
+echo   %0 ubuntu 10.4.6408 - build ubuntu with specific version
 exit /b 1
 
 :fail

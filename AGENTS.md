@@ -38,7 +38,7 @@ docker compose -f docker-compose.simple.yaml up -d
 
 ## Current Version
 
-- **FutuOpenD:** 10.3.6308 (2026-04-16)
+- **FutuOpenD:** 10.4.6408 (2026-04-26)
 - **Base:** Ubuntu 24.04 LTS / Rocky Linux 9
 - **Entry Script:** `entrypoint.sh` (graceful SIGTERM/SIGINT handling)
 
