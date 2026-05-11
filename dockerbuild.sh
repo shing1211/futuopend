@@ -224,7 +224,13 @@ if [[ "$MULTIARCH" == "true" ]]; then
         echo "==>    ${IMAGE}:${VERSION}-centos-amd64  (alias)"
         echo "==>    ${IMAGE}:${VERSION}-centos-arm64  (alias)"
         echo "==>    ${IMAGE}:latest (ubuntu-amd64)"
-        echo "==> ============================================"
+        echo ""
+        echo "==>  Creating :centos aliases..."
+        for arch in amd64 arm64; do
+            push_alias "${VERSION}-rocky-${arch}" "${VERSION}-centos-${arch}"
+            push_alias "rocky-${arch}" "centos-${arch}"
+        done
+        echo ""
 
     elif [[ "$VARIANT" == "ubuntu" || "$VARIANT" == "rocky" || "$VARIANT" == "centos" ]]; then
         echo "==> Building ${VARIANT} for ${IMAGE} (multi-arch)"

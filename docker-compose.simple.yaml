@@ -3,9 +3,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.ubuntu
-      target: final-${TARGET_SUFFIX:-amd64}
+      target: final
       args:
-        - TARGETARCH=${TARGET_SUFFIX:-amd64}
+        - TARGETARCH=${TARGETARCH:-amd64}
     image: shing1211/futuopend:latest
     container_name: futuopend
     restart: unless-stopped

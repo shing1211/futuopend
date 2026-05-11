@@ -18,9 +18,8 @@
 # Each (arch) variant is a separate build target.
 #
 # Usage:
-#   docker build --target final-amd64  .
-#   docker build --target final-arm64  .
-#   docker buildx build --platform linux/amd64,linux/arm64 --target final-amd64 .
+#   docker build --target final .
+#   docker buildx build --platform linux/amd64,linux/arm64 --target final .
 #
 
 ARG FUTU_OPEND_VER=10.5.6508
