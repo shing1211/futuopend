@@ -56,6 +56,31 @@ check_docker_buildx() {
     fi
 }
 
+check_tarball() {
+    local ver="$1"
+    local variant="$2"
+    local url_suffix=""
+    if [[ "$variant" == "ubuntu" ]]; then
+        url_suffix="Ubuntu18.04"
+    else
+        url_suffix="Centos7"
+    fi
+    local url="https://softwaredownload.futunn.com/Futu_OpenD_${ver}_${url_suffix}.tar.gz"
+    echo -n "==> Checking FutuOpenD ${ver} (${variant})... "
+    local status
+    status=$(curl -sfI "$url" | head -1) || true
+    if [[ "$status" == *" 200 "* ]]; then
+        echo "OK"
+        return 0
+    else
+        echo "NOT FOUND"
+        echo "Error: FutuOpenD ${ver} tarball not found at:" >&2
+        echo "  ${url}" >&2
+        echo "Hint: check https://softwaredownload.futunn.com for available versions." >&2
+        return 1
+    fi
+}
+
 setup_buildx() {
     if ! docker buildx inspect multiplatform &>/dev/null 2>&1; then
         docker buildx create --name multiplatform --driver docker-container --use
@@ -155,7 +180,7 @@ case "$VARIANT" in
         echo "  $0                    # build all variants (amd64 only)"
         echo "  $0 ubuntu             # build ubuntu variant"
         echo "  $0 --multiarch        # build multi-platform (amd64 + arm64)"
-        echo "  $0 --multiarch ubuntu linux/arm64  # build arm64 only"
+        echo "  $0 --multiarch ubuntu 10.5.6508 linux/arm64  # arm64 only"
         exit 0
         ;;
     --multiarch)
@@ -175,6 +200,8 @@ if [[ "$MULTIARCH" == "true" ]]; then
         echo "==> Version: ${VERSION}"
         echo "==> Platforms: ${PLATFORM}"
         echo ""
+        check_tarball "$VERSION" ubuntu || exit 1
+        check_tarball "$VERSION" rocky || exit 1
 
         build_and_push_multiarch ubuntu
         build_and_push_multiarch rocky
@@ -201,6 +228,7 @@ if [[ "$MULTIARCH" == "true" ]]; then
         echo "==> Building ${VARIANT} for ${IMAGE} (multi-arch)"
         echo "==> Version: ${VERSION}"
         echo "==> Platforms: ${PLATFORM}"
+        check_tarball "$VERSION" "$VARIANT" || exit 1
         build_and_push_multiarch "$VARIANT"
         echo ""
         echo "==> Done. Multi-arch images for ${VARIANT} pushed."
@@ -214,6 +242,8 @@ elif [[ "$VARIANT" == "all" ]]; then
     echo "==> Building ALL variants for ${IMAGE}"
     echo "==> Version: ${VERSION}"
     echo ""
+    check_tarball "$VERSION" ubuntu || exit 1
+    check_tarball "$VERSION" rocky || exit 1
 
     echo "==> Pulling base images..."
     docker pull ubuntu:24.04
@@ -247,6 +277,7 @@ elif [[ "$VARIANT" == "all" ]]; then
 elif [[ "$VARIANT" == "ubuntu" ]]; then
     echo "==> Building ubuntu only"
     echo "==> Version: ${VERSION}"
+    check_tarball "$VERSION" ubuntu || exit 1
     build_and_push ubuntu amd64
     echo ""
     echo "==> Done. ${IMAGE}:${VERSION}-ubuntu-amd64 & ${IMAGE}:ubuntu-amd64 pushed."
@@ -254,6 +285,7 @@ elif [[ "$VARIANT" == "ubuntu" ]]; then
 elif [[ "$VARIANT" == "rocky" || "$VARIANT" == "centos" ]]; then
     echo "==> Building rocky only"
     echo "==> Version: ${VERSION}"
+    check_tarball "$VERSION" rocky || exit 1
     build_and_push rocky amd64
     push_alias "${VERSION}-rocky-amd64" "${VERSION}-centos-amd64"
     push_alias "rocky-amd64" "centos-amd64"
