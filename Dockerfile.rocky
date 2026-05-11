@@ -23,7 +23,7 @@
 #   docker buildx build --platform linux/amd64,linux/arm64 --target final-amd64 .
 #
 
-ARG FUTU_OPEND_VER=10.4.6408
+ARG FUTU_OPEND_VER=10.5.6508
 
 FROM rockylinux:9 AS base-amd64
 FROM rockylinux:9 AS base-arm64

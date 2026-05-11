@@ -6,6 +6,9 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+### Changed
+- FutuOpenD bumped from `10.4.6408` → `10.5.6508`
+
 ### Fixed
 - CRLF line endings in entrypoint.sh causing "required file not found" error on Windows builds
 - `TARGETARCH` variable naming in Dockerfiles (was `TARGET_ARCH`)

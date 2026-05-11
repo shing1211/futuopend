@@ -38,7 +38,7 @@ docker compose -f docker-compose.simple.yaml up -d
 
 ## Current Version
 
-- **FutuOpenD:** 10.4.6408 (2026-04-26)
+- **FutuOpenD:** 10.5.6508 (2026-05-11)
 - **Base:** Ubuntu 24.04 LTS / Rocky Linux 9
 - **Entry Script:** `entrypoint.sh` (graceful SIGTERM/SIGINT handling)
 
@@ -52,7 +52,7 @@ docker compose -f docker-compose.simple.yaml up -d
 <!-- gitnexus:start -->
 # GitNexus — Code Intelligence
 
-This project is indexed by GitNexus as **futuopend** (180 symbols, 172 relationships, 0 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
+This project is indexed by GitNexus as **futuopend** (212 symbols, 202 relationships, 0 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
 
 > If any GitNexus tool warns the index is stale, run `npx gitnexus analyze` in terminal first.
 
