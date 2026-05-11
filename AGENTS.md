@@ -7,7 +7,7 @@
 ./dockerbuild.sh all                    # both variants (ubuntu + rocky)
 ./dockerbuild.sh ubuntu                # ubuntu only
 ./dockerbuild.sh rocky                # rocky only
-./dockerbuild.sh --multiarch         # multi-arch (amd64 + arm64)
+./dockerbuild.sh --all         # multi-arch (amd64 + arm64)
 ```
 
 **Windows:**
@@ -92,3 +92,14 @@ This project is indexed by GitNexus as **futuopend** (222 symbols, 202 relations
 | Index, status, clean, wiki CLI commands | `.claude/skills/gitnexus/gitnexus-cli/SKILL.md` |
 
 <!-- gitnexus:end -->
+
+## Session Summary
+
+### Completed
+- Dockerfile deduplication: merged `final-amd64` + `final-arm64` → single `final` stage
+- Added `--all` alias for `--multiarch` in dockerbuild.sh
+- README: added ARM performance note and box64 recommendation
+- Smoke test: container healthy, port 11111 listening, FutuOpenD binary running
+
+### Next Steps
+- [ ] ARM smoke test on Raspberry Pi (verify real hardware works, not just QEMU)
