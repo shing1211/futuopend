@@ -2,7 +2,7 @@
 
 > **Purpose**: Make futuopend a production-grade Docker deployment platform for FutuOpenD.
 >
-> **Status**: Core functionality complete. Split Dockerfiles, entrypoint.sh, dockerbuild.bat, CRLF fix all done (2026-04-22).
+> **Status**: Core functionality complete. Multi-arch support, deduplicated Dockerfiles, `--all` flag, ARM performance docs, smoke test all done (2026-05-11).
 >
 > **Priority**: P0 = Must fix | P1 = Major improvement | P2 = Nice-to-have
 
@@ -126,4 +126,4 @@ futugo4bot (Trading bot)
 
 ---
 
-*Last updated: 2026-04-22*
+*Last updated: 2026-05-11*

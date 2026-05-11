@@ -93,6 +93,14 @@ This project is indexed by GitNexus as **futuopend** (222 symbols, 202 relations
 
 <!-- gitnexus:end -->
 
+## Project Notes
+
+- Dockerfile deduplication complete (`final-amd64` + `final-arm64` → single `final` stage)
+- `--all` is the preferred multi-arch flag (alias for `--multiarch`)
+- FutuOpenD uses proprietary protocol on port 11111 — not plain HTTP
+- ARM builds use QEMU emulation; see README ARM perf section for box64 alternative
+- Docker Swarm secrets require `docker stack deploy` (not standalone `docker compose`)
+
 ## Session Summary
 
 ### Completed
@@ -100,6 +108,12 @@ This project is indexed by GitNexus as **futuopend** (222 symbols, 202 relations
 - Added `--all` alias for `--multiarch` in dockerbuild.sh
 - README: added ARM performance note and box64 recommendation
 - Smoke test: container healthy, port 11111 listening, FutuOpenD binary running
+- Fixed critical: Rocky Dockerfile was missing `final` stage body
+- Fixed dockerbuild.bat: `--target final-%A%` → `--target final`
+- Fixed dockerbuild.sh: PLATFORM env var now filters arch loop (was hardcoded)
+- Fixed entrypoint.sh: use captured PID instead of pgrep (TOCTOU race fix)
+- Updated docs/ARCHITECTURE.md: all stale `final-amd64`/`final-arm64` refs → `final`
+- Fixed .env.example: `TARGET_SUFFIX` → `TARGETARCH`
 
 ### Next Steps
 - [ ] ARM smoke test on Raspberry Pi (verify real hardware works, not just QEMU)
