@@ -83,8 +83,13 @@ dockerbuild.bat all
 dockerbuild.bat ubuntu
 
 # Multi-arch (amd64 + arm64)
-./dockerbuild.sh --multiarch
+./dockerbuild.sh --all    # both amd64 + arm64, ubuntu + rocky
+
+# ARM boards (Raspberry Pi 3/4/5)
+./dockerbuild.sh --all ubuntu   # ubuntu arm64 only
 ```
+
+**Note on ARM performance:** Futu provides x86_64 binaries only. ARM builds use QEMU user-mode emulation, which works but is ~2-5x slower than native x86_64. For latency-sensitive trading on a Raspberry Pi, consider [box64](https://github.com/ptitSeb/box64) (native x86_64 emulation with dynamic recompilation) — install it on the host and the container will use it automatically.
 
 **Docker tags:**
 | Tag | Description |
