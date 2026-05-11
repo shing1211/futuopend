@@ -18,9 +18,8 @@
 # Each (arch) variant is a separate build target.
 #
 # Usage:
-#   docker build --target final-amd64  .
-#   docker build --target final-arm64  .
-#   docker buildx build --platform linux/amd64,linux/arm64 --target final-amd64 .
+#   docker build --target final .
+#   docker buildx build --platform linux/amd64,linux/arm64 --target final .
 #
 
 ARG FUTU_OPEND_VER=10.5.6508
@@ -40,36 +39,7 @@ RUN apt-get update \
     && tar -xzf Futu_OpenD.tar.gz \
     && rm Futu_OpenD.tar.gz
 
-FROM ubuntu:24.04 AS final-amd64
-ARG FUTU_OPEND_VER
-
-ENV TZ=Asia/Hong_Kong \
-    FUTU_OPEND_VER=${FUTU_OPEND_VER}
-
-RUN useradd -m futuopend \
-    && mkdir -p /run/secrets \
-    && chown futuopend:futuopend /run/secrets \
-    && mkdir -p /home/futuopend/.com.futunn.FutuOpenD \
-    && chown futuopend:futuopend /home/futuopend/.com.futunn.FutuOpenD
-
-COPY --from=build --chown=futuopend:futuopend \
-     /tmp/Futu_OpenD_${FUTU_OPEND_VER}_Ubuntu18.04/Futu_OpenD_${FUTU_OPEND_VER}_Ubuntu18.04/ \
-     /usr/local/bin/
-COPY --chown=futuopend:futuopend entrypoint.sh /usr/local/bin/entrypoint.sh
-
-RUN sed -i 's/\r$//' /usr/local/bin/entrypoint.sh \
-    && chmod +x /usr/local/bin/FutuOpenD \
-    && chmod +x /usr/local/bin/entrypoint.sh
-
-USER futuopend
-WORKDIR /home/futuopend
-EXPOSE 11111 11112
-VOLUME /home/futuopend/.com.futunn.FutuOpenD
-HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-    CMD pgrep -x FutuOpenD || exit 1
-CMD ["/usr/local/bin/entrypoint.sh"]
-
-FROM ubuntu:24.04 AS final-arm64
+FROM base-${TARGETARCH:-amd64} AS final
 ARG FUTU_OPEND_VER
 
 ENV TZ=Asia/Hong_Kong \

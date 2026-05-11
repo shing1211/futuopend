@@ -22,7 +22,8 @@
 #   ./dockerbuild.sh rocky        # builds & pushes rocky only
 #   ./dockerbuild.sh centos       # alias for rocky (backward compatibility)
 #   ./dockerbuild.sh --list       # list available variants
-#   ./dockerbuild.sh --multiarch  # build multi-platform images (amd64 + arm64)
+#   ./dockerbuild.sh --all       # build all variants + architectures (amd64 + arm64)
+#   ./dockerbuild.sh --multiarch # alias for --all
 #
 # Tags pushed to Docker Hub (shing1211/futuopend):
 #   :latest                       — always points to ubuntu-amd64
@@ -100,7 +101,7 @@ build_and_push() {
     echo "==> ============================================"
 
     local dockerfile="-f Dockerfile.${variant}"
-    local target="final-${arch}"
+    local target="final"
 
     docker build \
         $dockerfile \
@@ -129,7 +130,7 @@ build_and_push_multiarch() {
     echo "==> ============================================"
 
     for arch in amd64 arm64; do
-        local target="final-${arch}"
+        local target="final"
         echo "==>  Building platform linux/${arch} -> ${target}"
         docker buildx build \
             -f "Dockerfile.${variant}" \
@@ -159,7 +160,8 @@ case "$VARIANT" in
         echo "  rocky       — Rocky Linux 9"
         echo "  centos      — alias for rocky (backward compatibility)"
         echo "  all         — build both ubuntu + rocky (default)"
-        echo "  --multiarch — build multi-platform images (amd64 + arm64)"
+        echo "  --all       — build all variants + architectures (amd64 + arm64, same as --multiarch)"
+        echo "  --multiarch — alias for --all"
         echo ""
         echo "Platforms for --multiarch:"
         echo "  linux/amd64 (x86_64) - default, native"
@@ -171,7 +173,7 @@ case "$VARIANT" in
         exit 0
         ;;
     --help|-h)
-        echo "Usage: $0 [ubuntu|rocky|centos|all|--multiarch] [version] [platform]"
+        echo "Usage: $0 [ubuntu|rocky|centos|all|--all|--multiarch] [version] [platform]"
         echo "  version  defaults to 10.5.6508"
         echo "  platform defaults to linux/amd64 (for --multiarch mode)"
         echo "  centos is an alias for rocky (backward compatibility)"
@@ -179,11 +181,11 @@ case "$VARIANT" in
         echo "Examples:"
         echo "  $0                    # build all variants (amd64 only)"
         echo "  $0 ubuntu             # build ubuntu variant"
-        echo "  $0 --multiarch        # build multi-platform (amd64 + arm64)"
-        echo "  $0 --multiarch ubuntu 10.5.6508 linux/arm64  # arm64 only"
+        echo "  $0 --all              # build multi-arch (amd64 + arm64)"
+        echo "  $0 --all ubuntu 10.5.6508   # ubuntu, both amd64+arm64"
         exit 0
         ;;
-    --multiarch)
+    --all|--multiarch)
         MULTIARCH=true
         VARIANT="${2:-all}"
         VERSION="${3:-10.5.6508}"
