@@ -152,13 +152,9 @@ build_and_push_multiarch() {
 push_alias() {
     local src_tag="$1"
     local alias_tag="$2"
-    if docker image inspect "${IMAGE}:${src_tag}" &>/dev/null; then
-        docker tag "${IMAGE}:${src_tag}" "${IMAGE}:${alias_tag}"
-        echo "==>  Pushing  ${IMAGE}:${alias_tag} (alias)"
-        docker push "${IMAGE}:${alias_tag}"
-    else
-        echo "==>  Skipping alias ${IMAGE}:${alias_tag} — ${IMAGE}:${src_tag} not found"
-    fi
+    docker tag "${IMAGE}:${src_tag}" "${IMAGE}:${alias_tag}"
+    echo "==>  Pushing  ${IMAGE}:${alias_tag} (alias)"
+    docker push "${IMAGE}:${alias_tag}"
 }
 
 case "$VARIANT" in
