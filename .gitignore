@@ -23,8 +23,7 @@ Thumbs.db
 *.swp
 *.swo
 .vscode/
-*.swp
-*.swo
-.vscode/
+
+# Ignore generated indexes
 .gitnexus/
 graphify-out/
