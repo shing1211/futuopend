@@ -1,3 +1,10 @@
+# FutuOpenD Docker Swarm production deployment
+# NOTE: This file requires Docker Swarm mode (docker stack deploy).
+# For standalone Docker Compose, use docker-compose.simple.yaml instead.
+#
+# Required env vars:
+#   RSA_FILE_LOCAL_PATH      — path to RSA private key file
+#   FUTU_OPEND_XML_LOCAL_PATH — path to FutuOpenD.xml config file
 services:
   futuopend:
     image: shing1211/futuopend:latest

@@ -243,15 +243,6 @@ elif [[ "$VARIANT" == "all" ]]; then
     echo "==>    ${IMAGE}:rocky-amd64"
     echo "==>    ${IMAGE}:centos-amd64  (alias)"
     echo "==> ============================================"
-    echo "==>  All images pushed:"
-    echo "==>    ${IMAGE}:${VERSION}-ubuntu"
-    echo "==>    ${IMAGE}:${VERSION}-rocky"
-    echo "==>    ${IMAGE}:${VERSION}-centos  (alias)"
-    echo "==>    ${IMAGE}:latest"
-    echo "==>    ${IMAGE}:ubuntu"
-    echo "==>    ${IMAGE}:rocky"
-    echo "==>    ${IMAGE}:centos  (alias)"
-    echo "==> ============================================"
 
 elif [[ "$VARIANT" == "ubuntu" ]]; then
     echo "==> Building ubuntu only"
