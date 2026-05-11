@@ -132,7 +132,7 @@ build_and_push_multiarch() {
     for arch in $(echo "$PLATFORM" | tr ',' ' ' | sed 's|linux/||g'); do
         local target="final"
         echo "==>  Building platform linux/${arch} -> ${target}"
-        docker buildx build \
+        if ! docker buildx build \
             -f "Dockerfile.${variant}" \
             --target "$target" \
             --build-arg FUTU_OPEND_VER="$VERSION" \
@@ -141,16 +141,24 @@ build_and_push_multiarch() {
             -t "${IMAGE}:${tag_ver}-${arch}" \
             -t "${IMAGE}:${variant}-${arch}" \
             --push \
-            .
+            .; then
+            echo "==>  ERROR: Build/push failed for ${variant}-${arch}" >&2
+            return 1
+        fi
     done
+    echo "==>  All platforms built and pushed for ${variant}"
 }
 
 push_alias() {
     local src_tag="$1"
     local alias_tag="$2"
-    docker tag "${IMAGE}:${src_tag}" "${IMAGE}:${alias_tag}"
-    echo "==>  Pushing  ${IMAGE}:${alias_tag} (alias)"
-    docker push "${IMAGE}:${alias_tag}"
+    if docker image inspect "${IMAGE}:${src_tag}" &>/dev/null; then
+        docker tag "${IMAGE}:${src_tag}" "${IMAGE}:${alias_tag}"
+        echo "==>  Pushing  ${IMAGE}:${alias_tag} (alias)"
+        docker push "${IMAGE}:${alias_tag}"
+    else
+        echo "==>  Skipping alias ${IMAGE}:${alias_tag} — ${IMAGE}:${src_tag} not found"
+    fi
 }
 
 case "$VARIANT" in
@@ -205,8 +213,8 @@ if [[ "$MULTIARCH" == "true" ]]; then
         check_tarball "$VERSION" ubuntu || exit 1
         check_tarball "$VERSION" rocky || exit 1
 
-        build_and_push_multiarch ubuntu
-        build_and_push_multiarch rocky
+        build_and_push_multiarch ubuntu || { echo "==> Ubuntu multi-arch build failed" >&2; exit 1; }
+        build_and_push_multiarch rocky || { echo "==> Rocky multi-arch build failed" >&2; exit 1; }
 
         echo ""
         echo "==> Tagging :latest (ubuntu-amd64)"
