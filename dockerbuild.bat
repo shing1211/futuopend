@@ -47,7 +47,7 @@ set A=%2
 set TAG=%VERSION%-%V%-%A%
 echo.
 echo Building %IMAGE%:%TAG%
-docker build -f Dockerfile.%V% --target final-%A% --build-arg FUTU_OPEND_VER=%VERSION% --build-arg TARGETARCH=%A% -t %IMAGE%:%TAG% -t %IMAGE%:%V%-%A% .
+docker build -f Dockerfile.%V% --target final --build-arg FUTU_OPEND_VER=%VERSION% --build-arg TARGETARCH=%A% -t %IMAGE%:%TAG% -t %IMAGE%:%V%-%A% .
 if errorlevel 1 goto :eof
 echo Pushing %IMAGE%:%TAG%
 docker push %IMAGE%:%TAG%

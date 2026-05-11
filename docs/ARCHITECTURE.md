@@ -23,10 +23,10 @@ Multi-stage Docker builds for two base OS variants:
 Each variant supports both `amd64` and `arm64` architectures. The build downloads the official Futu tarball from `softwaredownload.futunn.com`, installs it under `/usr/local/bin/`, and configures a non-root user (`futuopend:1000`) for security.
 
 ```
-base-amd64 ──► build ──────────────────────────────────────► final-amd64
+base-amd64 ──► build ──────────────────────────────────────► final
                     │ Download Futu_OpenD_<ver>_Ubuntu18.04.tar.gz   │
                     └──────────────────────────────────────────────┘
-base-arm64 ──► build ──────────────────────────────────────► final-arm64
+base-arm64 ──► build ──────────────────────────────────────► final
                     │ Download Futu_OpenD_<ver>_Ubuntu18.04.tar.gz   │
                     └──────────────────────────────────────────────┘
 ```
@@ -52,8 +52,8 @@ Usage:
 ```bash
 ./dockerbuild.sh all              # ubuntu + rocky, amd64 only
 ./dockerbuild.sh ubuntu           # ubuntu only
-./dockerbuild.sh --multiarch      # ubuntu + rocky, both amd64 + arm64
-./dockerbuild.sh --multiarch ubuntu linux/arm64  # arm64 only
+./dockerbuild.sh --all              # ubuntu + rocky, both amd64 + arm64
+./dockerbuild.sh --all ubuntu linux/amd64  # ubuntu amd64 only
 ```
 
 ### 3. Container Lifecycle (entrypoint.sh)
@@ -71,9 +71,7 @@ SIGTERM/SIGINT/SIGHUP
         ▼
    shutdown()
         │
-    pgrep FutuOpenD
-        │
-   kill -TERM $PID ──► wait 30s ──► kill -9 $PID (if timeout)
+    kill -TERM $PID ──► wait 30s ──► kill -9 $PID (if timeout)
 ```
 
 ### 4. Runtime Configuration (FutuOpenD.xml.template + FutuOpenD.xml)
@@ -114,13 +112,13 @@ Volume mounts:
 ```
 dockerbuild.sh all
     │
-    ├── docker build -f Dockerfile.ubuntu --target final-amd64 ...
+    ├── docker build -f Dockerfile.ubuntu --target final ...
     │       │
     │       ├── Download Futu_OpenD_10.5.6508_Ubuntu18.04.tar.gz
     │       ├── tar -xzf → /tmp/Futu_OpenD_<ver>_Ubuntu18.04/
     │       └── COPY to /usr/local/bin/
     │
-    ├── docker build -f Dockerfile.rocky --target final-amd64 ...
+    ├── docker build -f Dockerfile.rocky --target final ...
     │       │
     │       └── Download Futu_OpenD_10.5.6508_Centos7.tar.gz
     │

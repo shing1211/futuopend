@@ -37,3 +37,30 @@ RUN curl -fsSL "https://softwaredownload.futunn.com/Futu_OpenD_${FUTU_OPEND_VER}
     && rm Futu_OpenD.tar.gz
 
 FROM base-${TARGETARCH:-amd64} AS final
+ARG FUTU_OPEND_VER
+
+ENV TZ=Asia/Hong_Kong \
+    FUTU_OPEND_VER=${FUTU_OPEND_VER}
+
+RUN useradd -m futuopend \
+    && mkdir -p /run/secrets \
+    && chown futuopend:futuopend /run/secrets \
+    && mkdir -p /home/futuopend/.com.futunn.FutuOpenD \
+    && chown futuopend:futuopend /home/futuopend/.com.futunn.FutuOpenD
+
+COPY --from=build --chown=futuopend:futuopend \
+     /tmp/Futu_OpenD_${FUTU_OPEND_VER}_Centos7/Futu_OpenD_${FUTU_OPEND_VER}_Centos7/ \
+     /usr/local/bin/
+COPY --chown=futuopend:futuopend entrypoint.sh /usr/local/bin/entrypoint.sh
+
+RUN sed -i 's/\r$//' /usr/local/bin/entrypoint.sh \
+    && chmod +x /usr/local/bin/FutuOpenD \
+    && chmod +x /usr/local/bin/entrypoint.sh
+
+USER futuopend
+WORKDIR /home/futuopend
+EXPOSE 11111 11112
+VOLUME /home/futuopend/.com.futunn.FutuOpenD
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD pgrep -x FutuOpenD || exit 1
+CMD ["/usr/local/bin/entrypoint.sh"]

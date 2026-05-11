@@ -129,7 +129,7 @@ build_and_push_multiarch() {
     echo "==>  Platforms: ${PLATFORM}"
     echo "==> ============================================"
 
-    for arch in amd64 arm64; do
+    for arch in $(echo "$PLATFORM" | tr ',' ' ' | sed 's|linux/||g'); do
         local target="final"
         echo "==>  Building platform linux/${arch} -> ${target}"
         docker buildx build \
