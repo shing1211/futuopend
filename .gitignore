@@ -23,5 +23,8 @@ Thumbs.db
 *.swp
 *.swo
 .vscode/
-.gitnexus
-futuopend
+*.swp
+*.swo
+.vscode/
+.gitnexus/
+graphify-out/
