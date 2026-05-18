@@ -26,11 +26,13 @@ cd futuopend
 ./dockerbuild.sh rocky                    # rocky variant
 
 # Or use Docker directly
-docker build -f Dockerfile.ubuntu --target final-amd64 -t futuopend:test .
+docker build -f Dockerfile.ubuntu --target final -t futuopend:test .
 
-# Start with compose
-docker compose -f docker-compose.simple.yaml up -d
-docker compose logs -f
+# Smoke test
+docker run -d --name futuopend-test futuopend:test
+sleep 5
+docker ps --filter name=futuopend-test --format "{{.Status}}"
+docker stop futuopend-test && docker rm futuopend-test
 ```
 
 ### Windows
@@ -40,10 +42,7 @@ docker compose logs -f
 dockerbuild.bat ubuntu
 
 # Or use Docker directly
-docker build -f Dockerfile.ubuntu --target final-amd64 -t futuopend:test .
-
-# Start with compose
-docker compose -f docker-compose.simple.yaml up -d
+docker build -f Dockerfile.ubuntu --target final -t futuopend:test .
 ```
 
 ---
@@ -72,7 +71,7 @@ docker compose -f docker-compose.simple.yaml up -d
 3. **Test locally:**
    ```bash
    # Build the image
-   docker build -f Dockerfile.ubuntu --target final-amd64 -t futuopend:test .
+   docker build -f Dockerfile.ubuntu --target final -t futuopend:test .
 
    # Quick smoke test
    docker run -d --name futuopend-test futuopend:test
@@ -91,14 +90,11 @@ docker compose -f docker-compose.simple.yaml up -d
 futuopend/
 ├── Dockerfile.ubuntu     # Ubuntu 24.04 build
 ├── Dockerfile.rocky     # Rocky Linux 9 build
-├── docker-compose.yaml   # Docker Swarm (secrets)
-├── docker-compose.simple.yaml  # Standalone
-├── dockerbuild.sh/.bat   # Build scripts
+├── dockerbuild.sh        # Linux/macOS build script
+├── dockerbuild.bat       # Windows build script
 ├── entrypoint.sh         # Container entry
 └── docs/
-    ├── configuration.md
-    ├── security.md
-    └── api.md
+    └── ARCHITECTURE.md   # Build architecture
 ```
 
 ---
