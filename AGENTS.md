@@ -2,12 +2,26 @@
 
 ## Build
 
-**Linux / macOS:**
+**Linux / macOS (build script):**
 ```bash
 ./dockerbuild.sh all                    # both variants (ubuntu + rocky)
 ./dockerbuild.sh ubuntu                # ubuntu only
 ./dockerbuild.sh rocky                # rocky only
 ./dockerbuild.sh --all         # multi-arch (amd64 + arm64)
+```
+
+**Linux / macOS (Makefile):**
+```bash
+make ubuntu                    # ubuntu only
+make rocky                     # rocky only
+make multiarch                 # multi-arch (amd64 + arm64)
+make check                     # verify current version tarballs exist
+```
+
+**Windows:**
+```bash
+dockerbuild.bat all
+dockerbuild.bat ubuntu
 ```
 
 **Windows:**
@@ -22,7 +36,9 @@ dockerbuild.bat ubuntu
 |------|---------|
 | `Dockerfile.ubuntu` | Ubuntu 24.04 LTS build (amd64/arm64) |
 | `Dockerfile.rocky` | Rocky Linux 9 build (amd64/arm64) |
+| `Makefile` | Build targets: `make ubuntu`, `make rocky`, `make multiarch`, `make check` |
 | `entrypoint.sh` | Container entry with graceful shutdown |
+| `scripts/check-version.sh` | Verify or update FutuOpenD version in Dockerfiles |
 
 ## Current Version
 

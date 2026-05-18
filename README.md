@@ -20,10 +20,15 @@ This repo focuses on **building the image**. For deployment, see [futuopend-depl
 ## Build
 
 ```bash
-# Linux/macOS
+# Linux/macOS (via build script)
 ./dockerbuild.sh all                    # both Ubuntu + Rocky variants
 ./dockerbuild.sh ubuntu                # Ubuntu only
 ./dockerbuild.sh rocky                # Rocky only
+
+# Linux/macOS (via Makefile)
+make ubuntu                            # same as ./dockerbuild.sh ubuntu
+make rocky                             # same as ./dockerbuild.sh rocky
+make multiarch                         # multi-arch (amd64 + arm64)
 
 # Windows
 dockerbuild.bat all
@@ -34,6 +39,11 @@ dockerbuild.bat ubuntu
 
 # ARM boards (Raspberry Pi 3/4/5)
 ./dockerbuild.sh --all ubuntu   # ubuntu arm64 only
+
+# Version check
+make check                             # verify current version tarballs exist
+./scripts/check-version.sh             # same, with full output
+./scripts/check-version.sh --update    # bump version in Dockerfiles
 ```
 
 **Note on ARM performance:** Futu provides x86_64 binaries only. ARM builds use QEMU user-mode emulation, which works but is ~2-5x slower than native x86_64. For latency-sensitive trading on a Raspberry Pi, consider [box64](https://github.com/ptitSeb/box64) — install it on the host and the container will use it automatically.
@@ -55,7 +65,10 @@ futuopend/
 ├── Dockerfile.rocky      # Rocky Linux 9 build
 ├── dockerbuild.sh        # Linux/macOS build script
 ├── dockerbuild.bat       # Windows build script
+├── Makefile              # make targets (ubuntu, rocky, multiarch, check)
 ├── entrypoint.sh         # Container entry point
+├── scripts/
+│   └── check-version.sh  # Version verification & update
 └── docs/
     └── ARCHITECTURE.md   # Build architecture & design
 ```
