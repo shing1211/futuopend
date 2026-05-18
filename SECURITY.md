@@ -41,13 +41,11 @@ top of Futu OpenD should be reported to their respective projects.
 
 ## Container Security
 
-Because futuopend runs FutuOpenD (which handles trading credentials):
+Because this image packages FutuOpenD (which handles trading credentials):
 
 - **Never commit RSA private keys, passwords, or account credentials** to the repository
 - Use Docker Secrets or environment variables for sensitive configuration
-- The `FutuOpenD.xml` config file is gitignored by default — never remove it from `.gitignore`
 - Use `chmod 600` on any RSA key files mounted into the container
-- FutuOpenD's telnet debug port (22222) should never be exposed to the public internet
-- Run the container as a non-root user (futuopend UID 1000) — this is configured by default
-- The container downloads FutuOpenD binary from Futu's official CDN at build time; verify checksums
-- Review the `FutuOpenD.xml` template before deploying to ensure no secrets are hardcoded
+- Run the container as a non-root user (futuopend UID 1000) — this is configured by default in the Dockerfile
+- The container downloads the FutuOpenD binary from Futu's official CDN at build time; verify checksums
+- For runtime security hardening (TLS, secrets, firewall), see [futuopend-deploy](https://github.com/shing1211/futuopend-deploy)
