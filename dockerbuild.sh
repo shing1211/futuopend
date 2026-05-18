@@ -107,7 +107,7 @@ build_and_push() {
         $dockerfile \
         --target "$target" \
         --build-arg FUTU_OPEND_VER="$VERSION" \
-        --build-arg TARGET_ARCH="$arch" \
+        --build-arg TARGETARCH="$arch" \
         -t "${IMAGE}:${tag_ver}-${arch}" \
         -t "${IMAGE}:${variant}-${arch}" \
         .
@@ -136,7 +136,7 @@ build_and_push_multiarch() {
             -f "Dockerfile.${variant}" \
             --target "$target" \
             --build-arg FUTU_OPEND_VER="$VERSION" \
-            --build-arg TARGET_ARCH="$arch" \
+            --build-arg TARGETARCH="$arch" \
             --platform "linux/${arch}" \
             -t "${IMAGE}:${tag_ver}-${arch}" \
             -t "${IMAGE}:${variant}-${arch}" \
