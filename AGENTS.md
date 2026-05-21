@@ -53,7 +53,7 @@ dockerbuild.bat ubuntu
 <!-- gitnexus:start -->
 # GitNexus — Code Intelligence
 
-This project is indexed by GitNexus as **futuopend** (61 symbols, 48 relationships, 0 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
+This project is indexed by GitNexus as **futuopend** (213 symbols, 204 relationships). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
 
 > If any GitNexus tool warns the index is stale, run `npx gitnexus analyze` in terminal first.
 
@@ -112,6 +112,7 @@ This project is indexed by GitNexus as **futuopend** (61 symbols, 48 relationshi
 - Fixed dockerbuild.sh: PLATFORM env var now filters arch loop (was hardcoded)
 - Fixed entrypoint.sh: use captured PID instead of pgrep (TOCTOU race fix)
 - Updated docs/ARCHITECTURE.md: all stale `final-amd64`/`final-arm64` refs → `final`
+- **futuopend-deploy updated to 10.6.6608**: version strings bumped in README.md, FutuOpenD.xml.template, docs/configuration.md; new features section added; FUTU_IMAGE + FUTU_PUSH_PROTO added to .env.example
 
 ### Next Steps
 - [ ] ARM smoke test on Raspberry Pi (verify real hardware works, not just QEMU)
