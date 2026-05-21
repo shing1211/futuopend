@@ -12,7 +12,17 @@ futuopend is the most reliable Docker packaging for FutuOpenD. This repo focuses
 
 ## Version History
 
-### v2.0.0 (Current)
+### v2.1.0 (Current — 2026-05-21)
+- FutuOpenD upgraded to **10.6.6608** with new fundamental data and conditional stock screening APIs
+- Dockerfile deduplication: merged `final-amd64` + `final-arm64` → single `final` stage
+- `--all` flag as preferred alias for `--multiarch`
+- Rocky Dockerfile: `--http1.1` flag added to curl for reliable large tarball downloads
+- Docker Hub: all 8 tags pushed per release (ubuntu+rocky × amd64+arm64 + centos aliases)
+- ARM performance docs and box64 recommendation in README
+- Signal handler TOCTOU race fixed in entrypoint.sh (uses captured PID)
+- Platform-aware compose: `TARGETARCH` env var drives architecture selection
+
+### v2.0.0 (2026-05-11)
 - Split Dockerfiles: `Dockerfile.ubuntu` + `Dockerfile.rocky` (no wasted build time)
 - `entrypoint.sh` with robust SIGTERM/SIGINT handling
 - Windows support: `dockerbuild.bat` with full parity to `dockerbuild.sh`

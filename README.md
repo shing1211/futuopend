@@ -51,9 +51,9 @@ make check                             # verify current version tarballs exist
 **Docker tags:**
 | Tag | Description |
 |-----|-------------|
-| `latest`, `ubuntu` | Ubuntu 24.04 (amd64) |
+| `latest`, `ubuntu` | Ubuntu 24.04 LTS (amd64) |
 | `rocky`, `centos` | Rocky Linux 9 (amd64) |
-| `:10.5.6508-*` | Versioned builds |
+| `:10.6.6608-*` | Versioned builds (amd64 + arm64) |
 
 ---
 
