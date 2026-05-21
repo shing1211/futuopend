@@ -7,7 +7,12 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 ## [Unreleased]
 
 ### Changed
-- FutuOpenD bumped from `10.4.6408` → `10.5.6508`
+- FutuOpenD bumped from `10.5.6508` → `10.6.6608`
+
+### Added
+- Support for conditional stock screening API (multi-factor: fundamental, technical, pattern)
+- Support for fundamental data API (financial statements, analyst ratings, dividends, shareholder持股)
+- Support for moomoo Australia simulated trading account
 
 ### Fixed
 - CRLF line endings in entrypoint.sh causing "required file not found" error on Windows builds

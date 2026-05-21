@@ -42,7 +42,7 @@ dockerbuild.bat ubuntu
 
 ## Current Version
 
-- **FutuOpenD:** 10.5.6508 (2026-05-11)
+- **FutuOpenD:** 10.6.6608 (2026-05-21)
 - **Base:** Ubuntu 24.04 LTS / Rocky Linux 9
 - **Entry Script:** `entrypoint.sh` (graceful SIGTERM/SIGINT handling)
 
@@ -53,7 +53,7 @@ dockerbuild.bat ubuntu
 <!-- gitnexus:start -->
 # GitNexus — Code Intelligence
 
-This project is indexed by GitNexus as **futuopend** (213 symbols, 204 relationships, 0 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
+This project is indexed by GitNexus as **futuopend** (61 symbols, 48 relationships, 0 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
 
 > If any GitNexus tool warns the index is stale, run `npx gitnexus analyze` in terminal first.
 

@@ -22,7 +22,7 @@
 #   docker buildx build --platform linux/amd64,linux/arm64 --target final .
 #
 
-ARG FUTU_OPEND_VER=10.5.6508
+ARG FUTU_OPEND_VER=10.6.6608
 
 FROM rockylinux:9 AS base-amd64
 FROM rockylinux:9 AS base-arm64
@@ -31,10 +31,10 @@ FROM base-${TARGETARCH:-amd64} AS build
 ARG FUTU_OPEND_VER
 
 WORKDIR /tmp
-RUN curl -fsSL "https://softwaredownload.futunn.com/Futu_OpenD_${FUTU_OPEND_VER}_Centos7.tar.gz" \
+RUN curl -fsSL --http1.1 --retry 3 --retry-delay 5 "https://softwaredownload.futunn.com/Futu_OpenD_${FUTU_OPEND_VER}_Centos7.tar.gz" \
          -o Futu_OpenD.tar.gz \
-    && tar -xzf Futu_OpenD.tar.gz \
-    && rm Futu_OpenD.tar.gz
+     && tar -xzf Futu_OpenD.tar.gz \
+     && rm Futu_OpenD.tar.gz
 
 FROM base-${TARGETARCH:-amd64} AS final
 ARG FUTU_OPEND_VER

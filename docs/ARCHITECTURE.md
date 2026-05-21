@@ -6,7 +6,7 @@
 
 FutuOpenD is the local gateway daemon for Futu's trading API. This project packages FutuOpenD into Docker images so it can run on servers, cloud VMs, NAS devices, and ARM hardware without a desktop session.
 
-**Current version:** 10.5.6508
+**Current version:** 10.6.6608
 
 **For runtime deployment, see:** [futuopend-deploy](https://github.com/shing1211/futuopend-deploy)
 

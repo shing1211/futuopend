@@ -2,7 +2,7 @@
 
 > Docker build for [FutuOpenD](https://openapi.futunn.com/futu-api-doc/) — the local gateway for Futu's trading API.
 
-[![FutuOpenD v10.5.6508](https://img.shields.io/badge/FutuOpenD-v10.5.6508-blue)](https://openapi.futunn.com/futu-api-doc/)
+[![FutuOpenD v10.6.6608](https://img.shields.io/badge/FutuOpenD-v10.6.6608-blue)](https://openapi.futunn.com/futu-api-doc/)
 [![Docker Pulls](https://img.shields.io/docker/pulls/shing1211/futuopend)](https://hub.docker.com/r/shing1211/futuopend)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 
@@ -80,8 +80,8 @@ futuopend/
 **Build fails?**
 ```bash
 # Manual tarball download
-wget -O Futu_OpenD_10.5.6508_Ubuntu18.04.tar.gz \
-  https://softwaredownload.futunn.com/Futu_OpenD_10.5.6508_Ubuntu18.04.tar.gz
+wget -O Futu_OpenD_10.6.6608_Ubuntu18.04.tar.gz \
+  https://softwaredownload.futunn.com/Futu_OpenD_10.6.6608_Ubuntu18.04.tar.gz
 ```
 
 ---
