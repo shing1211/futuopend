@@ -2,7 +2,7 @@
 #
 # Check FutuOpenD version against available tarballs.
 # Usage: ./scripts/check-version.sh              # check current version
-#        ./scripts/check-version.sh 10.6.6608    # check specific version
+#        ./scripts/check-version.sh 10.7.6708    # check specific version
 #        ./scripts/check-version.sh --update     # bump to latest available
 #
 set -euo pipefail
