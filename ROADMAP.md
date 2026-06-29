@@ -1,6 +1,6 @@
 # futuopend Roadmap
 
-> Last Updated: 2026-06-05
+> Last Updated: 2026-06-29
 
 ---
 
@@ -12,7 +12,16 @@ futuopend is the most reliable Docker packaging for FutuOpenD. This repo focuses
 
 ## Version History
 
-### v2.2.0 (Current — 2026-06-05)
+### v2.3.0 (Current — 2026-06-29)
+- FutuOpenD upgraded to **10.8.6808** (released 2026-06-25)
+- New **Search API**: keyword search to find any asset
+- New **Search API**: news, announcements, and ratings search
+- New **Chart Indicators**: all technical indicators in Mai Language and Python
+- New **Comprehensive Options Analysis**: IV/HV, Put/Call Ratio, 0DTE Options, Earnings Calendar, Seller Dashboard
+- New **Market Fundamentals API**: Institutional Tracker, Macroeconomic Data, Dividend/Earnings Calendars, Industry Chain, Market Movers, Fed Rate Projections
+- Config schema unchanged — `FutuOpenD.xml` byte-identical to 10.7.6708
+
+### v2.2.0 (2026-06-05)
 - FutuOpenD upgraded to **10.7.6708** (5 new vendored .so libraries: libcrypto.so.3, libcurl.so.4, libf3cnet.so, libprotobuf.so.32, libssl.so.3)
 - Config schema unchanged — `FutuOpenD.xml` byte-identical to 10.6.6608
 - No new XML tags to document; new APIs are server-side
