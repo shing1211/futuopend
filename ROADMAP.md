@@ -1,6 +1,6 @@
 # futuopend Roadmap
 
-> Last Updated: 2026-06-29
+> Last Updated: 2026-08-04
 
 ---
 
@@ -12,7 +12,12 @@ futuopend is the most reliable Docker packaging for FutuOpenD. This repo focuses
 
 ## Version History
 
-### v2.3.0 (Current — 2026-06-29)
+### v2.4.0 (Current — 2026-08-04)
+- FutuOpenD upgraded to **10.9.6918** (released 2026-07-10)
+- Vendored `.so` library set unchanged from 10.8.6808 (still 11 libs)
+- Config schema unchanged — `FutuOpenD.xml` structure identical to 10.8.6808
+
+### v2.3.0 (2026-06-29)
 - FutuOpenD upgraded to **10.8.6808** (released 2026-06-25)
 - New **Search API**: keyword search to find any asset
 - New **Search API**: news, announcements, and ratings search

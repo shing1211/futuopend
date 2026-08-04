@@ -2,7 +2,7 @@
 
 > Docker build for [FutuOpenD](https://openapi.futunn.com/futu-api-doc/) — the local gateway for Futu's trading API.
 
-[![FutuOpenD v10.8.6808](https://img.shields.io/badge/FutuOpenD-v10.8.6808-blue)](https://openapi.futunn.com/futu-api-doc/)
+[![FutuOpenD v10.9.6918](https://img.shields.io/badge/FutuOpenD-v10.9.6918-blue)](https://openapi.futunn.com/futu-api-doc/)
 [![Docker Pulls](https://img.shields.io/docker/pulls/shing1211/futuopend)](https://hub.docker.com/r/shing1211/futuopend)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 
@@ -53,7 +53,7 @@ make check                             # verify current version tarballs exist
 |-----|-------------|
 | `latest`, `ubuntu` | Ubuntu 24.04 LTS (amd64) |
 | `rocky`, `centos` | Rocky Linux 9 (amd64) |
-| `:10.8.6808-*` | Versioned builds (amd64 + arm64) |
+| `:10.9.6918-*` | Versioned builds (amd64 + arm64) |
 
 ---
 
@@ -80,8 +80,8 @@ futuopend/
 **Build fails?**
 ```bash
 # Manual tarball download
-wget -O Futu_OpenD_10.8.6808_Ubuntu18.04.tar.gz \
-  https://softwaredownload.futunn.com/Futu_OpenD_10.8.6808_Ubuntu18.04.tar.gz
+wget -O Futu_OpenD_10.9.6918_Ubuntu18.04.tar.gz \
+  https://softwaredownload.futunn.com/Futu_OpenD_10.9.6918_Ubuntu18.04.tar.gz
 ```
 
 ---

@@ -45,7 +45,7 @@ CURRENT_VERSION=$(get_current_version)
 TARGET_VERSION="${1:-$CURRENT_VERSION}"
 DO_UPDATE=false
 
-if [ "$1" = "--update" ]; then
+if [ "${1:-}" = "--update" ]; then
     DO_UPDATE=true
     TARGET_VERSION="$CURRENT_VERSION"
 fi

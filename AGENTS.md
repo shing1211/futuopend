@@ -42,7 +42,7 @@ dockerbuild.bat ubuntu
 
 ## Current Version
 
-- **FutuOpenD:** 10.8.6808 (2026-06-25)
+- **FutuOpenD:** 10.9.6918 (2026-07-10)
 - **Base:** Ubuntu 24.04 LTS / Rocky Linux 9
 - **Entry Script:** `entrypoint.sh` (graceful SIGTERM/SIGINT handling)
 
@@ -115,6 +115,7 @@ This project is indexed by GitNexus as **futuopend** (213 symbols, 204 relations
 - **futuopend-deploy updated to 10.6.6608**: version strings bumped in README.md, FutuOpenD.xml.template, docs/configuration.md; new features section added; FUTU_IMAGE + FUTU_PUSH_PROTO added to .env.example
 - **futuopend upgraded to 10.7.6708**: 5 new vendored .so libraries (libcrypto.so.3, libcurl.so.4, libf3cnet.so, libprotobuf.so.32, libssl.so.3); FutuOpenD.xml byte-identical to 10.6.6608 (no schema changes); 8 Docker Hub tags pushed (ubuntu+rocky × amd64+arm64 + centos aliases)
 - **futuopend upgraded to 10.8.6808**: Search API, Chart Indicators, Options Analysis, Market Fundamentals API; XML schema unchanged; 8 Docker Hub tags pushed
+- **futuopend upgraded to 10.9.6918**: .so library set unchanged (11 libs); XML schema unchanged; fixed check-version.sh `$1` unbound bug (`${1:-}`)
 
 ### Next Steps
 - [ ] ARM smoke test on Raspberry Pi (verify real hardware works, not just QEMU)

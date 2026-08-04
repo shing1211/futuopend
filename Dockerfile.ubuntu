@@ -22,7 +22,7 @@
 #   docker buildx build --platform linux/amd64,linux/arm64 --target final .
 #
 
-ARG FUTU_OPEND_VER=10.8.6808
+ARG FUTU_OPEND_VER=10.9.6918
 
 FROM ubuntu:24.04 AS base-amd64
 FROM ubuntu:24.04 AS base-arm64
