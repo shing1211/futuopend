@@ -7,13 +7,19 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 ## [Unreleased]
 
 ### Changed
-- FutuOpenD bumped from `10.8.6808` → `10.9.6918`
+- FutuOpenD bumped from `10.9.6918` → `10.10.7008` (released 2026-09-17)
+- Vendored `.so` set unchanged — still 11 libraries
+
+### Behavior change
+- Starting with 10.10, launching FutuOpenD with no account configured enters **interactive login mode** (prompts for account, password, and whether to remember the password). The bundled `FutuOpenD.xml` no longer ships `login_account` / `login_pwd`.
+- Headless / Docker deployments must supply credentials explicitly — either in the mounted `FutuOpenD.xml` (still supported) or via CLI flags (`-login_account=<id> -login_by_remember=1`). Deploy configs that already set `login_account`/`login_pwd` remain compatible.
 
 ---
 
 ## [Released]
 
 ### Changed
+- FutuOpenD bumped from `10.8.6808` → `10.9.6918`
 - FutuOpenD bumped from `10.6.6608` → `10.7.6708`
 
 ---

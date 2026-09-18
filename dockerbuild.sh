@@ -45,7 +45,7 @@ set -euo pipefail
 
 IMAGE="shing1211/futuopend"
 VARIANT="${1:-all}"
-VERSION="${2:-10.9.6918}"
+VERSION="${2:-10.10.7008}"
 PLATFORM="${3:-linux/amd64}"
 MULTIARCH=false
 
@@ -121,6 +121,9 @@ build_and_push() {
 
 build_and_push_multiarch() {
     local variant="$1"
+    case "$variant" in
+        centos) variant="rocky" ;;
+    esac
     local tag_ver="${VERSION}-${variant}"
 
     echo ""
@@ -131,6 +134,16 @@ build_and_push_multiarch() {
 
     for arch in $(echo "$PLATFORM" | tr ',' ' ' | sed 's|linux/||g'); do
         local target="final"
+        local tags=(
+            -t "${IMAGE}:${tag_ver}-${arch}"
+            -t "${IMAGE}:${variant}-${arch}"
+        )
+        if [[ "$variant" == "rocky" ]]; then
+            tags+=(
+                -t "${IMAGE}:${VERSION}-centos-${arch}"
+                -t "${IMAGE}:centos-${arch}"
+            )
+        fi
         echo "==>  Building platform linux/${arch} -> ${target}"
         if ! docker buildx build \
             -f "Dockerfile.${variant}" \
@@ -138,10 +151,7 @@ build_and_push_multiarch() {
             --build-arg FUTU_OPEND_VER="$VERSION" \
             --build-arg TARGETARCH="$arch" \
             --platform "linux/${arch}" \
-            -t "${IMAGE}:${tag_ver}-${arch}" \
-            -t "${IMAGE}:${variant}-${arch}" \
-            -t "${IMAGE}:${VERSION}-centos-${arch}" \
-            -t "${IMAGE}:centos-${arch}" \
+            "${tags[@]}" \
             --push \
             .; then
             echo "==>  ERROR: Build/push failed for ${variant}-${arch}" >&2
@@ -180,7 +190,7 @@ case "$VARIANT" in
         ;;
     --help|-h)
         echo "Usage: $0 [ubuntu|rocky|centos|all|--all|--multiarch] [version] [platform]"
-        echo "  version  defaults to 10.9.6918"
+        echo "  version  defaults to 10.10.7008"
         echo "  platform defaults to linux/amd64 (for --multiarch mode)"
         echo "  centos is an alias for rocky (backward compatibility)"
         echo ""
@@ -188,13 +198,13 @@ case "$VARIANT" in
         echo "  $0                    # build all variants (amd64 only)"
         echo "  $0 ubuntu             # build ubuntu variant"
         echo "  $0 --all              # build multi-arch (amd64 + arm64)"
-        echo "  $0 --all ubuntu 10.9.6918   # ubuntu, both amd64+arm64"
+        echo "  $0 --all ubuntu 10.10.7008   # ubuntu, both amd64+arm64"
         exit 0
         ;;
     --all|--multiarch)
         MULTIARCH=true
         VARIANT="${2:-all}"
-        VERSION="${3:-10.9.6918}"
+        VERSION="${3:-10.10.7008}"
         PLATFORM="${4:-linux/amd64,linux/arm64}"
         ;;
 esac
@@ -215,10 +225,12 @@ if [[ "$MULTIARCH" == "true" ]]; then
         build_and_push_multiarch rocky || { echo "==> Rocky multi-arch build failed" >&2; exit 1; }
 
         echo ""
-        echo "==> Tagging :latest (ubuntu-amd64)"
-        docker pull "${IMAGE}:${VERSION}-ubuntu-amd64" 2>/dev/null || true
-        docker tag "${IMAGE}:${VERSION}-ubuntu-amd64" "${IMAGE}:latest"
-        docker push "${IMAGE}:latest"
+        echo "==> Tagging :latest as a multi-arch manifest (${PLATFORM})"
+        latest_sources=()
+        for arch in $(echo "$PLATFORM" | tr ',' ' ' | sed 's|linux/||g'); do
+            latest_sources+=("${IMAGE}:${VERSION}-ubuntu-${arch}")
+        done
+        docker buildx imagetools create -t "${IMAGE}:latest" "${latest_sources[@]}"
 
         echo ""
         echo "==> ============================================"
@@ -229,7 +241,7 @@ if [[ "$MULTIARCH" == "true" ]]; then
         echo "==>    ${IMAGE}:${VERSION}-rocky-arm64"
         echo "==>    ${IMAGE}:${VERSION}-centos-amd64  (alias)"
         echo "==>    ${IMAGE}:${VERSION}-centos-arm64  (alias)"
-        echo "==>    ${IMAGE}:latest (ubuntu-amd64)"
+        echo "==>    ${IMAGE}:latest (multi-arch manifest: ubuntu amd64 + arm64)"
         echo "==>  Note: :centos-* aliases were pushed during multi-arch build (no separate push needed)"
 
     elif [[ "$VARIANT" == "ubuntu" || "$VARIANT" == "rocky" || "$VARIANT" == "centos" ]]; then

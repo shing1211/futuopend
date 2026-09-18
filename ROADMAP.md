@@ -1,6 +1,6 @@
 # futuopend Roadmap
 
-> Last Updated: 2026-08-04
+> Last Updated: 2026-09-18
 
 ---
 
@@ -12,7 +12,15 @@ futuopend is the most reliable Docker packaging for FutuOpenD. This repo focuses
 
 ## Version History
 
-### v2.4.0 (Current — 2026-08-04)
+### v2.5.0 (Current — 2026-09-18)
+- FutuOpenD upgraded to **10.10.7008** (released 2026-09-17)
+- Vendored `.so` library set unchanged from 10.9.6918 (still 11 libs)
+- Config template change — official `FutuOpenD.xml` no longer ships `login_account` / `login_pwd`
+- **Login behavior change:** starting with 10.10, OpenD with no account configured enters interactive login; headless/Docker setups must pass credentials via config file or `-login_account` / `-login_by_remember` CLI flags
+- Build-script fixes: multi-arch no longer mislabels ubuntu as centos; `centos` variant normalized to `rocky` in multi-arch mode; `:latest` now a true multi-arch manifest list (`docker buildx imagetools create`)
+- `dockerbuild.bat` default version aligned with `dockerbuild.sh`
+
+### v2.4.0 (2026-08-04)
 - FutuOpenD upgraded to **10.9.6918** (released 2026-07-10)
 - Vendored `.so` library set unchanged from 10.8.6808 (still 11 libs)
 - Config schema unchanged — `FutuOpenD.xml` structure identical to 10.8.6808

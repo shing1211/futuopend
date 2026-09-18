@@ -6,7 +6,7 @@
 
 FutuOpenD is the local gateway daemon for Futu's trading API. This project packages FutuOpenD into Docker images so it can run on servers, cloud VMs, NAS devices, and ARM hardware without a desktop session.
 
-**Current version:** 10.9.6918
+**Current version:** 10.10.7008
 
 **For runtime deployment, see:** [futuopend-deploy](https://github.com/shing1211/futuopend-deploy)
 
@@ -88,11 +88,11 @@ Tags pushed to Docker Hub (`shing1211/futuopend`):
 
 | Tag | Description |
 |-----|-------------|
-| `latest` | Ubuntu amd64 (default) |
+| `latest` | Ubuntu multi-arch manifest (amd64 + arm64) |
 | `ubuntu-amd64`, `ubuntu-arm64` | Ubuntu variants |
 | `rocky-amd64`, `rocky-arm64` | Rocky Linux variants |
 | `centos-amd64`, `centos-arm64` | Rocky aliases (backward compat) |
-| `:10.5.6508-*` | Versioned builds |
+| `:10.10.7008-*` | Versioned builds |
 
 ---
 
