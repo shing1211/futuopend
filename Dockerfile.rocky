@@ -71,7 +71,7 @@ RUN sed -i 's/\r$//' /usr/local/bin/entrypoint.sh \
 
 USER futuopend
 WORKDIR /home/futuopend
-EXPOSE 11111 11112
+EXPOSE 11111 11112 22222
 VOLUME /home/futuopend/.com.futunn.FutuOpenD
 # hadolint ignore=DL3025
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \

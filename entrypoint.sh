@@ -37,8 +37,14 @@ shutdown() {
 
 trap shutdown SIGTERM SIGINT SIGHUP
 
-echo "Starting FutuOpenD..."
-/usr/local/bin/FutuOpenD &
+if [ -z "$FUTU_ACCOUNT" ]; then
+    echo "ERROR: FUTU_ACCOUNT environment variable is not set." >&2
+    echo "       Required for v10.10+ remember-login. Set FUTU_ACCOUNT=your_account_id" >&2
+    exit 1
+fi
+
+echo "[entrypoint] Starting FutuOpenD with remember-login for account: ${FUTU_ACCOUNT}"
+exec /usr/local/bin/FutuOpenD --login_account="${FUTU_ACCOUNT}" --login_by_remember=1 &
 PID=$!
 
 echo "FutuOpenD started with PID $PID"
