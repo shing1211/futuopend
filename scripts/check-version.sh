@@ -1,9 +1,10 @@
 #!/bin/bash
 #
 # Check FutuOpenD version against available tarballs.
-# Usage: ./scripts/check-version.sh              # check current version
-#        ./scripts/check-version.sh 10.8.6808    # check specific version
-#        ./scripts/check-version.sh --update     # bump to latest available
+# Usage: ./scripts/check-version.sh                          # check current version
+#        ./scripts/check-version.sh 10.10.7008              # check specific version
+#        ./scripts/check-version.sh --update 10.11.7108     # bump Dockerfiles to a version
+#        ./scripts/check-version.sh --update                # bump to current (no-op if same)
 #
 set -euo pipefail
 
@@ -42,12 +43,13 @@ update_version() {
 }
 
 CURRENT_VERSION=$(get_current_version)
-TARGET_VERSION="${1:-$CURRENT_VERSION}"
 DO_UPDATE=false
 
 if [ "${1:-}" = "--update" ]; then
     DO_UPDATE=true
-    TARGET_VERSION="$CURRENT_VERSION"
+    TARGET_VERSION="${2:-$CURRENT_VERSION}"
+else
+    TARGET_VERSION="${1:-$CURRENT_VERSION}"
 fi
 
 echo "Current version: $CURRENT_VERSION"
@@ -76,6 +78,13 @@ echo ""
 
 if $UBUNTU_OK || $ROCKY_OK; then
     echo "Status: version $TARGET_VERSION is available"
+    if $DO_UPDATE; then
+        if [ "$TARGET_VERSION" = "$CURRENT_VERSION" ]; then
+            echo "==> Already at $CURRENT_VERSION; nothing to update."
+        else
+            update_version "$TARGET_VERSION"
+        fi
+    fi
     exit 0
 else
     echo "Status: version $TARGET_VERSION tarballs NOT FOUND"

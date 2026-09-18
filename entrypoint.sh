@@ -22,7 +22,7 @@ shutdown() {
     echo "Received signal, initiating graceful shutdown..."
     if [ -n "$PID" ] && kill -0 "$PID" 2>/dev/null; then
         kill -TERM "$PID" 2>/dev/null
-        for i in $(seq 1 $SHUTDOWN_TIMEOUT); do
+        for _ in $(seq 1 "$SHUTDOWN_TIMEOUT"); do
             if ! kill -0 "$PID" 2>/dev/null; then
                 echo "Process stopped gracefully"
                 exit 0

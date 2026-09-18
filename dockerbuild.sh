@@ -172,12 +172,12 @@ push_alias() {
 case "$VARIANT" in
     --list)
         echo "Available variants:"
-        echo "  ubuntu      — Ubuntu 24.04 LTS"
-        echo "  rocky       — Rocky Linux 9"
-        echo "  centos      — alias for rocky (backward compatibility)"
-        echo "  all         — build both ubuntu + rocky (default)"
-        echo "  --all       — build all variants + architectures (amd64 + arm64, same as --multiarch)"
-        echo "  --multiarch — alias for --all"
+        echo "  ubuntu      - Ubuntu 24.04 LTS"
+        echo "  rocky       - Rocky Linux 9"
+        echo "  centos      - alias for rocky (backward compatibility)"
+        echo "  all         - build both ubuntu + rocky (default)"
+        echo "  --all       - build all variants + architectures (amd64 + arm64, same as --multiarch)"
+        echo "  --multiarch - alias for --all"
         echo ""
         echo "Platforms for --multiarch:"
         echo "  linux/amd64 (x86_64) - default, native"

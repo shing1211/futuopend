@@ -3,6 +3,7 @@
 > Docker build for [FutuOpenD](https://openapi.futunn.com/futu-api-doc/) — the local gateway for Futu's trading API.
 
 [![FutuOpenD v10.10.7008](https://img.shields.io/badge/FutuOpenD-v10.10.7008-blue)](https://openapi.futunn.com/futu-api-doc/)
+[![CI](https://github.com/shing1211/futuopend/actions/workflows/ci.yml/badge.svg)](https://github.com/shing1211/futuopend/actions/workflows/ci.yml)
 [![Docker Pulls](https://img.shields.io/docker/pulls/shing1211/futuopend)](https://hub.docker.com/r/shing1211/futuopend)
 [![Docs](https://img.shields.io/badge/docs-shing1211.github.io-blue)](https://shing1211.github.io/futuopend/)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)

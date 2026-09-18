@@ -27,6 +27,7 @@ ARG FUTU_OPEND_VER=10.10.7008
 FROM rockylinux:9 AS base-amd64
 FROM rockylinux:9 AS base-arm64
 
+# hadolint ignore=DL3006
 FROM base-${TARGETARCH:-amd64} AS build
 ARG FUTU_OPEND_VER
 
@@ -36,6 +37,7 @@ RUN curl -fsSL --http1.1 --retry 3 --retry-delay 5 "https://softwaredownload.fut
      && tar -xzf Futu_OpenD.tar.gz \
      && rm Futu_OpenD.tar.gz
 
+# hadolint ignore=DL3006
 FROM base-${TARGETARCH:-amd64} AS final
 ARG FUTU_OPEND_VER
 
@@ -61,6 +63,7 @@ USER futuopend
 WORKDIR /home/futuopend
 EXPOSE 11111 11112
 VOLUME /home/futuopend/.com.futunn.FutuOpenD
+# hadolint ignore=DL3025
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
     CMD pgrep -x FutuOpenD || exit 1
 CMD ["/usr/local/bin/entrypoint.sh"]
