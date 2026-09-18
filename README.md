@@ -53,7 +53,7 @@ make check                             # verify current version tarballs exist
 **Docker tags:**
 | Tag | Description |
 |-----|-------------|
-| `latest` | Ubuntu 24.04 LTS — multi-arch (`amd64` + `arm64`) |
+| `latest` | Ubuntu 26.04 LTS — multi-arch (`amd64` + `arm64`) |
 | `ubuntu-amd64`, `ubuntu-arm64` | Ubuntu variants |
 | `rocky-amd64`, `rocky-arm64` | Rocky Linux 9 variants |
 | `centos-amd64`, `centos-arm64` | Rocky aliases (backward compat) |
@@ -68,7 +68,7 @@ Builds verify the downloaded FutuOpenD tarball against pinned SHA256 checksums i
 
 ```
 futuopend/
-├── Dockerfile.ubuntu     # Ubuntu 24.04 build
+├── Dockerfile.ubuntu     # Ubuntu 26.04 build
 ├── Dockerfile.rocky      # Rocky Linux 9 build
 ├── dockerbuild.sh        # Linux/macOS build script
 ├── dockerbuild.bat       # Windows build script
