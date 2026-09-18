@@ -55,7 +55,7 @@ jobs:
             CANDIDATE="${MAJ}.${MIN}.$((10#$PAT + i))"
             echo "  checking https://softwaredownload.futunn.com/Futu_OpenD_${CANDIDATE}_Ubuntu18.04.tar.gz"
             HTTP_CODE=$(curl -sfI "https://softwaredownload.futunn.com/Futu_OpenD_${CANDIDATE}_Ubuntu18.04.tar.gz" \
-                              | head -1 | grep -oP '\d{3}' || echo "000")
+                              | head -1 | grep -oE '[[:digit:]]{3}' || echo "000")
             if [ "$HTTP_CODE" = "200" ]; then
               NEW_VERSION="$CANDIDATE"
               FOUND=1
