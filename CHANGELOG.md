@@ -6,6 +6,10 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 
 ## [Unreleased]
 
+---
+
+## [10.11.7108-r2] — 2026-09-18
+
 ### Changed
 - FutuOpenD bumped from `10.10.7008` → `10.11.7108` (released 2026-09-17)
 - Vendored `.so` set unchanged — still 11 libraries
