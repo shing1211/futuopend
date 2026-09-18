@@ -19,6 +19,38 @@ This repo focuses on **building the image**. For deployment, see [futuopend-depl
 
 ---
 
+## Upgrading
+
+When Futu releases a new FutuOpenD version, bump both repos with:
+
+```bash
+./scripts/bump-version.sh 10.12.7208 --commit
+```
+
+Dry-run (default, no changes):
+```bash
+./scripts/bump-version.sh 10.12.7208
+```
+
+For more control:
+```bash
+# Discover next available version
+./scripts/check-version.sh --discover
+
+# Update Dockerfiles + checksums only
+./scripts/check-version.sh --update 10.12.7208
+
+# Also patch futuopend-deploy references (README, docs, XML template)
+./scripts/check-version.sh --update 10.12.7208 --deploy ../futuopend-deploy
+
+# Full pipeline with commits
+./scripts/check-version.sh --update 10.12.7208 --deploy ../futuopend-deploy --commit
+```
+
+**Automated:** `version-poller.yml` (GitHub Actions, weekly Sunday 00:00 UTC) scans Futu's CDN and opens a PR if a new version is found. After merging, trigger `version-bump.yml` in `futuopend-deploy`.
+
+---
+
 ## Build
 
 ```bash
