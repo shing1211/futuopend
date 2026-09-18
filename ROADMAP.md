@@ -70,11 +70,13 @@ futuopend is the most reliable Docker packaging for FutuOpenD. This repo focuses
 
 | Item | Priority | Status |
 |------|----------|--------|
-| GitHub Actions CI pipeline | High | Pending |
-| Automated version bumping | High | Pending |
-| Build smoke test in CI | High | Pending |
-| Makefile with standard targets | Medium | Pending |
+| GitHub Actions CI pipeline | High | Done |
+| Build smoke test in CI | High | Done |
+| Makefile with standard targets | Medium | Done |
+| Automated version bumping | High | Partial (`check-version.sh --update <ver>`) |
 | Parallel build pipeline | Low | Pending |
+| Digest-pinned base images | Medium | Pending |
+| Tarball checksum verification | Medium | Pending |
 
 ---
 

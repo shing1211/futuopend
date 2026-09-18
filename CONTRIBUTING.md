@@ -9,7 +9,7 @@ Bug reports, features, docs fixes — all welcome. This project is small and the
 - **Bug reports** — Include steps to reproduce and your environment (OS, Docker version, FutuOpenD version)
 - **Feature requests** — Open an issue to discuss first
 - **Documentation** — Typos, clearer examples, better structure
-- **Code** — Improve Dockerfiles, compose files, or scripts
+- **Code** — Improve the Dockerfiles, build scripts, or CI
 
 ---
 
@@ -89,12 +89,15 @@ docker build -f Dockerfile.ubuntu --target final -t futuopend:test .
 ```
 futuopend/
 ├── Dockerfile.ubuntu     # Ubuntu 24.04 build
-├── Dockerfile.rocky     # Rocky Linux 9 build
+├── Dockerfile.rocky      # Rocky Linux 9 build
 ├── dockerbuild.sh        # Linux/macOS build script
 ├── dockerbuild.bat       # Windows build script
-├── entrypoint.sh         # Container entry
-└── docs/
-    └── ARCHITECTURE.md   # Build architecture
+├── Makefile              # make targets (ubuntu, rocky, multiarch, check)
+├── entrypoint.sh         # Container entry point
+├── scripts/
+│   └── check-version.sh  # Version verification & update
+├── docs/                 # GitHub Pages site + architecture docs
+└── .github/              # CI, Pages, issue/PR templates
 ```
 
 ---
