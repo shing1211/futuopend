@@ -54,8 +54,8 @@ jobs:
           for i in $(seq 0 50); do
             CANDIDATE="${MAJ}.${MIN}.$((10#$PAT + i))"
             echo "  checking https://softwaredownload.futunn.com/Futu_OpenD_${CANDIDATE}_Ubuntu18.04.tar.gz"
-            HTTP_CODE=$(curl -sfI "https://softwaredownload.futunn.com/Futu_OpenD_${CANDIDATE}_Ubuntu18.04.tar.gz" \
-                              | head -1 | grep -oE '[[:digit:]]{3}' || echo "000")
+            HTTP_CODE=$(curl -sI "https://softwaredownload.futunn.com/Futu_OpenD_${CANDIDATE}_Ubuntu18.04.tar.gz" \
+                              | head -1 | tr -d '\r' | grep -oE '[0-9]{3}' | tail -1 || echo "000")
             if [ "$HTTP_CODE" = "200" ]; then
               NEW_VERSION="$CANDIDATE"
               FOUND=1
