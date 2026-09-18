@@ -11,6 +11,11 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 - Vendored `.so` set unchanged — still 11 libraries
 - `FutuOpenD.xml` byte-identical to 10.10.7008 (no schema changes)
 - Ubuntu base image upgraded from 24.04 LTS to 26.04 LTS (digest-pinned)
+- Expose port `22222` (Telnet debug/2FA)
+
+### Fixed
+- `entrypoint.sh`: `FUTU_ACCOUNT` is now optional — set it to start with `-login_account=<id> -login_by_remember=1`; leave it unset to start OpenD for interactive first login and print a hint (previously the container exited with status 1). Extra CLI arguments after the image name are forwarded to OpenD.
+- Docs: corrected the 10.10+ login model (XML credentials removed; interactive first login → cached session → remember-login; Telnet 22222 for 2FA), the config path (`/usr/local/bin/FutuOpenD.xml`), and the Quick start.
 
 ### Security
 - Base images pinned by digest (multi-arch index)

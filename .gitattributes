@@ -1,2 +1,6 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+# Shell scripts and Dockerfiles must use LF (CRLF breaks bash in the container)
+*.sh text eol=lf
+Dockerfile* text eol=lf
