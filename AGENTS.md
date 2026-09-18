@@ -115,7 +115,7 @@ gh workflow run version-bump.yml -f version=10.12.7208 --repo shing1211/futuopen
 - **Entrypoint renders config via envsubst**: discovered FutuOpenD does NOT expand `${VAR}`; entrypoint now uses `envsubst` + `-cfg_file`; added `gettext-base`/`gettext` to Dockerfiles; `area_code` defaults `+852`, opt-in WebSocket via `FUTU_WS_PORT`, `-no_monitor=1`
 - **Released v10.11.7108-r2**: CHANGELOG cut, GitHub Release created manually
 - **Released futuopend-deploy v1.1.0**: CHANGELOG cut, mkdocs banner bumped, `release.yml` PREV_TAG link fixed
-- **Upgrade tooling added**: `check-version.sh` (--deploy, --commit, --discover, --dry-run), `bump-version.sh` (one-shot cross-repo), `version-poller.yml` (weekly Sunday cron + workflow_dispatch; opens PR on new version), `version-bump.yml` in futuopend-deploy (manual workflow to update deploy docs), `image-tag-verify` CI job (verifies Docker Hub tag exists before merging)
+- **Upgrade tooling complete**: `check-version.sh` (--deploy, --commit, --discover, --dry-run), `bump-version.sh` (one-shot cross-repo), `version-poller.yml` (weekly Sunday cron + workflow_dispatch; opens PR on new version), `version-bump.yml` in futuopend-deploy (auto-patches docs + creates GitHub Release), `image-tag-verify` CI job (verifies Docker Hub tag exists before merging)
 
 ### Next Steps
 - [ ] ARM smoke test on Raspberry Pi (verify real hardware works, not just QEMU)
