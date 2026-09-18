@@ -10,6 +10,7 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 - FutuOpenD bumped from `10.10.7008` → `10.11.7108` (released 2026-09-17)
 - Vendored `.so` set unchanged — still 11 libraries
 - `FutuOpenD.xml` byte-identical to 10.10.7008 (no schema changes)
+- Ubuntu base image upgraded from 24.04 LTS to 26.04 LTS (digest-pinned)
 
 ### Security
 - Base images pinned by digest (multi-arch index)

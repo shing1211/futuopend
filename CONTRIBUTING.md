@@ -88,7 +88,7 @@ docker build -f Dockerfile.ubuntu --target final -t futuopend:test .
 
 ```
 futuopend/
-├── Dockerfile.ubuntu     # Ubuntu 24.04 build
+├── Dockerfile.ubuntu     # Ubuntu 26.04 build
 ├── Dockerfile.rocky      # Rocky Linux 9 build
 ├── dockerbuild.sh        # Linux/macOS build script
 ├── dockerbuild.bat       # Windows build script

@@ -24,7 +24,7 @@ Two Dockerfiles for different base OS variants, each supporting `amd64` and `arm
 
 | File | Base OS | Tarball Source |
 |------|---------|---------------|
-| `Dockerfile.ubuntu` | Ubuntu 24.04 LTS | `Futu_OpenD_<ver>_Ubuntu18.04.tar.gz` |
+| `Dockerfile.ubuntu` | Ubuntu 26.04 LTS | `Futu_OpenD_<ver>_Ubuntu18.04.tar.gz` |
 | `Dockerfile.rocky` | Rocky Linux 9 | `Futu_OpenD_<ver>_Centos7.tar.gz` |
 
 ```

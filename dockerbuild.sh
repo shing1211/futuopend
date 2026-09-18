@@ -172,7 +172,7 @@ push_alias() {
 case "$VARIANT" in
     --list)
         echo "Available variants:"
-        echo "  ubuntu      - Ubuntu 24.04 LTS"
+        echo "  ubuntu      - Ubuntu 26.04 LTS"
         echo "  rocky       - Rocky Linux 9"
         echo "  centos      - alias for rocky (backward compatibility)"
         echo "  all         - build both ubuntu + rocky (default)"
@@ -266,7 +266,7 @@ elif [[ "$VARIANT" == "all" ]]; then
     check_tarball "$VERSION" rocky || exit 1
 
     echo "==> Pulling base images..."
-    docker pull ubuntu:24.04
+    docker pull ubuntu:26.04
     docker pull rockylinux:9
 
         build_and_push ubuntu amd64

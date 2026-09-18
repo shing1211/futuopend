@@ -48,7 +48,7 @@ body:
     id: host
     attributes:
       label: Host OS / architecture
-      placeholder: e.g. Ubuntu 24.04 amd64, Raspberry Pi 5 arm64
+      placeholder: e.g. Ubuntu 26.04 amd64, Raspberry Pi 5 arm64
     validations:
       required: true
   - type: textarea

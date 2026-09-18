@@ -16,6 +16,7 @@ futuopend is the most reliable Docker packaging for FutuOpenD. This repo focuses
 - FutuOpenD upgraded to **10.11.7108** (released 2026-09-17)
 - Vendored `.so` library set unchanged from 10.10.7008 (still 11 libs)
 - Config schema unchanged — `FutuOpenD.xml` byte-identical to 10.10.7008
+- Ubuntu base upgraded 24.04 LTS → 26.04 LTS (digest-pinned)
 - Base images pinned by digest (multi-arch index)
 - Tarball SHA256 verification enforced at build time; `check-version.sh --update` refreshes checksums
 

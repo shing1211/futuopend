@@ -34,7 +34,7 @@ dockerbuild.bat ubuntu
 
 | File | Purpose |
 |------|---------|
-| `Dockerfile.ubuntu` | Ubuntu 24.04 LTS build (amd64/arm64) |
+| `Dockerfile.ubuntu` | Ubuntu 26.04 LTS build (amd64/arm64) |
 | `Dockerfile.rocky` | Rocky Linux 9 build (amd64/arm64) |
 | `Makefile` | Build targets: `make ubuntu`, `make rocky`, `make multiarch`, `make check` |
 | `entrypoint.sh` | Container entry with graceful shutdown |
@@ -43,7 +43,7 @@ dockerbuild.bat ubuntu
 ## Current Version
 
 - **FutuOpenD:** 10.11.7108 (2026-09-17)
-- **Base:** Ubuntu 24.04 LTS / Rocky Linux 9
+- **Base:** Ubuntu 26.04 LTS / Rocky Linux 9
 - **Entry Script:** `entrypoint.sh` (graceful SIGTERM/SIGINT handling)
 
 ## Gotchas
@@ -120,6 +120,7 @@ This project is indexed by GitNexus as **futuopend** (213 symbols, 204 relations
 
 - **OSS/Pages/CI hardening**: GitHub Pages now deployed via Actions (`docs/index.md` landing + just-the-docs theme); Discussions surfaced (`SUPPORT.md` + issue templates); CI workflow (shellcheck, hadolint, version-check, build-smoke); Dependabot; `main` branch protection with required checks; `CLAUDE.md`/`.claude/` removed from public repo; base images digest-pinned; tarball SHA256 verified at build time
 - **futuopend upgraded to 10.11.7108**: .so set unchanged (11 libs); `FutuOpenD.xml` byte-identical to 10.10.7008; 8 Docker Hub tags pushed
+- **Ubuntu base upgraded to 26.04 LTS** (digest-pinned); FutuOpenD 10.11.7108 verified running on it (process, port, healthcheck, no missing libs)
 
 ### Next Steps
 - [ ] ARM smoke test on Raspberry Pi (verify real hardware works, not just QEMU)
