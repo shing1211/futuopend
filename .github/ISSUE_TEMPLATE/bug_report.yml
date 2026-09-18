@@ -1,0 +1,61 @@
+name: Bug report
+description: Report a problem with the Docker image or build scripts
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to file a bug report. For questions, use [Discussions](https://github.com/shing1211/futuopend/discussions) instead.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: A clear and concise description of the bug.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      value: |
+        1.
+        2.
+        3.
+    validations:
+      required: true
+  - type: input
+    id: image-tag
+    attributes:
+      label: Image tag / version
+      description: e.g. shing1211/futuopend:10.10.7008-ubuntu-amd64
+    validations:
+      required: true
+  - type: input
+    id: docker-version
+    attributes:
+      label: Docker version
+      description: Output of `docker version --format '{{.Server.Version}}'`
+    validations:
+      required: true
+  - type: input
+    id: host
+    attributes:
+      label: Host OS / architecture
+      placeholder: e.g. Ubuntu 24.04 amd64, Raspberry Pi 5 arm64
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs
+      description: Container logs, build output, or error messages.
+      render: shell
+    validations:
+      required: false

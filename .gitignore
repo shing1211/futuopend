@@ -27,3 +27,7 @@ Thumbs.db
 # Ignore generated indexes
 .gitnexus/
 graphify-out/
+
+# Local AI assistant configs (not part of the public project)
+.claude/
+CLAUDE.md

@@ -4,6 +4,7 @@
 
 [![FutuOpenD v10.10.7008](https://img.shields.io/badge/FutuOpenD-v10.10.7008-blue)](https://openapi.futunn.com/futu-api-doc/)
 [![Docker Pulls](https://img.shields.io/docker/pulls/shing1211/futuopend)](https://hub.docker.com/r/shing1211/futuopend)
+[![Docs](https://img.shields.io/badge/docs-shing1211.github.io-blue)](https://shing1211.github.io/futuopend/)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 
 ---
@@ -71,8 +72,8 @@ futuopend/
 ├── entrypoint.sh         # Container entry point
 ├── scripts/
 │   └── check-version.sh  # Version verification & update
-└── docs/
-    └── ARCHITECTURE.md   # Build architecture & design
+├── docs/                 # GitHub Pages site + architecture docs
+└── .github/              # CI, Pages, and issue templates
 ```
 
 ---
@@ -88,10 +89,20 @@ wget -O Futu_OpenD_10.10.7008_Ubuntu18.04.tar.gz \
 
 ---
 
+## Community
+
+- **Docs site** — <https://shing1211.github.io/futuopend/>
+- **Discussions** — questions, ideas, and deployment help: <https://github.com/shing1211/futuopend/discussions>
+- **Contributing** — see [CONTRIBUTING.md](CONTRIBUTING.md)
+- **Support** — see [SUPPORT.md](SUPPORT.md)
+- **Security** — see [SECURITY.md](SECURITY.md) (do not report vulnerabilities publicly)
+
+---
+
 ## Disclaimer
 
 **Unofficial community packaging.** Not affiliated with Futu Securities. Trading involves risk — use at your own risk.
 
 ---
 
-*See [CONTRIBUTING.md](CONTRIBUTING.md) to contribute. Full docs in [docs/](docs/).*
+*See [CONTRIBUTING.md](CONTRIBUTING.md) to contribute. Full docs at [shing1211.github.io/futuopend](https://shing1211.github.io/futuopend/).*

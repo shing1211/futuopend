@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Questions and discussion
+    url: https://github.com/shing1211/futuopend/discussions
+    about: Ask questions and discuss ideas in GitHub Discussions.
+  - name: Deployment help
+    url: https://github.com/shing1211/futuopend-deploy
+    about: Runtime deployment and configuration live in futuopend-deploy.
+  - name: Security report
+    url: https://github.com/shing1211/futuopend/blob/main/SECURITY.md
+    about: Report a vulnerability privately. Do not open a public issue.
