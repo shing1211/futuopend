@@ -16,7 +16,6 @@
 #
 set -euo pipefail
 
-IMAGE="shing1211/futuopend"
 SCRIPT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 CHECKSUM_DIR="$SCRIPT_DIR/checksums"
 CHECKSUM_FILE="$CHECKSUM_DIR/futuopend-sha256.txt"

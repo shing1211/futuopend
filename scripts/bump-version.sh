@@ -72,7 +72,6 @@ echo "==> [3/3] Patching futuopend-deploy references..."
 if [ ! -d "$DEPLOY_DIR/.git" ]; then
     echo "    Warning: $DEPLOY_DIR is not a git repo; skipping deploy patch." >&2
 else
-    CURRENT=$(grep 'ARG FUTU_OPEND_VER=' "$FUTUOPEND_DIR/Dockerfile.ubuntu" | head -1 | cut -d= -f2)
     if [ "$DO_COMMIT" = true ]; then
         "$CHECK_VERSION" --update "$TARGET_VERSION" --deploy "$DEPLOY_DIR" --commit
     else
