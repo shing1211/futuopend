@@ -44,6 +44,11 @@ ARG FUTU_OPEND_VER
 ENV TZ=Asia/Hong_Kong \
     FUTU_OPEND_VER=${FUTU_OPEND_VER}
 
+# hadolint ignore=DL3041
+RUN dnf install -y procps-ng \
+    && dnf clean all \
+    && rm -rf /var/cache/dnf
+
 RUN useradd -m futuopend \
     && mkdir -p /run/secrets \
     && chown futuopend:futuopend /run/secrets \
