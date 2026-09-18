@@ -1,0 +1,171 @@
+name: Version Poller
+
+on:
+  schedule:
+    # Run every Sunday at 00:00 UTC — low-noise weekly cadence
+    - cron: '0 0 * * 0'
+  # Allow manual trigger: gh workflow run version-poller.yml
+  workflow_dispatch:
+    inputs:
+      base_version:
+        description: 'Base version to start scanning from (default: current in Dockerfile)'
+        required: false
+        default: ''
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  discover:
+    name: Discover new FutuOpenD version
+    runs-on: ubuntu-latest
+    outputs:
+      new_version: ${{ steps.find.outputs.NEW_VERSION }}
+      current_version: ${{ steps.find.outputs.CURRENT_VERSION }}
+      has_update: ${{ steps.find.outputs.HAS_UPDATE }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Detect current version
+        id: find
+        run: |
+          CURRENT=$(grep 'ARG FUTU_OPEND_VER=' Dockerfile.ubuntu | head -1 | cut -d= -f2)
+          echo "current_version=$CURRENT" >> $GITHUB_OUTPUT
+          echo "Current version: $CURRENT"
+
+          # Use provided base_version or detect from Dockerfile
+          BASE="${INPUT_BASE_VERSION:-$CURRENT}"
+          echo "Scanning from: $BASE"
+
+          # Parse version components: major.minor.patch
+          MAJ=$(echo "$BASE" | cut -d. -f1)
+          MIN=$(echo "$BASE" | cut -d. -f2)
+          PAT=$(echo "$BASE" | cut -d. -f3)
+
+          NEXT_PAT=$((${PAT#0} + 1))
+          CANDIDATE="${MAJ}.${MIN}.${NEXT_PAT}"
+          NEW_VERSION=""
+          FOUND=0
+
+          echo "Scanning for next FutuOpenD version after $CURRENT..."
+
+          for i in $(seq 0 50); do
+            CANDIDATE="${MAJ}.${MIN}.$((10#$PAT + i))"
+            echo "  checking https://softwaredownload.futunn.com/Futu_OpenD_${CANDIDATE}_Ubuntu18.04.tar.gz"
+            HTTP_CODE=$(curl -sfI "https://softwaredownload.futunn.com/Futu_OpenD_${CANDIDATE}_Ubuntu18.04.tar.gz" \
+                              | head -1 | grep -oP '\d{3}' || echo "000")
+            if [ "$HTTP_CODE" = "200" ]; then
+              NEW_VERSION="$CANDIDATE"
+              FOUND=1
+              echo "==> Found new version: $NEW_VERSION"
+              break
+            fi
+          done
+
+          if [ "$FOUND" = "0" ]; then
+            echo "==> No newer version found within 50 patch releases."
+            NEW_VERSION=""
+          fi
+
+          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          if [ -n "$NEW_VERSION" ]; then
+            echo "has_update=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_update=false" >> $GITHUB_OUTPUT
+          fi
+
+        env:
+          INPUT_BASE_VERSION: ${{ github.event.inputs.base_version }}
+
+  create-pr:
+    name: Create version-bump PR
+    needs: discover
+    runs-on: ubuntu-latest
+    # Only run if a new version was found
+    if: needs.discover.outputs.has_update == 'true'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Prepare bump branch
+        run: |
+          BRANCH_NAME="chore/bump-futuopend-to-${{ needs.discover.outputs.new_version }}"
+          echo "branch_name=$BRANCH_NAME" >> $GITHUB_OUTPUT
+          git checkout -b "$BRANCH_NAME"
+
+        id: branch
+        name: Create branch
+
+      - name: Update Dockerfiles
+        run: |
+          NEW_VER="${{ needs.discover.outputs.new_version }}"
+          sed -i "s/^ARG FUTU_OPEND_VER=.*$/ARG FUTU_OPEND_VER=$NEW_VER/" \
+              Dockerfile.ubuntu Dockerfile.rocky
+          git diff --stat
+
+      - name: Commit version bump
+        run: |
+          NEW_VER="${{ needs.discover.outputs.new_version }}"
+          git add -A
+          git commit -m "chore: bump FutuOpenD to $NEW_VER"
+          git push -u origin "$BRANCH_NAME"
+
+      - name: Create Pull Request
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          NEW_VER="${{ needs.discover.outputs.new_version }}"
+          BODY_FILE=$(mktemp)
+          cat > "$BODY_FILE" << 'EOF'
+          ## FutuOpenD version bump: **${{ needs.discover.outputs.current_version }}** → **$NEW_VER**
+
+          The Version Poller detected that FutuOpenD **$NEW_VER** is available on Futu's CDN.
+
+          ### Next steps
+
+          1. Review the Dockerfile changes.
+          2. Run the smoke test CI (or wait for it).
+          3. Merge this PR.
+          4. Then trigger the **futuopend-deploy** bump:
+
+          ```bash
+          gh workflow run version-bump.yml -f version=$NEW_VER --repo shing1211/futuopend-deploy
+          ```
+
+          ### What this updates
+
+          | Repo | Changes |
+          |------|---------|
+          | `futuopend` | `ARG FUTU_OPEND_VER`, checksums |
+          | `futuopend-deploy` | README badge, image-variant tables, XML template comment |
+          EOF
+
+          gh pr create \
+            --repo shing1211/futuopend \
+            --title "chore: bump FutuOpenD to $NEW_VER" \
+            --body-file "$BODY_FILE" \
+            --label "version-bump" \
+            --assignee "@me"
+
+      - name: Summary
+        run: |
+          echo "## Version Poller Result" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| | |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Current | `${{ needs.discover.outputs.current_version }}` |" >> $GITHUB_STEP_SUMMARY
+          echo "| New | **`${{ needs.discover.outputs.new_version }}`** |" >> $GITHUB_STEP_SUMMARY
+          echo "| PR | [#${{ github.event.pull_request.number }}](${{ github.event.pull_request.html_url }}) |" >> $GITHUB_STEP_SUMMARY
+
+  no-update:
+    name: No new version
+    runs-on: ubuntu-latest
+    if: needs.discover.outputs.has_update == 'false'
+    steps:
+      - name: No update
+        run: |
+          echo "No newer FutuOpenD version detected. Current: ${{ needs.discover.outputs.current_version }}"
+          echo "## Version Poller" >> $GITHUB_STEP_SUMMARY
+          echo "No update. Current version is `${{ needs.discover.outputs.current_version }}`." >> $GITHUB_STEP_SUMMARY
