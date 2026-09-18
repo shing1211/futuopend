@@ -75,8 +75,8 @@ futuopend is the most reliable Docker packaging for FutuOpenD. This repo focuses
 | Makefile with standard targets | Medium | Done |
 | Automated version bumping | High | Partial (`check-version.sh --update <ver>`) |
 | Parallel build pipeline | Low | Pending |
-| Digest-pinned base images | Medium | Pending |
-| Tarball checksum verification | Medium | Pending |
+| Digest-pinned base images | Medium | Done |
+| Tarball checksum verification | Medium | Done |
 
 ---
 
