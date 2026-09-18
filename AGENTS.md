@@ -42,7 +42,7 @@ dockerbuild.bat ubuntu
 
 ## Current Version
 
-- **FutuOpenD:** 10.10.7008 (2026-09-17)
+- **FutuOpenD:** 10.11.7108 (2026-09-17)
 - **Base:** Ubuntu 24.04 LTS / Rocky Linux 9
 - **Entry Script:** `entrypoint.sh` (graceful SIGTERM/SIGINT handling)
 
@@ -117,6 +117,9 @@ This project is indexed by GitNexus as **futuopend** (213 symbols, 204 relations
 - **futuopend upgraded to 10.8.6808**: Search API, Chart Indicators, Options Analysis, Market Fundamentals API; XML schema unchanged; 8 Docker Hub tags pushed
 - **futuopend upgraded to 10.9.6918**: .so library set unchanged (11 libs); XML schema unchanged; fixed check-version.sh `$1` unbound bug (`${1:-}`)
 - **futuopend upgraded to 10.10.7008**: .so library set unchanged (11 libs); `FutuOpenD.xml` no longer ships `login_account`/`login_pwd` (10.10 defaults to interactive login — headless must pass credentials via config or `-login_account`/`-login_by_remember`); fixed dockerbuild.sh multi-arch centos mislabel + centos→rocky normalization; `:latest` now a real multi-arch manifest list; dockerbuild.bat default version aligned
+
+- **OSS/Pages/CI hardening**: GitHub Pages now deployed via Actions (`docs/index.md` landing + just-the-docs theme); Discussions surfaced (`SUPPORT.md` + issue templates); CI workflow (shellcheck, hadolint, version-check, build-smoke); Dependabot; `main` branch protection with required checks; `CLAUDE.md`/`.claude/` removed from public repo; base images digest-pinned; tarball SHA256 verified at build time
+- **futuopend upgraded to 10.11.7108**: .so set unchanged (11 libs); `FutuOpenD.xml` byte-identical to 10.10.7008; 8 Docker Hub tags pushed
 
 ### Next Steps
 - [ ] ARM smoke test on Raspberry Pi (verify real hardware works, not just QEMU)

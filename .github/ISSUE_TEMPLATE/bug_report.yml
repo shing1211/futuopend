@@ -34,7 +34,7 @@ body:
     id: image-tag
     attributes:
       label: Image tag / version
-      description: e.g. shing1211/futuopend:10.10.7008-ubuntu-amd64
+      description: e.g. shing1211/futuopend:10.11.7108-ubuntu-amd64
     validations:
       required: true
   - type: input

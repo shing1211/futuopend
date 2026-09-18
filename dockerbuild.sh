@@ -45,7 +45,7 @@ set -euo pipefail
 
 IMAGE="shing1211/futuopend"
 VARIANT="${1:-all}"
-VERSION="${2:-10.10.7008}"
+VERSION="${2:-10.11.7108}"
 PLATFORM="${3:-linux/amd64}"
 MULTIARCH=false
 
@@ -190,7 +190,7 @@ case "$VARIANT" in
         ;;
     --help|-h)
         echo "Usage: $0 [ubuntu|rocky|centos|all|--all|--multiarch] [version] [platform]"
-        echo "  version  defaults to 10.10.7008"
+        echo "  version  defaults to 10.11.7108"
         echo "  platform defaults to linux/amd64 (for --multiarch mode)"
         echo "  centos is an alias for rocky (backward compatibility)"
         echo ""
@@ -198,13 +198,13 @@ case "$VARIANT" in
         echo "  $0                    # build all variants (amd64 only)"
         echo "  $0 ubuntu             # build ubuntu variant"
         echo "  $0 --all              # build multi-arch (amd64 + arm64)"
-        echo "  $0 --all ubuntu 10.10.7008   # ubuntu, both amd64+arm64"
+        echo "  $0 --all ubuntu 10.11.7108   # ubuntu, both amd64+arm64"
         exit 0
         ;;
     --all|--multiarch)
         MULTIARCH=true
         VARIANT="${2:-all}"
-        VERSION="${3:-10.10.7008}"
+        VERSION="${3:-10.11.7108}"
         PLATFORM="${4:-linux/amd64,linux/arm64}"
         ;;
 esac

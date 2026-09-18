@@ -2,7 +2,7 @@
 
 > Docker build for [FutuOpenD](https://openapi.futunn.com/futu-api-doc/) — the local gateway for Futu's trading API.
 
-[![FutuOpenD v10.10.7008](https://img.shields.io/badge/FutuOpenD-v10.10.7008-blue)](https://openapi.futunn.com/futu-api-doc/)
+[![FutuOpenD v10.11.7108](https://img.shields.io/badge/FutuOpenD-v10.11.7108-blue)](https://openapi.futunn.com/futu-api-doc/)
 [![CI](https://github.com/shing1211/futuopend/actions/workflows/ci.yml/badge.svg)](https://github.com/shing1211/futuopend/actions/workflows/ci.yml)
 [![Docker Pulls](https://img.shields.io/docker/pulls/shing1211/futuopend)](https://hub.docker.com/r/shing1211/futuopend)
 [![Docs](https://img.shields.io/badge/docs-shing1211.github.io-blue)](https://shing1211.github.io/futuopend/)
@@ -57,7 +57,7 @@ make check                             # verify current version tarballs exist
 | `ubuntu-amd64`, `ubuntu-arm64` | Ubuntu variants |
 | `rocky-amd64`, `rocky-arm64` | Rocky Linux 9 variants |
 | `centos-amd64`, `centos-arm64` | Rocky aliases (backward compat) |
-| `:10.10.7008-*` | Versioned builds (amd64 + arm64) |
+| `:10.11.7108-*` | Versioned builds (amd64 + arm64) |
 
 Builds verify the downloaded FutuOpenD tarball against pinned SHA256 checksums in
 [`checksums/futuopend-sha256.txt`](checksums/futuopend-sha256.txt), and base images are pinned by digest for reproducibility.
@@ -87,8 +87,8 @@ futuopend/
 **Build fails?**
 ```bash
 # Manual tarball download
-wget -O Futu_OpenD_10.10.7008_Ubuntu18.04.tar.gz \
-  https://softwaredownload.futunn.com/Futu_OpenD_10.10.7008_Ubuntu18.04.tar.gz
+wget -O Futu_OpenD_10.11.7108_Ubuntu18.04.tar.gz \
+  https://softwaredownload.futunn.com/Futu_OpenD_10.11.7108_Ubuntu18.04.tar.gz
 ```
 
 ---

@@ -9,7 +9,7 @@ permalink: /
 
 Docker build for [FutuOpenD](https://openapi.futunn.com/futu-api-doc/) - the local gateway for Futu's trading API.
 
-**Current version:** 10.10.7008
+**Current version:** 10.11.7108
 
 ## What and why
 

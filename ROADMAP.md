@@ -12,7 +12,14 @@ futuopend is the most reliable Docker packaging for FutuOpenD. This repo focuses
 
 ## Version History
 
-### v2.5.0 (Current — 2026-09-18)
+### v2.6.0 (Current — 2026-09-18)
+- FutuOpenD upgraded to **10.11.7108** (released 2026-09-17)
+- Vendored `.so` library set unchanged from 10.10.7008 (still 11 libs)
+- Config schema unchanged — `FutuOpenD.xml` byte-identical to 10.10.7008
+- Base images pinned by digest (multi-arch index)
+- Tarball SHA256 verification enforced at build time; `check-version.sh --update` refreshes checksums
+
+### v2.5.0 (2026-09-18)
 - FutuOpenD upgraded to **10.10.7008** (released 2026-09-17)
 - Vendored `.so` library set unchanged from 10.9.6918 (still 11 libs)
 - Config template change — official `FutuOpenD.xml` no longer ships `login_account` / `login_pwd`

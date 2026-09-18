@@ -2,7 +2,7 @@
 #
 # Check FutuOpenD version against available tarballs.
 # Usage: ./scripts/check-version.sh                          # check current version
-#        ./scripts/check-version.sh 10.10.7008              # check specific version
+#        ./scripts/check-version.sh 10.11.7108              # check specific version
 #        ./scripts/check-version.sh --update 10.11.7108     # bump Dockerfiles + checksums
 #        ./scripts/check-version.sh --update                # bump to current (no-op if same)
 #
