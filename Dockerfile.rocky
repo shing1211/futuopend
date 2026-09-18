@@ -24,18 +24,23 @@
 
 ARG FUTU_OPEND_VER=10.10.7008
 
-FROM rockylinux:9 AS base-amd64
-FROM rockylinux:9 AS base-arm64
+FROM rockylinux:9@sha256:d7be1c094cc5845ee815d4632fe377514ee6ebcf8efaed6892889657e5ddaaa6 AS base-amd64
+FROM rockylinux:9@sha256:d7be1c094cc5845ee815d4632fe377514ee6ebcf8efaed6892889657e5ddaaa6 AS base-arm64
 
 # hadolint ignore=DL3006
 FROM base-${TARGETARCH:-amd64} AS build
 ARG FUTU_OPEND_VER
 
 WORKDIR /tmp
-RUN curl -fsSL --http1.1 --retry 3 --retry-delay 5 "https://softwaredownload.futunn.com/Futu_OpenD_${FUTU_OPEND_VER}_Centos7.tar.gz" \
-         -o Futu_OpenD.tar.gz \
-     && tar -xzf Futu_OpenD.tar.gz \
-     && rm Futu_OpenD.tar.gz
+COPY checksums/futuopend-sha256.txt /tmp/futuopend-sha256.txt
+RUN file="Futu_OpenD_${FUTU_OPEND_VER}_Centos7.tar.gz" \
+    && grep " ${file}\$" /tmp/futuopend-sha256.txt > /tmp/expected.sha256 \
+    && test -s /tmp/expected.sha256 \
+    && curl -fsSL --http1.1 --retry 3 --retry-delay 5 "https://softwaredownload.futunn.com/${file}" \
+         -o "/tmp/${file}" \
+    && sha256sum -c /tmp/expected.sha256 \
+    && tar -xzf "/tmp/${file}" \
+    && rm "/tmp/${file}"
 
 # hadolint ignore=DL3006
 FROM base-${TARGETARCH:-amd64} AS final

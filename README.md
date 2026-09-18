@@ -59,6 +59,9 @@ make check                             # verify current version tarballs exist
 | `centos-amd64`, `centos-arm64` | Rocky aliases (backward compat) |
 | `:10.10.7008-*` | Versioned builds (amd64 + arm64) |
 
+Builds verify the downloaded FutuOpenD tarball against pinned SHA256 checksums in
+[`checksums/futuopend-sha256.txt`](checksums/futuopend-sha256.txt), and base images are pinned by digest for reproducibility.
+
 ---
 
 ## Project Layout

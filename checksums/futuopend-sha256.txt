@@ -1,0 +1,10 @@
+# FutuOpenD tarball SHA256 checksums.
+# Format: <sha256>  <filename>
+#
+# Upstream (futunn.com) does not publish checksums; these are recorded from
+# verified builds (trust-on-first-use). They detect CDN changes or tampering
+# and silent upstream replacement, but not a compromised repository.
+#
+# Refresh with: ./scripts/check-version.sh --update <version>
+dbb8e5e73faacaad093d7bac6c3bb60efd6f29a28aa7541c494c015aaec13d8d  Futu_OpenD_10.10.7008_Ubuntu18.04.tar.gz
+279c1412bc93e4b8420d5212c4b8422209914df83c1dd7efab729ff4ed1d3974  Futu_OpenD_10.10.7008_Centos7.tar.gz

@@ -47,5 +47,6 @@ Because this image packages FutuOpenD (which handles trading credentials):
 - Use Docker Secrets or environment variables for sensitive configuration
 - Use `chmod 600` on any RSA key files mounted into the container
 - Run the container as a non-root user (futuopend UID 1000) — this is configured by default in the Dockerfile
-- The container downloads the FutuOpenD binary from Futu's official CDN at build time; verify checksums
+- The container downloads the FutuOpenD binary from Futu's official CDN at build time and verifies it against pinned SHA256 checksums in `checksums/futuopend-sha256.txt` before extracting. Upstream does not publish checksums, so these are recorded from verified builds (trust-on-first-use); they detect CDN/tampering and silent upstream replacement, but not a compromised repository.
+- Base images are pinned by digest (multi-arch index) for reproducible builds. Base-image security updates arrive via Dependabot pull requests.
 - For runtime security hardening (TLS, secrets, firewall), see [futuopend-deploy](https://github.com/shing1211/futuopend-deploy)

@@ -24,22 +24,26 @@
 
 ARG FUTU_OPEND_VER=10.10.7008
 
-FROM ubuntu:24.04 AS base-amd64
-FROM ubuntu:24.04 AS base-arm64
+FROM ubuntu:24.04@sha256:b3cc40b72b93588182b5410f723c7aaf142363311c2aa993d8a453ddcbb3ae15 AS base-amd64
+FROM ubuntu:24.04@sha256:b3cc40b72b93588182b5410f723c7aaf142363311c2aa993d8a453ddcbb3ae15 AS base-arm64
 
 # hadolint ignore=DL3006
 FROM base-${TARGETARCH:-amd64} AS build
 ARG FUTU_OPEND_VER
 
 WORKDIR /tmp
+COPY checksums/futuopend-sha256.txt /tmp/futuopend-sha256.txt
 # hadolint ignore=DL3008
 RUN apt-get update \
     && apt-get install -y --no-install-recommends curl ca-certificates \
     && rm -rf /var/lib/apt/lists/* \
-    && curl -fsSL "https://softwaredownload.futunn.com/Futu_OpenD_${FUTU_OPEND_VER}_Ubuntu18.04.tar.gz" \
-         -o Futu_OpenD.tar.gz \
-    && tar -xzf Futu_OpenD.tar.gz \
-    && rm Futu_OpenD.tar.gz
+    && file="Futu_OpenD_${FUTU_OPEND_VER}_Ubuntu18.04.tar.gz" \
+    && grep " ${file}\$" /tmp/futuopend-sha256.txt > /tmp/expected.sha256 \
+    && test -s /tmp/expected.sha256 \
+    && curl -fsSL "https://softwaredownload.futunn.com/${file}" -o "/tmp/${file}" \
+    && sha256sum -c /tmp/expected.sha256 \
+    && tar -xzf "/tmp/${file}" \
+    && rm "/tmp/${file}"
 
 # hadolint ignore=DL3006
 FROM base-${TARGETARCH:-amd64} AS final
