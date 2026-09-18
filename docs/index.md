@@ -5,7 +5,7 @@ nav_order: 1
 permalink: /
 ---
 
-# FutuOpenD Docke
+# FutuOpenD Docker
 
 Docker build for [FutuOpenD](https://openapi.futunn.com/futu-api-doc/) - the local gateway for Futu's trading API.
 
@@ -29,7 +29,7 @@ docker run -d --name futuopend \
   shing1211/futuopend:latest
 ```
 
-The container exposes `11111` (quote API), `11112` (trade API), and `22222` (Telnet debug/2FA). OpenD reads its config from `/usr/local/bin/FutuOpenD.xml`, and resolves `${VAR}` placeholders itself, so it can be driven entirely from environment variables. See the [deployment guide](https://github.com/shing1211/futuopend-deploy) for a ready-to-use template.
+The container exposes `11111` (quote/trade API), `11112` (WebSocket, disabled by default), and `22222` (Telnet debug/2FA). OpenD reads its config from `/usr/local/bin/FutuOpenD.xml`, and the entrypoint renders `${VAR}` placeholders via `envsubst` before startup, so it can be driven entirely from environment variables. See the [deployment guide](https://github.com/shing1211/futuopend-deploy) for a ready-to-use template.
 
 ## Login (FutuOpenD 10.10+)
 
@@ -47,9 +47,11 @@ FutuOpenD 10.10+ **no longer reads `login_account` / `login_pwd` from `FutuOpenD
 
    If Futu challenges the device (`Waiting for phone verify code...`), submit the code over Telnet port `22222`.
 
-2. **Subsequent starts.** Set `FUTU_ACCOUNT` — the entrypoint passes `-login_account=<id> -login_by_remember=1`, and OpenD logs in from the cached credential.
+2. **Subsequent starts.** Set `FUTU_ACCOUNT` — the entrypoint passes `-login_account=<id> -login_by_remember=1 -area_code=<code>` (area code defaults to `+852`, override with `FUTU_AREA_CODE`), and OpenD logs in from the cached credential.
 
 The `futuopend-data` volume holds the cached session — **do not delete it**, or the one-time login is required again. A bare `docker run` without a config mount uses the image's built-in defaults (`ip 127.0.0.1`, Telnet disabled).
+
+To enable the WebSocket endpoint, set `FUTU_WS_PORT` (optionally `FUTU_WS_IP`, default `0.0.0.0`); it is off by default.
 
 ## Documentation
 
@@ -63,6 +65,6 @@ The `futuopend-data` volume holds the cached session — **do not delete it**, o
 - [Docker Hub](https://hub.docker.com/r/shing1211/futuopend)
 - [Discussions](https://github.com/shing1211/futuopend/discussions)
 
-## Disclaime
+## Disclaimer
 
 Unofficial community packaging. Not affiliated with, endorsed by, or supported by Futu Securities or moomoo. Trading involves risk; use at your own risk.

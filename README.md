@@ -1,4 +1,4 @@
-# FutuOpenD Docke
+# FutuOpenD Docker
 
 > Docker build for [FutuOpenD](https://openapi.futunn.com/futu-api-doc/) — the local gateway for Futu's trading API.
 
@@ -97,10 +97,11 @@ wget -O Futu_OpenD_10.11.7108_Ubuntu18.04.tar.gz \
 
 This repo builds the image; for deployment (compose, config template, TLS, monitoring) see [futuopend-deploy](https://github.com/shing1211/futuopend-deploy).
 
-- **Ports:** `11111` quote API, `11112` trade API, `22222` Telnet debug/2FA.
-- **Config:** OpenD reads `/usr/local/bin/FutuOpenD.xml`; it resolves `${VAR}` placeholders itself.
-- **Login (10.10+):** `login_account`/`login_pwd` are no longer read from the XML. Do a one-time interactive login (run without `FUTU_ACCOUNT`, with `-it`) and choose *remember*; thereafter set `FUTU_ACCOUNT` and the entrypoint passes `-login_account=<id> -login_by_remember=1`. The cached session lives in the `futuopend-data` volume — do not delete it.
+- **Ports:** `11111` quote/trade API, `11112` WebSocket (off by default), `22222` Telnet debug/2FA.
+- **Config:** OpenD reads `/usr/local/bin/FutuOpenD.xml`; the entrypoint renders `${VAR}` placeholders via `envsubst` before startup.
+- **Login (10.10+):** `login_account`/`login_pwd` are no longer read from the XML. Do a one-time interactive login (run without `FUTU_ACCOUNT`, with `-it`) and choose *remember*; thereafter set `FUTU_ACCOUNT` and the entrypoint passes `-login_account=<id> -login_by_remember=1 -area_code=<code>` (default `+852`; override with `FUTU_AREA_CODE`). The cached session lives in the `futuopend-data` volume — do not delete it.
 - **2FA:** submit SMS/CAPTCHA over Telnet `22222` (`input_phone_verify_code -code=…` / `input_pic_verify_code -code=…`).
+- **WebSocket:** off by default; set `FUTU_WS_PORT` to enable (optional `FUTU_WS_IP`, default `0.0.0.0`).
 - **Entrypoint:** forwards extra CLI args, so `docker run … image -lang=en -api_port=11111` works.
 
 ---
@@ -115,7 +116,7 @@ This repo builds the image; for deployment (compose, config template, TLS, monit
 
 ---
 
-## Disclaime
+## Disclaimer
 
 **Unofficial community packaging.** Not affiliated with Futu Securities. Trading involves risk — use at your own risk.
 

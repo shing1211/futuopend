@@ -49,8 +49,9 @@ ARG FUTU_OPEND_VER
 ENV TZ=Asia/Hong_Kong \
     FUTU_OPEND_VER=${FUTU_OPEND_VER}
 
+# procps-ng: pgrep for HEALTHCHECK. gettext: envsubst renders the config template.
 # hadolint ignore=DL3041
-RUN dnf install -y procps-ng \
+RUN dnf install -y procps-ng gettext \
     && dnf clean all \
     && rm -rf /var/cache/dnf
 

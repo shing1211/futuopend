@@ -52,6 +52,12 @@ ARG FUTU_OPEND_VER
 ENV TZ=Asia/Hong_Kong \
     FUTU_OPEND_VER=${FUTU_OPEND_VER}
 
+# envsubst renders the mounted FutuOpenD.xml template at container start.
+# hadolint ignore=DL3008
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends gettext-base \
+    && rm -rf /var/lib/apt/lists/*
+
 RUN useradd -m futuopend \
     && mkdir -p /run/secrets \
     && chown futuopend:futuopend /run/secrets \

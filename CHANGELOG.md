@@ -12,6 +12,8 @@ All notable changes to this project follow [Keep a Changelog](https://keepachang
 - `FutuOpenD.xml` byte-identical to 10.10.7008 (no schema changes)
 - Ubuntu base image upgraded from 24.04 LTS to 26.04 LTS (digest-pinned)
 - Expose port `22222` (Telnet debug/2FA)
+- `entrypoint.sh`: renders a mounted `FutuOpenD.xml` template with `envsubst` (FutuOpenD does not expand env vars); ships `gettext-base`/`gettext`
+- `entrypoint.sh`: `-area_code` now defaults to `+852` (override via `FUTU_AREA_CODE`); optional WebSocket via `FUTU_WS_PORT`/`FUTU_WS_IP` (`-websocket_port`/`-websocket_ip`); runs in the foreground (`-no_monitor=1`)
 
 ### Fixed
 - `entrypoint.sh`: `FUTU_ACCOUNT` is now optional — set it to start with `-login_account=<id> -login_by_remember=1`; leave it unset to start OpenD for interactive first login and print a hint (previously the container exited with status 1). Extra CLI arguments after the image name are forwarded to OpenD.
