@@ -10,9 +10,6 @@ on:
         description: 'Base version to start scanning from (default: current in Dockerfile)'
         required: false
         default: ''
-  push:
-    branches:
-      - main
 
 permissions:
   contents: write
