@@ -1,4 +1,8 @@
-# FutuOpenD Docker — Architecture
+---
+title: Architecture
+layout: default
+nav_order: 2
+---
 
 > FutuOpenD in a container. Cloud VM, NAS, Raspberry Pi — anywhere Docker runs.
 
