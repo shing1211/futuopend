@@ -60,11 +60,20 @@ if [ -f "$CONFIG" ] && grep -q '\${' "$CONFIG" 2>/dev/null; then
 fi
 
 DATA_DIR="/home/futuopend/.com.futunn.FutuOpenD"
-# FutuOpenD writes one file per account here once a login has been remembered.
+# FutuOpenD records one entry per account here once a login has been remembered.
+# The filename is "<account><region>()" -- for example "<account-id>()", or
+# "<account-id>(hk)" when a region is set. It is NOT the bare account number.
 # Presence check only: the contents are an encrypted blob, so validity cannot be
-# verified without attempting a real login. It reliably catches the common failure
-# (remember-login on a fresh or wiped volume) without guessing.
+# verified without attempting a real login.
 ACCMAP_DIR="${DATA_DIR}/F3CNN/UserAccMap"
+
+has_cached_credential() {
+    local acct="${1:-}"
+    [ -n "$acct" ] || return 1
+    # The literal "(" after the account stops a shorter account number from
+    # matching a longer one that merely starts with the same digits.
+    compgen -G "${ACCMAP_DIR}/${acct}(*" >/dev/null 2>&1
+}
 
 # remember-login landed in FutuOpenD 10.10. Older builds silently ignore
 # -login_by_remember and fall back to password auth, which under a restart
@@ -96,16 +105,18 @@ if [ -n "${FUTU_ACCOUNT:-}" ]; then
 EOF
         exit 78
     fi
-    if [ "${FUTU_SKIP_CRED_CHECK:-0}" != "1" ] && [ ! -e "${ACCMAP_DIR}/${FUTU_ACCOUNT}" ]; then
+    # Advisory, not fatal. The version gate above keys off a build-time ENV and
+    # cannot misfire on data layout; this one reads runtime files, so any change
+    # to FutuOpenD's on-disk naming would otherwise block a legitimate start.
+    if [ "${FUTU_SKIP_CRED_CHECK:-0}" != "1" ] && ! has_cached_credential "$FUTU_ACCOUNT"; then
         cat >&2 <<EOF
-[entrypoint] FATAL: no remembered credential for account ${FUTU_ACCOUNT} in the data volume.
-[entrypoint] Starting anyway would exit immediately and, under a restart policy, retry
-[entrypoint] forever. Refusing to start.
-[entrypoint] Fix: run the first login once, with FUTU_ACCOUNT unset and the telnet port
-[entrypoint] published, then set FUTU_ACCOUNT and start normally.
-[entrypoint] To override this check: FUTU_SKIP_CRED_CHECK=1
+[entrypoint] WARNING: no remembered credential found for account ${FUTU_ACCOUNT}
+[entrypoint] in ${ACCMAP_DIR} (looked for "${FUTU_ACCOUNT}("*).
+[entrypoint] Starting anyway. If FutuOpenD reports "Unable to find remembered
+[entrypoint] password", the session is genuinely not cached and a restart policy
+[entrypoint] will retry -- see the first-login steps in futuopend-deploy.
+[entrypoint] To silence this warning: FUTU_SKIP_CRED_CHECK=1
 EOF
-        exit 78
     fi
 fi
 
