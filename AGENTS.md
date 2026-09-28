@@ -84,6 +84,11 @@ gh workflow run version-bump.yml -f version=10.12.7208 --repo shing1211/futuopen
 ## Gotchas
 
 - CRLF line endings in shell scripts are auto-fixed during build via `sed`
+- **Login prompts use two different channels.** "Please enter account" is printed to stdout and read from stdin (needs a TTY); "Please enter password" and any SMS/CAPTCHA prompt are delivered to **telnet** clients, and telnet commands need `\r\n`. Without a published telnet port (`-p 127.0.0.1:22222:22222` on `compose run`) the first login appears to hang silently after the account is entered. `entrypoint.sh` now prints this on every interactive start.
+- **A remembered credential leaves a marker** at `~/.com.futunn.FutuOpenD/F3CNN/UserAccMap/<account>`. Presence is a reliable signal that a first login has been completed; the contents are an encrypted blob and cannot be validated without a real login.
+- `FUTU_OPEND_VER` is baked in as an `ENV` at build time, so it reflects the binary actually installed. The entrypoint uses it to refuse to run remember-login on pre-10.10 builds.
+- The image has **no curl, wget, nc, or python3** — only `bash`, `pgrep`, and `envsubst`. Use `bash -c 'exec 3<>/dev/tcp/host/port'` for health probes.
+- `HEALTHCHECK` must use shell form for `${FUTU_API_PORT}` to expand at runtime; Docker stores `CMD-SHELL` verbatim rather than substituting at build time.
 
 ## Project Notes
 

@@ -79,5 +79,5 @@ EXPOSE 11111 11112 22222
 VOLUME /home/futuopend/.com.futunn.FutuOpenD
 # hadolint ignore=DL3025
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-    CMD pgrep -x FutuOpenD || exit 1
+    CMD bash -c 'exec 3<>/dev/tcp/127.0.0.1/${FUTU_API_PORT:-11111}' || exit 1
 CMD ["/usr/local/bin/entrypoint.sh"]
