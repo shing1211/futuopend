@@ -59,6 +59,56 @@ if [ -f "$CONFIG" ] && grep -q '\${' "$CONFIG" 2>/dev/null; then
     CONFIG=/tmp/FutuOpenD.xml
 fi
 
+DATA_DIR="/home/futuopend/.com.futunn.FutuOpenD"
+# FutuOpenD writes one file per account here once a login has been remembered.
+# Presence check only: the contents are an encrypted blob, so validity cannot be
+# verified without attempting a real login. It reliably catches the common failure
+# (remember-login on a fresh or wiped volume) without guessing.
+ACCMAP_DIR="${DATA_DIR}/F3CNN/UserAccMap"
+
+# remember-login landed in FutuOpenD 10.10. Older builds silently ignore
+# -login_by_remember and fall back to password auth, which under a restart
+# policy retries on every crash and burns Futu login attempts.
+supports_remember_login() {
+    local ver="${FUTU_OPEND_VER:-}"
+    [ -n "$ver" ] || return 0
+    local major="${ver%%.*}"
+    local minor="${ver#*.}"; minor="${minor%%.*}"
+    case "${major}${minor}" in
+        ''|*[!0-9]*) return 0 ;;
+    esac
+    [ "$major" -gt 10 ] && return 0
+    [ "$major" -lt 10 ] && return 1
+    [ "$minor" -ge 10 ] && return 0
+    return 1
+}
+
+if [ -n "${FUTU_ACCOUNT:-}" ]; then
+    # Not overridable: this is the guard against permanently consuming login attempts.
+    if ! supports_remember_login; then
+        cat >&2 <<EOF
+[entrypoint] FATAL: FutuOpenD ${FUTU_OPEND_VER} predates remember-login (10.10+).
+[entrypoint] With FUTU_ACCOUNT set, this build ignores -login_by_remember and falls back
+[entrypoint] to password auth, retrying on every restart. That consumes Futu login
+[entrypoint] attempts and can lock the account. Refusing to start.
+[entrypoint] Fix: pull a current image (docker compose pull), or unset FUTU_ACCOUNT and
+[entrypoint] complete the interactive first login on a 10.10+ build.
+EOF
+        exit 78
+    fi
+    if [ "${FUTU_SKIP_CRED_CHECK:-0}" != "1" ] && [ ! -e "${ACCMAP_DIR}/${FUTU_ACCOUNT}" ]; then
+        cat >&2 <<EOF
+[entrypoint] FATAL: no remembered credential for account ${FUTU_ACCOUNT} in the data volume.
+[entrypoint] Starting anyway would exit immediately and, under a restart policy, retry
+[entrypoint] forever. Refusing to start.
+[entrypoint] Fix: run the first login once, with FUTU_ACCOUNT unset and the telnet port
+[entrypoint] published, then set FUTU_ACCOUNT and start normally.
+[entrypoint] To override this check: FUTU_SKIP_CRED_CHECK=1
+EOF
+        exit 78
+    fi
+fi
+
 args=("-cfg_file=${CONFIG}")
 if [ -n "${FUTU_ACCOUNT:-}" ]; then
     echo "[entrypoint] Starting FutuOpenD with remember-login for account: ${FUTU_ACCOUNT}"
@@ -67,6 +117,16 @@ if [ -n "${FUTU_ACCOUNT:-}" ]; then
 else
     echo "[entrypoint] FUTU_ACCOUNT not set. Starting FutuOpenD for interactive first login."
     echo "[entrypoint] Log in once and choose remember; the credential is cached in the data volume."
+    cat <<EOF
+[entrypoint] Note: the login prompts arrive on two different channels.
+[entrypoint]   - "Please enter account" is printed here and read from stdin, so a TTY is required.
+[entrypoint]   - "Please enter password" (and any SMS/CAPTCHA prompt) is delivered to
+[entrypoint]     clients on the telnet port. Publish it to reach it, e.g.
+[entrypoint]       docker compose run --rm -it -p 127.0.0.1:22222:22222 -e FUTU_ACCOUNT= futuopend
+[entrypoint]     then, in a second terminal:  telnet 127.0.0.1 22222
+[entrypoint]   Telnet commands need a carriage return and newline (\\r\\n).
+[entrypoint]   Without a reachable telnet port the login appears to hang after the account.
+EOF
 fi
 
 if [ -n "${FUTU_WS_PORT:-}" ]; then
