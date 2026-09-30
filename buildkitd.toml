@@ -1,0 +1,73 @@
+# BuildKit configuration for the `multiplatform` builder that dockerbuild.sh
+# creates. Passed via `docker buildx create --buildkitd-config`, so the policy travels
+# with the script that owns the builder instead of living on whichever machine
+# happened to build last.
+#
+# WHY THIS FILE EXISTS
+#
+# `docker buildx create --driver docker-container` with no --buildkitd-config runs
+# BuildKit's stock GC policy, which is "keep everything, forever". That is the
+# documented default, not a bug, but it is a bad default for a builder used for
+# a handful of tagged releases: each `--platform` build in dockerbuild.sh's
+# multi-arch path is a separate buildx invocation, and each one leaves every
+# layer it pulled or produced in the cache indefinitely. On this host that
+# accumulated to 79 GB — 93% of all of /var/lib/docker — of which BuildKit
+# itself reported 100% reclaimable, because none of it was referenced by a live
+# build or a pinned image.
+#
+# The fix belongs here rather than in a periodic `docker buildx prune` cron
+# because dockerbuild.sh RECREATES this builder whenever it is missing:
+#
+#     if ! docker buildx inspect multiplatform >/dev/null 2>&1; then
+#         docker buildx create --name multiplatform --driver docker-container --use
+#     fi
+#
+# A cron outside the repo, or a hand-made config not referenced by that line,
+# would be discarded the next time the builder went missing and the 79 GB would
+# simply come back. Capping it at creation is the only version of this fix that
+# survives.
+#
+# THE CAPS
+#
+# maxUsedSpace 20GB — roughly four to six multi-arch builds' worth of layers.
+#   A single variant+arch build here is a few hundred MB; the whole 79 GB was
+#   six months of unpruned history, not one build's working set. A cap set far
+#   above real usage would be a cap that never fires.
+#
+# maxAge 168h (7 days) — bounds the tail independently of the size cap. The two
+#   are not redundant: the size cap alone cannot reclaim a burst of large images
+#   that are under the cap but ancient, and the age cap alone cannot stop a
+#   single day from filling the disk.
+#
+# minFreeSpace 5GB — BuildKit prunes harder as the filesystem fills, so this is
+#   the backstop that protects a small /var/lib/docker even if the two caps above
+#   are both raised later.
+#
+# reservedSpace 2GB — the floor BuildKit's own accounting will not prune below,
+#   so a hot multi-arch build that is mid-pull is not destroyed underneath
+#   itself. Must stay below minFreeSpace, and well below the 119 GB this host
+#   had free, or the two would fight.
+#
+# VERIFICATION
+#
+# BuildKit does not echo its effective GC configuration at startup, and a TOML
+# decoder silently ignores a misspelled key. `docker buildx inspect` shows
+# platforms, not GC. So neither the presence of this file nor a successful
+# builder start proves the caps took effect. The only real check is
+# behavioural: run a multi-arch build, then
+#
+#     docker exec buildx_buildkit_multiplatform0 buildctl du
+#
+# and confirm the total stays near maxUsedSpace rather than climbing. If it
+# climbs, a key below is being ignored and the explicit
+# `[worker.oci.gcpolicy]` array form is the fallback.
+#
+# See docs/ or the AGENTS.md "Build" section for the build commands this
+# config exists to serve.
+
+[worker.oci]
+  maxUsedSpace = "20GB"
+  maxAge = "168h"
+  minFreeSpace = "5GB"
+  reservedSpace = "2GB"
+  gc = true

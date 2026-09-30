@@ -43,6 +43,21 @@
 #
 set -euo pipefail
 
+# Absolute path of this script's directory, so the BuildKit config this script
+# passes by path resolves the same whether the script is invoked as
+# ./dockerbuild.sh or by absolute path, and regardless of the caller's working
+# directory. Everything else here stays relative to the repo root, because the
+# build context is ".".
+#
+# KNOWN LIMITATION: this is dirname of the path AS INVOKED, not the real
+# location on disk. Bash does not follow symlinks here, so invoking this script
+# through a symlink in another directory (say /usr/local/bin/dockerbuild.sh ->
+# this repo) sets SCRIPT_DIR to the symlink's directory, where buildkitd.toml
+# does not exist, and the multi-arch build fails on the missing config. Run this
+# script from the repository. If a symlinked entry point is ever wanted, resolve
+# it here with `readlink -f` instead of `cd "$(dirname ...)"`.
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
 IMAGE="shing1211/futuopend"
 VARIANT="${1:-all}"
 VERSION="${2:-10.11.7108}"
@@ -84,7 +99,26 @@ check_tarball() {
 
 setup_buildx() {
     if ! docker buildx inspect multiplatform &>/dev/null 2>&1; then
-        docker buildx create --name multiplatform --driver docker-container --use
+        # --buildkitd-config is not optional. A docker-container builder created
+        # without it runs BuildKit's stock GC policy, which is "keep everything,
+        # forever", and this script is the only thing that ever builds through
+        # it. On this host that policy had accumulated 79 GB of cache — 93% of
+        # all of /var/lib/docker — while BuildKit reported 100% of it reclaimable.
+        #
+        # The policy has to be attached HERE, at creation, rather than in a cron
+        # or a config file nobody references: this function recreates the builder
+        # from scratch whenever it is missing, and a builder recreated without
+        # this flag goes straight back to keep-everything. See buildkitd.toml
+        # for the caps and for why they cannot be verified by inspecting the
+        # builder.
+        #
+        # The flag is spelled --buildkitd-config because that is what
+        # `buildx create --help` documents. A shorter --config also happens to
+        # be accepted today, but it is an undocumented alias and is not relied
+        # on here.
+        docker buildx create --name multiplatform --driver docker-container \
+            --buildkitd-config "$SCRIPT_DIR/buildkitd.toml" \
+            --use
     else
         docker buildx use multiplatform
     fi
