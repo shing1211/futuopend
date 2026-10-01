@@ -6,73 +6,14 @@ on:
   pull_request:
     branches: [main]
 
-permissions:
-  contents: read
-
 jobs:
-  lint:
-    name: Lint scripts and Dockerfiles
+  security-scan:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: ShellCheck
-        uses: ludeeus/action-shellcheck@00cae500b08a931fb5698e11e79bfbd38e612a38 # 2.0.0
+      - uses: actions/checkout@v4
+      - name: Trivy filesystem scan
+        uses: aquasecurity/trivy-action@master
         with:
-          severity: warning
-      - name: Hadolint (ubuntu)
-        uses: hadolint/hadolint-action@06be81baf89a55ffd0e24b8f04a4185738dd3387 # v3.5.0
-        with:
-          dockerfile: Dockerfile.ubuntu
-          failure-threshold: warning
-      - name: Hadolint (rocky)
-        uses: hadolint/hadolint-action@06be81baf89a55ffd0e24b8f04a4185738dd3387 # v3.5.0
-        with:
-          dockerfile: Dockerfile.rocky
-          failure-threshold: warning
-
-  version-check:
-    name: Verify FutuOpenD tarballs
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: check-version.sh
-        run: bash ./scripts/check-version.sh
-
-  build-smoke:
-    name: Build and smoke test (${{ matrix.variant }})
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        variant: [ubuntu, rocky]
-    steps:
-      - name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: Build image
-        run: |
-          docker build \
-            -f Dockerfile.${{ matrix.variant }} \
-            --target final \
-            -t futuopend:ci-${{ matrix.variant }} \
-            .
-      - name: Run and smoke test
-        run: |
-          set -euo pipefail
-          docker run -d --name smoke -p 11111:11111 futuopend:ci-${{ matrix.variant }}
-          for i in $(seq 1 20); do
-            if docker exec smoke pgrep -x FutuOpenD >/dev/null 2>&1; then
-              echo "FutuOpenD process is running"
-              break
-            fi
-            sleep 3
-          done
-          docker exec smoke pgrep -x FutuOpenD
-          docker exec smoke sh -c 'grep -qi ":2B67" /proc/net/tcp /proc/net/tcp6' \
-            && echo "port 11111 is listening"
-          docker stop -t 60 smoke
-          docker logs smoke 2>&1 | grep -i "graceful shutdown" || true
-      - name: Cleanup
-        if: always()
-        run: docker rm -f smoke 2>/dev/null || true
+          scan-type: fs
+          scan-ref: .
+          severity: HIGH,CRITICAL

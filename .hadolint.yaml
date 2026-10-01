@@ -1,0 +1,5 @@
+# DL3066: Non-numeric user-id may not be resolvable by host system.
+# We use "futuopend" (name, not UID) intentionally for clarity.
+# The image is multi-platform and the name is portable.
+ignored:
+  - DL3066
