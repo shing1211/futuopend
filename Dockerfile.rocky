@@ -57,8 +57,6 @@ RUN dnf install -y procps-ng gettext \
     && rm -rf /var/cache/dnf
 
 RUN useradd -m futuopend \
-    && mkdir -p /run/secrets \
-    && chown futuopend:futuopend /run/secrets \
     && mkdir -p /home/futuopend/.com.futunn.FutuOpenD \
     && chown futuopend:futuopend /home/futuopend/.com.futunn.FutuOpenD
 
